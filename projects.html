@@ -2,16 +2,122 @@
 <html>
 
 <head>
-<title>Projects</title>
+
+<meta charset="UTF-8">
+<title>Projects Management</title>
+
+<style>
+
+body{
+font-family:Arial;
+margin:40px;
+background:#f4f6f9;
+}
+
+input,button{
+padding:8px;
+margin:5px;
+}
+
+table{
+width:100%;
+background:white;
+border-collapse:collapse;
+margin-top:20px;
+}
+
+th,td{
+padding:10px;
+border-bottom:1px solid #eee;
+}
+
+</style>
+
 </head>
 
 <body>
 
 <h1>Projects Management</h1>
 
-<p>Project database akan tampil di sini.</p>
-
 <a href="index.html">Back to Dashboard</a>
+
+<h2>Add New Project</h2>
+
+<input id="name" placeholder="Project Name">
+<input id="client" placeholder="Client">
+<input id="status" placeholder="Status">
+
+<button onclick="addProject()">Add Project</button>
+
+<h2>Project List</h2>
+
+<table>
+
+<thead>
+<tr>
+<th>Project</th>
+<th>Client</th>
+<th>Status</th>
+</tr>
+</thead>
+
+<tbody id="projectTable"></tbody>
+
+</table>
+
+<script type="module">
+
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
+
+const supabase = createClient(
+"https://fzplvluohnbuggvdqkkw.supabase.co",
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+)
+
+async function loadProjects(){
+
+const { data } = await supabase
+.from("projects")
+.select("*")
+
+let table = document.getElementById("projectTable")
+table.innerHTML=""
+
+data.forEach(p => {
+
+table.innerHTML += `
+<tr>
+<td>${p.project_name ?? ""}</td>
+<td>${p.client_name ?? ""}</td>
+<td>${p.project_status ?? ""}</td>
+</tr>
+`
+
+})
+
+}
+
+window.addProject = async function(){
+
+let name = document.getElementById("name").value
+let client = document.getElementById("client").value
+let status = document.getElementById("status").value
+
+await supabase
+.from("projects")
+.insert([{
+project_name:name,
+client_name:client,
+project_status:status
+}])
+
+loadProjects()
+
+}
+
+loadProjects()
+
+</script>
 
 </body>
 </html>
