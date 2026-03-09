@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Enviro Strategic Platform</title>
+
+<style>
+
+body{
+font-family:Arial;
+margin:0;
+background:#f4f6f9;
+}
+
+nav{
+background:#1e293b;
+padding:15px;
+}
+
+nav a{
+color:white;
+margin-right:20px;
+text-decoration:none;
+font-weight:bold;
+}
+
+.container{
+padding:30px;
+}
+
+.cards{
+display:flex;
+gap:20px;
+margin-bottom:30px;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:10px;
+width:200px;
+box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+
+table{
+width:100%;
+background:white;
+border-collapse:collapse;
+}
+
+th,td{
+padding:12px;
+border-bottom:1px solid #eee;
+text-align:left;
+}
+
+th{
+background:#f1f5f9;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<nav>
+
+<a href="index.html">Dashboard</a>
+<a href="projects.html">Projects</a>
+<a href="rfi.html">RFI Tracker</a>
+<a href="proposals.html">Proposals</a>
+<a href="monitoring.html">Monitoring</a>
+<a href="content.html">Content</a>
+
+</nav>
+
+<div class="container">
+
+<h1>Enviro Strategic Dashboard</h1>
+
+<div class="cards">
+
+<div class="card">
+<h3>Total Projects</h3>
+<p id="totalProjects">0</p>
+</div>
+
+<div class="card">
+<h3>Total RFI</h3>
+<p id="totalRFI">0</p>
+</div>
+
+<div class="card">
+<h3>Total Proposals</h3>
+<p id="totalProposals">0</p>
+</div>
+
+</div>
+
+<h2>Project List</h2>
+
+<table>
+
+<thead>
+
+<tr>
+<th>Project</th>
+<th>Client</th>
+<th>Status</th>
+</tr>
+
+</thead>
+
+<tbody id="projectTable">
+
+</tbody>
+
+</table>
+
+</div>
+
+<script type="module">
+
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
+
+const supabase = createClient(
+"https://fzplvluohnbuggvdqkkw.supabase.co",
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6cGx2bHVvaG5idWdndmRxa2t3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5OTE4NTMsImV4cCI6MjA4ODU2Nzg1M30.Q3BDZRWJhai63P_yWAbt-TTNqqtnS45zjfevDHbIj1U"
+)
+
+async function loadDashboard(){
+
+const { data:projects } = await supabase
+.from("projects")
+.select("*")
+
+document.getElementById("totalProjects").innerText = projects.length
+
+let table = document.getElementById("projectTable")
+
+projects.forEach(p=>{
+
+table.innerHTML += `
+<tr>
+<td>${p.project_name ?? ""}</td>
+<td>${p.client_name ?? ""}</td>
+<td>${p.project_status ?? ""}</td>
+</tr>
+`
+
+})
+
+const { data:rfi } = await supabase
+.from("rfi_inquiries")
+.select("*")
+
+document.getElementById("totalRFI").innerText = rfi.length
+
+const { data:proposal } = await supabase
+.from("proposal_requests")
+.select("*")
+
+document.getElementById("totalProposals").innerText = proposal.length
+
+}
+
+loadDashboard()
+
+</script>
+
+</body>
+</html>
