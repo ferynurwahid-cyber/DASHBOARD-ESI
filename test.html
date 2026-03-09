@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Test Supabase</title>
+</head>
+
+<body>
+
+<h2>Supabase Connection Test</h2>
+
+<div id="result"></div>
+
+<script type="module">
+
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
+
+const supabase = createClient(
+"https://fzplvluohnbuggvdqkkw.supabase.co",
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+)
+
+async function test(){
+
+const { data, error } = await supabase
+.from("projects")
+.select("*")
+
+if(error){
+
+document.getElementById("result").innerText = error.message
+
+}else{
+
+document.getElementById("result").innerText = "Connected! Projects found: " + data.length
+
+}
+
+}
+
+test()
+
+</script>
+
+</body>
+</html>
