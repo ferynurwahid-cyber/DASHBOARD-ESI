@@ -1,12 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Enviro Strategic Platform</title>
+<title>Enviro Strategic Dashboard</title>
 
 <style>
 
@@ -55,11 +52,6 @@ border-collapse:collapse;
 th,td{
 padding:12px;
 border-bottom:1px solid #eee;
-text-align:left;
-}
-
-th{
-background:#f1f5f9;
 }
 
 </style>
@@ -69,14 +61,12 @@ background:#f1f5f9;
 <body>
 
 <nav>
-
 <a href="index.html">Dashboard</a>
 <a href="projects.html">Projects</a>
 <a href="rfi.html">RFI Tracker</a>
 <a href="proposals.html">Proposals</a>
 <a href="monitoring.html">Monitoring</a>
 <a href="content.html">Content</a>
-
 </nav>
 
 <div class="container">
@@ -107,18 +97,14 @@ background:#f1f5f9;
 <table>
 
 <thead>
-
 <tr>
 <th>Project</th>
 <th>Client</th>
 <th>Status</th>
 </tr>
-
 </thead>
 
-<tbody id="projectTable">
-
-</tbody>
+<tbody id="projectTable"></tbody>
 
 </table>
 
@@ -130,20 +116,20 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 const supabase = createClient(
 "https://fzplvluohnbuggvdqkkw.supabase.co",
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6cGx2bHVvaG5idWdndmRxa2t3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5OTE4NTMsImV4cCI6MjA4ODU2Nzg1M30.Q3BDZRWJhai63P_yWAbt-TTNqqtnS45zjfevDHbIj1U"
+"YOUR_SUPABASE_KEY"
 )
 
 async function loadDashboard(){
 
-const { data:projects } = await supabase
+const { data } = await supabase
 .from("projects")
 .select("*")
 
-document.getElementById("totalProjects").innerText = projects.length
+document.getElementById("totalProjects").innerText = data.length
 
 let table = document.getElementById("projectTable")
 
-projects.forEach(p=>{
+data.forEach(p=>{
 
 table.innerHTML += `
 <tr>
@@ -154,18 +140,6 @@ table.innerHTML += `
 `
 
 })
-
-const { data:rfi } = await supabase
-.from("rfi_inquiries")
-.select("*")
-
-document.getElementById("totalRFI").innerText = rfi.length
-
-const { data:proposal } = await supabase
-.from("proposal_requests")
-.select("*")
-
-document.getElementById("totalProposals").innerText = proposal.length
 
 }
 
