@@ -1,17 +1,147 @@
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script>
-const supabase = window.supabase.createClient(
-"https://fzplvluohnbuggvdqkkw.supabase.co",
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6cGx2bHVvaG5idWdndmRxa2t3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5OTE4NTMsImV4cCI6MjA4ODU2Nzg1M30.Q3BDZRWJhai63P_yWAbt-TTNqqtnS45zjfevDHbIj1U"
-)
-</script>
 <!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ESI Pipeline — Enviro Strategic Indonesia · Data Enviro</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ── SUPABASE CONFIG ──────────────────────────────────
+const SUPA_URL = 'https://fzplvluohnbuggvdqkkw.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6cGx2bHVvaG5idWdndmRxa2t3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5OTE4NTMsImV4cCI6MjA4ODU2Nzg1M30.Q3BDZRWJhai63P_yWAbt-TTNqqtnS45zjfevDHbIj1U';
+const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+// Table name mapping: DB key → Supabase table
+const TABLE = {
+  rfi:       'rfi',
+  converted: 'converted',
+  rfp:       'rfp',
+  status:    'status_tracker',
+  approved:  'approved',
+  projects:  'projects',
+  monev:     'monev',
+  weekly:    'weekly',
+  projreport:'project_report',
+  resdoc:    'research_doc'
+};
+
+// Field mapping: camelCase (local) → snake_case (supabase)
+const FIELD_MAP = {
+  rfi: {
+    perusahaan:'perusahaan', industri:'industri', pic:'pic', jabatan:'jabatan',
+    kontak:'kontak', sumber:'sumber', kebutuhan:'kebutuhan', lokasi:'lokasi',
+    status:'status', potensi:'potensi', nextAction:'next_action', catatan:'catatan'
+  },
+  converted: {
+    rfiIndex:'rfi_id', klien:'klien', pic:'pic', kontak:'kontak',
+    kebutuhan:'kebutuhan', lokasi:'lokasi', tglConverted:'tgl_converted',
+    refRfp:'status_rfp', statusRfp:'status_rfp', catatan:'catatan'
+  },
+  rfp: {
+    klien:'klien', pic:'pic', sektor:'sektor', layanan:'layanan',
+    jumlah:'jumlah', lokasi:'lokasi', deadline:'deadline',
+    targetMulai:'target_mulai', prioritas:'prioritas', output:'output', catatan:'catatan'
+  },
+  status: {
+    noRef:'no_ref', klien:'klien', layanan:'layanan', sektor:'sektor',
+    deadline:'deadline', prioritas:'prioritas', tglRequest:'tgl_request',
+    tglKirim:'tgl_kirim', status:'status', nilai:'nilai',
+    feedback:'feedback', tindakLanjut:'tindak_lanjut'
+  },
+  approved: {
+    noRef:'no_ref', klien:'klien', layanan:'layanan', nilai:'nilai',
+    tglDisetujui:'tgl_disetujui', pm:'pm', tglMulai:'tgl_mulai',
+    statusOnboarding:'status_onboarding', linkedProject:'catatan', catatan:'catatan'
+  },
+  projects: {
+    nama:'nama', jenisRiset:'jenis_riset', klien:'klien', pm:'pm',
+    tglMulai:'tgl_mulai', deadline:'deadline', timPeneliti:'tim_peneliti',
+    lokasi:'lokasi', nilai:'nilai', progress:'progress', fase:'fase',
+    status:'status', catatan:'catatan'
+  },
+  monev: {
+    namaProyek:'nama_proyek', pm:'pm', jenisRiset:'jenis_riset',
+    g1:'g1', g2:'g2', g3:'g3', g4:'g4', keputusan:'keputusan', catatan:'catatan'
+  },
+  weekly: {
+    namaProyek:'nama_proyek', pm:'pm', minggu:'minggu', progress:'progress',
+    tglUpdate:'tgl_update', sudah:'sudah', rencana:'rencana',
+    kendala:'kendala', bantuanBd:'bantuan_bd'
+  },
+  projreport: {
+    jenisRiset:'jenis_riset', client:'client', pm:'pm', lokasi:'lokasi',
+    linkDraft:'link_draft', inputData:'input_data', bab1:'bab1', bab2:'bab2',
+    bab3:'bab3', bab4:'bab4', bab5:'bab5', status:'status', catatan:'catatan'
+  },
+  resdoc: {
+    judul:'judul', client:'client', lokasi:'lokasi', tglMulai:'tgl_mulai',
+    tglSelesai:'tgl_selesai', metodologi:'metodologi', researchOutput:'research_output',
+    researchOverview:'research_overview', temuan:'temuan', scope:'scope',
+    linkDok:'link_dok', catatan:'catatan'
+  }
+};
+
+// Convert local camelCase obj → supabase snake_case obj
+function toSupa(key, obj) {
+  const map = FIELD_MAP[key];
+  if (!map) return obj;
+  const out = {};
+  for (const [local, remote] of Object.entries(map)) {
+    if (obj[local] !== undefined && obj[local] !== '') out[remote] = obj[local];
+  }
+  return out;
+}
+
+// Convert supabase snake_case row → local camelCase obj
+function fromSupa(key, row) {
+  const map = FIELD_MAP[key];
+  if (!map) return row;
+  const rev = Object.fromEntries(Object.entries(map).map(([l,r])=>[r,l]));
+  const out = { _id: row.id };
+  for (const [remote, local] of Object.entries(rev)) {
+    if (row[remote] !== undefined) out[local] = row[remote] ?? '';
+  }
+  return out;
+}
+
+// Load all data from Supabase
+async function dbLoad() {
+  DB = { rfi:[], converted:[], rfp:[], status:[], approved:[], projects:[], monev:[], weekly:[], projreport:[], resdoc:[] };
+  const tables = Object.keys(TABLE);
+  await Promise.all(tables.map(async key => {
+    try {
+      const { data, error } = await supa.from(TABLE[key]).select('*').order('created_at', {ascending: true});
+      if (!error && data) DB[key] = data.map(r => fromSupa(key, r));
+    } catch(e) { console.warn('Load error', key, e); }
+  }));
+}
+
+// Save new row to Supabase
+async function dbInsert(key, obj) {
+  const row = toSupa(key, obj);
+  const { data, error } = await supa.from(TABLE[key]).insert(row).select().single();
+  if (error) { console.error('Insert error', key, error); toast('Gagal simpan: '+error.message, 'er'); return null; }
+  return data;
+}
+
+// Update existing row in Supabase
+async function dbUpdate(key, id, obj) {
+  const row = toSupa(key, obj);
+  const { error } = await supa.from(TABLE[key]).update(row).eq('id', id);
+  if (error) { console.error('Update error', key, error); toast('Gagal update: '+error.message, 'er'); return false; }
+  return true;
+}
+
+// Delete row from Supabase
+async function dbDelete(key, id) {
+  const { error } = await supa.from(TABLE[key]).delete().eq('id', id);
+  if (error) { console.error('Delete error', key, error); toast('Gagal hapus: '+error.message, 'er'); return false; }
+  return true;
+}
+
+function dbSave(k) { /* no-op, replaced by async Supabase calls */ }
+</script>
+
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -362,9 +492,41 @@ tr:hover td { background: #fafbfc; }
   z-index: 1;
 }
 
+
+/* ── LOADING OVERLAY ── */
+#loading-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(255,255,255,0.7);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  backdrop-filter: blur(2px);
+}
+#loading-overlay.on { display: flex; }
+.loading-spinner {
+  width: 40px; height: 40px;
+  border: 4px solid #e2e8f0;
+  border-top-color: #22c55e;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 13px; color: #64748b; font-weight: 500; }
+
 </style>
 </head>
 <body>
+
+<!-- LOADING OVERLAY -->
+<div id="loading-overlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Menyimpan data...</div>
+</div>
+
 
 <!-- SLIDESHOW BACKGROUND -->
 <div class="bg-slideshow">
@@ -640,66 +802,14 @@ tr:hover td { background: #fafbfc; }
 
 <script>
 // ── DATA ──────────────────────────────────────────────
-let DB = {
-rfi:[],
-converted:[],
-rfp:[],
-status:[],
-approved:[],
-projects:[],
-monev:[],
-weekly:[],
-projreport:[],
-resdoc:[]
-};
+const KEYS = {rfi:'e3_rfi',converted:'e3_cv',rfp:'e3_rfp',status:'e3_st',approved:'e3_ap',projects:'e3_pj',monev:'e3_mn',weekly:'e3_wk',projreport:'e4_pr',resdoc:'e4_rd'};
+let DB = {};
 let CUR_MODAL = null;
 let MODAL_CTX = {};
 
-aasync function dbLoad(){
-
-const tables = [
-"rfi",
-"converted",
-"rfp",
-"status",
-"approved",
-"projects",
-"monev",
-"weekly",
-"projreport",
-"resdoc"
-]
-
-for(const t of tables){
-
-const { data, error } = await supabase
-.from(t)
-.select("*")
-
-if(!error){
-DB[t] = data || []
-}
-
-}
-
-renderDash()
-updateBadges()
-
-}
-async function dbSave(table,data){
-
-const { error } = await supabase
-.from(table)
-.insert([data])
-
-if(error){
-toast(error.message,"er")
-}else{
-toast("Data berhasil disimpan","ok")
-dbLoad()
-}
-
-}
+// dbLoad and dbSave are now handled by Supabase (defined above)
+// Legacy stubs kept for compatibility
+function dbLoadLegacy() {}
 
 // ── NAVIGATION ────────────────────────────────────────
 const PAGE_META = {
@@ -1096,7 +1206,8 @@ function editProjReport(i) {
   document.getElementById('m-save').onclick = function() {
     const obj={};
     def.fields.forEach(f=>{ const el=document.getElementById('f-'+f.k); if(el)obj[f.k]=el.value; });
-    DB.projreport[i] = obj; dbSave('projreport');
+    const prItem = DB.projreport[i];
+    if (prItem && prItem._id) { showLoading(true); await dbUpdate('projreport', prItem._id, obj); await dbLoad(); showLoading(false); }
     closeModal(); toast('Project Report diperbarui ✓','ok'); renderProjReport();
     document.getElementById('m-save').onclick = saveModal;
   };
@@ -1117,7 +1228,8 @@ function editResDoc(i) {
   document.getElementById('m-save').onclick = function() {
     const obj={};
     def.fields.forEach(f=>{ const el=document.getElementById('f-'+f.k); if(el)obj[f.k]=el.value; });
-    DB.resdoc[i] = obj; dbSave('resdoc');
+    const rdItem = DB.resdoc[i];
+    if (rdItem && rdItem._id) { showLoading(true); await dbUpdate('resdoc', rdItem._id, obj); await dbLoad(); showLoading(false); }
     closeModal(); toast('Dokumentasi diperbarui ✓','ok'); renderResDoc();
     document.getElementById('m-save').onclick = saveModal;
   };
@@ -1137,10 +1249,11 @@ function syncProjReportFromProject(namaProyek, klien, pm, lokasi) {
 function promoteRFI(i) {
   const r = DB.rfi[i]; if (!r) return;
   if (DB.converted.some(c => c.rfiIndex===String(i))) { toast('Sudah ada di bridge Converted.','wn'); return; }
-  DB.rfi[i].status = 'Converted to Proposal';
-  dbSave('rfi');
-  DB.converted.push({rfiIndex:String(i), klien:r.perusahaan||'', pic:r.pic||'', kontak:r.kontak||'', kebutuhan:r.kebutuhan||'', lokasi:r.lokasi||'', tglConverted:new Date().toISOString().slice(0,10), refRfp:'', statusRfp:'Belum Diisi', catatan:''});
-  dbSave('converted');
+  showLoading(true);
+  if (r._id) await dbUpdate('rfi', r._id, {...r, status:'Converted to Proposal'});
+  await dbInsert('converted', {rfiIndex:String(i), klien:r.perusahaan||'', pic:r.pic||'', kontak:r.kontak||'', kebutuhan:r.kebutuhan||'', lokasi:r.lokasi||'', tglConverted:new Date().toISOString().slice(0,10), refRfp:'', statusRfp:'Belum Diisi', catatan:''});
+  await dbLoad();
+  showLoading(false);
   toast('✅ "'+r.perusahaan+'" dipindah ke Converted → RFP!','ok');
   renderRFI(); updateBadges();
 }
@@ -1162,10 +1275,12 @@ function promoteRFP(i) {
 
 function approveStatus(i) {
   const s = DB.status[i]; if (!s) return;
-  DB.status[i].status = 'Disetujui'; dbSave('status');
   if (DB.approved.some(a => a.statusIdx===String(i))) { toast('Sudah ada di bridge Disetujui.','wn'); renderStat(); return; }
-  DB.approved.push({statusIdx:String(i), noRef:s.noRef||String(i+1), klien:s.klien||'', layanan:s.layanan||'', nilai:s.nilai||'', tglDisetujui:new Date().toISOString().slice(0,10), pm:'', tglMulai:'', statusOnboarding:'Onboarding', linkedProject:'', catatan:''});
-  dbSave('approved');
+  showLoading(true);
+  if (s._id) await dbUpdate('status', s._id, {...s, status:'Disetujui'});
+  await dbInsert('approved', {statusIdx:String(i), noRef:s.noRef||String(i+1), klien:s.klien||'', layanan:s.layanan||'', nilai:s.nilai||'', tglDisetujui:new Date().toISOString().slice(0,10), pm:'', tglMulai:'', statusOnboarding:'Onboarding', linkedProject:'', catatan:''});
+  await dbLoad();
+  showLoading(false);
   toast('🚀 "'+s.klien+'" pindah ke bridge Disetujui → Project!','ok');
   renderStat(); updateBadges();
 }
@@ -1352,7 +1467,18 @@ function closeModal() {
   CUR_MODAL = null; MODAL_CTX = {};
 }
 
-function saveModal() {
+
+function showLoading(show, msg) {
+  const el = document.getElementById('loading-overlay');
+  if (show) {
+    el.querySelector('.loading-text').textContent = msg || 'Memuat data...';
+    el.classList.add('on');
+  } else {
+    el.classList.remove('on');
+  }
+}
+
+async function saveModal() {
   if (!CUR_MODAL) return;
   const def = FORMS[CUR_MODAL];
   const obj = {}; let valid = true;
@@ -1363,46 +1489,57 @@ function saveModal() {
   });
   if (!valid) { toast('Isi kolom yang wajib (bertanda *)','er'); return; }
 
+  showLoading(true);
+
   if (CUR_MODAL==='rfp') {
-    DB.rfp.push(obj); dbSave('rfp');
-    const ni = DB.rfp.length-1;
+    const newRfp = await dbInsert('rfp', obj);
+    if (!newRfp) { showLoading(false); return; }
     if (MODAL_CTX.type==='rfp_from_conv') {
-      DB.converted[MODAL_CTX.ci].refRfp = String(ni+1);
-      DB.converted[MODAL_CTX.ci].statusRfp = 'Sudah Diisi';
-      dbSave('converted');
+      const cv = DB.converted[MODAL_CTX.ci];
+      if (cv && cv._id) await dbUpdate('converted', cv._id, {...cv, statusRfp:'Sudah Diisi'});
     }
-    DB.status.push({rfpIdx:String(ni), noRef:String(ni+1), klien:obj.klien||'', layanan:obj.layanan||'', sektor:obj.sektor||'', deadline:obj.deadline||'', prioritas:obj.prioritas||'', tglRequest:new Date().toISOString().slice(0,10), tglKirim:'', status:'Draft', nilai:'', feedback:'', tindakLanjut:''});
-    dbSave('status');
+    const statObj = {noRef:'', klien:obj.klien||'', layanan:obj.layanan||'', sektor:obj.sektor||'', deadline:obj.deadline||'', prioritas:obj.prioritas||'Medium', tglRequest:new Date().toISOString().slice(0,10), tglKirim:'', status:'Draft', nilai:'', feedback:'', tindakLanjut:''};
+    await dbInsert('status', statObj);
+    await dbLoad();
     closeModal();
+    showLoading(false);
     toast('📝 Request Form + Status Tracker dibuat untuk "'+obj.klien+'"!','ok');
     renderRFP(); updateBadges(); return;
   }
 
   if (CUR_MODAL==='project') {
-    DB.projects.push(obj); dbSave('projects');
+    const newProj = await dbInsert('projects', obj);
+    if (!newProj) { showLoading(false); return; }
     if (MODAL_CTX.type==='proj_from_appr') {
-      DB.approved[MODAL_CTX.ai].linkedProject = obj.nama;
-      DB.approved[MODAL_CTX.ai].pm = obj.pm||'';
-      DB.approved[MODAL_CTX.ai].statusOnboarding = 'Dalam Pengerjaan';
-      dbSave('approved');
+      const ap = DB.approved[MODAL_CTX.ai];
+      if (ap && ap._id) await dbUpdate('approved', ap._id, {...ap, linkedProject:obj.nama, pm:obj.pm||'', statusOnboarding:'Dalam Pengerjaan'});
     }
-    if (!DB.monev.find(m => m.namaProyek===obj.nama)) {
-      DB.monev.push({namaProyek:obj.nama, pm:obj.pm||'', jenisRiset:obj.jenisRiset||'', g1:'⬜ Belum', g2:'⬜ Belum', g3:'⬜ Belum', g4:'⬜ Belum', keputusan:'Dalam Proses'});
-      dbSave('monev');
+    const existMonev = DB.monev.find(m => m.namaProyek===obj.nama);
+    if (!existMonev) {
+      await dbInsert('monev', {namaProyek:obj.nama, pm:obj.pm||'', jenisRiset:obj.jenisRiset||'', g1:'⬜ Belum', g2:'⬜ Belum', g3:'⬜ Belum', g4:'⬜ Belum', keputusan:'Dalam Proses', catatan:''});
     }
-    // Auto-sync ke Project Report Tracker
-    syncProjReportFromProject(obj.nama, obj.klien, obj.pm, obj.lokasi);
+    const existPR = DB.projreport.find(r => r.jenisRiset===obj.nama);
+    if (!existPR) {
+      await dbInsert('projreport', {jenisRiset:obj.nama, client:obj.klien||'', pm:obj.pm||'', lokasi:obj.lokasi||'', linkDraft:'', inputData:'☐', bab1:'☐', bab2:'☐', bab3:'☐', bab4:'☐', bab5:'☐', status:'Belum Mulai', catatan:''});
+    }
+    await dbLoad();
     closeModal();
+    showLoading(false);
     toast('📁 Proyek "'+obj.nama+'" dibuat + MONEV otomatis terbuat!','ok');
     renderProj(); updateBadges(); return;
   }
 
   const keyMap = {rfi:'rfi',converted:'converted',status:'status',approved:'approved',monev:'monev',weekly:'weekly',projreport:'projreport',resdoc:'resdoc'};
   const key = keyMap[CUR_MODAL];
-  if (key) { dbSave(key,obj); }
+  if (key) {
+    await dbInsert(key, obj);
+    await dbLoad();
+  }
   closeModal();
+  showLoading(false);
   toast('Data berhasil disimpan ✓','ok');
   renderPage(CUR_MODAL);
+  updateBadges();
 }
 
 // ── EDIT HELPERS ──────────────────────────────────────
@@ -1421,11 +1558,15 @@ function editProj(i) {
     const obj={};
     def.fields.forEach(f=>{ const el=document.getElementById('f-'+f.k); if(el)obj[f.k]=el.value; });
     const old = DB.projects[i].nama;
-    DB.projects[i] = obj; dbSave('projects');
+    const item = DB.projects[i];
+    showLoading(true);
+    if (item._id) await dbUpdate('projects', item._id, obj);
     if (old!==obj.nama) {
       const mi = DB.monev.findIndex(m=>m.namaProyek===old);
-      if (mi>-1) { DB.monev[mi].namaProyek=obj.nama; DB.monev[mi].pm=obj.pm||''; dbSave('monev'); }
+      if (mi>-1 && DB.monev[mi]._id) await dbUpdate('monev', DB.monev[mi]._id, {...DB.monev[mi], namaProyek:obj.nama, pm:obj.pm||''});
     }
+    await dbLoad();
+    showLoading(false);
     closeModal(); toast('Proyek diperbarui ✓','ok'); renderProj();
     document.getElementById('m-save').onclick = saveModal;
   };
@@ -1446,26 +1587,32 @@ function editMonev(i) {
   document.getElementById('m-save').onclick = function() {
     const obj={};
     def.fields.forEach(f=>{ const el=document.getElementById('f-'+f.k); if(el)obj[f.k]=el.value; });
-    DB.monev[i] = obj; dbSave('monev');
+    const mItem = DB.monev[i];
+    showLoading(true);
+    if (mItem._id) await dbUpdate('monev', mItem._id, obj);
     const gates=[obj.g1,obj.g2,obj.g3,obj.g4];
     const approved = gates.filter(g=>g==='✅ Approved').length;
     const pi = DB.projects.findIndex(p=>p.nama===obj.namaProyek);
-    if (pi>-1) { DB.projects[pi].progress=String(approved*25); dbSave('projects'); }
+    if (pi>-1 && DB.projects[pi]._id) await dbUpdate('projects', DB.projects[pi]._id, {...DB.projects[pi], progress:String(approved*25)});
+    await dbLoad();
+    showLoading(false);
     closeModal(); toast('Gate diperbarui + progress di-sync ✓','ok'); renderMonev();
     document.getElementById('m-save').onclick = saveModal;
   };
   document.getElementById('ov').classList.add('on');
 }
 
-async function delItem(key,id,renderName){
-
-await supabase
-.from(key)
-.delete()
-.eq("id",id)
-
-dbLoad()
-
+async function delItem(key, i, renderName) {
+  if (!confirm('Hapus data ini?')) return;
+  const item = DB[key][i];
+  if (item && item._id) {
+    showLoading(true);
+    await dbDelete(key, item._id);
+    await dbLoad();
+    showLoading(false);
+  }
+  renderPage(renderName); updateBadges();
+  toast('Data dihapus.','');
 }
 
 // ── EXPORT ────────────────────────────────────────────
@@ -1522,10 +1669,14 @@ document.getElementById('ov').addEventListener('click', function(e) {
 document.getElementById('m-save').addEventListener('click', saveModal);
 
 // ── INIT ──────────────────────────────────────────────
-dbLoad();
 document.getElementById('tb-date').textContent = new Date().toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
-updateBadges();
-renderDash();
+(async function init() {
+  showLoading(true, 'Memuat data dari server...');
+  await dbLoad();
+  showLoading(false);
+  updateBadges();
+  renderDash();
+})();
 </script>
 <script>
 // ── SLIDESHOW BACKGROUND ──
