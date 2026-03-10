@@ -1,3 +1,11 @@
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const supabase = window.supabase.createClient(
+"https://fzplvluohnbuggvdqkkw.supabase.co",
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6cGx2bHVvaG5idWdndmRxa2t3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5OTE4NTMsImV4cCI6MjA4ODU2Nzg1M30.Q3BDZRWJhai63P_yWAbt-TTNqqtnS45zjfevDHbIj1U"
+)
+</script>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -632,18 +640,66 @@ tr:hover td { background: #fafbfc; }
 
 <script>
 // ── DATA ──────────────────────────────────────────────
-const KEYS = {rfi:'e3_rfi',converted:'e3_cv',rfp:'e3_rfp',status:'e3_st',approved:'e3_ap',projects:'e3_pj',monev:'e3_mn',weekly:'e3_wk',projreport:'e4_pr',resdoc:'e4_rd'};
-let DB = {};
+let DB = {
+rfi:[],
+converted:[],
+rfp:[],
+status:[],
+approved:[],
+projects:[],
+monev:[],
+weekly:[],
+projreport:[],
+resdoc:[]
+};
 let CUR_MODAL = null;
 let MODAL_CTX = {};
 
-function dbLoad() {
-  for (const [k,v] of Object.entries(KEYS)) {
-    try { DB[k] = JSON.parse(localStorage.getItem(v)) || []; }
-    catch { DB[k] = []; }
-  }
+aasync function dbLoad(){
+
+const tables = [
+"rfi",
+"converted",
+"rfp",
+"status",
+"approved",
+"projects",
+"monev",
+"weekly",
+"projreport",
+"resdoc"
+]
+
+for(const t of tables){
+
+const { data, error } = await supabase
+.from(t)
+.select("*")
+
+if(!error){
+DB[t] = data || []
 }
-function dbSave(k) { localStorage.setItem(KEYS[k], JSON.stringify(DB[k])); }
+
+}
+
+renderDash()
+updateBadges()
+
+}
+async function dbSave(table,data){
+
+const { error } = await supabase
+.from(table)
+.insert([data])
+
+if(error){
+toast(error.message,"er")
+}else{
+toast("Data berhasil disimpan","ok")
+dbLoad()
+}
+
+}
 
 // ── NAVIGATION ────────────────────────────────────────
 const PAGE_META = {
@@ -1343,7 +1399,7 @@ function saveModal() {
 
   const keyMap = {rfi:'rfi',converted:'converted',status:'status',approved:'approved',monev:'monev',weekly:'weekly',projreport:'projreport',resdoc:'resdoc'};
   const key = keyMap[CUR_MODAL];
-  if (key) { DB[key].push(obj); dbSave(key); }
+  if (key) { dbSave(key,obj); }
   closeModal();
   toast('Data berhasil disimpan ✓','ok');
   renderPage(CUR_MODAL);
@@ -1401,11 +1457,15 @@ function editMonev(i) {
   document.getElementById('ov').classList.add('on');
 }
 
-function delItem(key, i, renderName) {
-  if (!confirm('Hapus data ini?')) return;
-  DB[key].splice(i,1); dbSave(key);
-  renderPage(renderName); updateBadges();
-  toast('Data dihapus.','');
+async function delItem(key,id,renderName){
+
+await supabase
+.from(key)
+.delete()
+.eq("id",id)
+
+dbLoad()
+
 }
 
 // ── EXPORT ────────────────────────────────────────────
