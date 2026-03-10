@@ -1188,9 +1188,13 @@ async function editProjReport(i) {
     const obj={};
     def.fields.forEach(f=>{ const el=document.getElementById('f-'+f.k); if(el)obj[f.k]=el.value; });
     const prItem = DB.projreport[i];
-    if (prItem && prItem._id) { showLoading(true); await dbUpdate('projreport', prItem._id, obj); await dbLoad(); showLoading(false); }
-    closeModal(); toast('Project Report diperbarui ✓','ok'); renderProjReport();
-    document.getElementById('m-save').onclick = saveModal;
+    if (prItem && prItem._id) {
+      showLoading(true);
+      dbUpdate('projreport', prItem._id, obj).then(function(){ return dbLoad(); }).then(function(){ showLoading(false); closeModal(); toast('Project Report diperbarui ✓','ok'); renderProjReport(); document.getElementById('m-save').onclick = saveModal; });
+    } else {
+      closeModal(); toast('Project Report diperbarui ✓','ok'); renderProjReport();
+      document.getElementById('m-save').onclick = saveModal;
+    }
   };
   document.getElementById('ov').classList.add('on');
 }
@@ -1210,9 +1214,13 @@ async function editResDoc(i) {
     const obj={};
     def.fields.forEach(f=>{ const el=document.getElementById('f-'+f.k); if(el)obj[f.k]=el.value; });
     const rdItem = DB.resdoc[i];
-    if (rdItem && rdItem._id) { showLoading(true); await dbUpdate('resdoc', rdItem._id, obj); await dbLoad(); showLoading(false); }
-    closeModal(); toast('Dokumentasi diperbarui ✓','ok'); renderResDoc();
-    document.getElementById('m-save').onclick = saveModal;
+    if (rdItem && rdItem._id) {
+      showLoading(true);
+      dbUpdate('resdoc', rdItem._id, obj).then(function(){ return dbLoad(); }).then(function(){ showLoading(false); closeModal(); toast('Dokumentasi diperbarui ✓','ok'); renderResDoc(); document.getElementById('m-save').onclick = saveModal; });
+    } else {
+      closeModal(); toast('Dokumentasi diperbarui ✓','ok'); renderResDoc();
+      document.getElementById('m-save').onclick = saveModal;
+    }
   };
   document.getElementById('ov').classList.add('on');
 }
@@ -1541,15 +1549,16 @@ async function editProj(i) {
     const old = DB.projects[i].nama;
     const item = DB.projects[i];
     showLoading(true);
-    if (item._id) await dbUpdate('projects', item._id, obj);
+    var p = item._id ? dbUpdate('projects', item._id, obj) : Promise.resolve();
     if (old!==obj.nama) {
-      const mi = DB.monev.findIndex(m=>m.namaProyek===old);
-      if (mi>-1 && DB.monev[mi]._id) await dbUpdate('monev', DB.monev[mi]._id, {...DB.monev[mi], namaProyek:obj.nama, pm:obj.pm||''});
+      var mi = DB.monev.findIndex(function(m){return m.namaProyek===old;});
+      if (mi>-1 && DB.monev[mi]._id) p = p.then(function(){ return dbUpdate('monev', DB.monev[mi]._id, Object.assign({},DB.monev[mi],{namaProyek:obj.nama,pm:obj.pm||''})); });
     }
-    await dbLoad();
-    showLoading(false);
-    closeModal(); toast('Proyek diperbarui ✓','ok'); renderProj();
-    document.getElementById('m-save').onclick = saveModal;
+    p.then(function(){ return dbLoad(); }).then(function(){
+      showLoading(false);
+      closeModal(); toast('Proyek diperbarui ✓','ok'); renderProj();
+      document.getElementById('m-save').onclick = saveModal;
+    });
   };
   document.getElementById('ov').classList.add('on');
 }
@@ -1570,20 +1579,21 @@ async function editMonev(i) {
     def.fields.forEach(f=>{ const el=document.getElementById('f-'+f.k); if(el)obj[f.k]=el.value; });
     const mItem = DB.monev[i];
     showLoading(true);
-    if (mItem._id) await dbUpdate('monev', mItem._id, obj);
-    const gates=[obj.g1,obj.g2,obj.g3,obj.g4];
-    const approved = gates.filter(g=>g==='✅ Approved').length;
-    const pi = DB.projects.findIndex(p=>p.nama===obj.namaProyek);
-    if (pi>-1 && DB.projects[pi]._id) await dbUpdate('projects', DB.projects[pi]._id, {...DB.projects[pi], progress:String(approved*25)});
-    await dbLoad();
-    showLoading(false);
-    closeModal(); toast('Gate diperbarui + progress di-sync ✓','ok'); renderMonev();
-    document.getElementById('m-save').onclick = saveModal;
+    var p = mItem._id ? dbUpdate('monev', mItem._id, obj) : Promise.resolve();
+    var gates=[obj.g1,obj.g2,obj.g3,obj.g4];
+    var approved = gates.filter(function(g){return g==='✅ Approved';}).length;
+    var pi = DB.projects.findIndex(function(pr){return pr.nama===obj.namaProyek;});
+    if (pi>-1 && DB.projects[pi]._id) p = p.then(function(){ return dbUpdate('projects', DB.projects[pi]._id, Object.assign({},DB.projects[pi],{progress:String(approved*25)})); });
+    p.then(function(){ return dbLoad(); }).then(function(){
+      showLoading(false);
+      closeModal(); toast('Gate diperbarui + progress di-sync ✓','ok'); renderMonev();
+      document.getElementById('m-save').onclick = saveModal;
+    });
   };
   document.getElementById('ov').classList.add('on');
 }
 
-async async function delItem(key, i, renderName) {
+async function delItem(key, i, renderName) {
   if (!confirm('Hapus data ini?')) return;
   const item = DB[key][i];
   if (item && item._id) {
