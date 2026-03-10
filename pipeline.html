@@ -35,7 +35,7 @@ const FIELD_MAP = {
   converted: {
     rfiIndex:'rfi_id', klien:'klien', pic:'pic', kontak:'kontak',
     kebutuhan:'kebutuhan', lokasi:'lokasi', tglConverted:'tgl_converted',
-    refRfp:'status_rfp', statusRfp:'status_rfp', catatan:'catatan'
+    statusRfp:'status_rfp', catatan:'catatan'
   },
   rfp: {
     klien:'klien', pic:'pic', sektor:'sektor', layanan:'layanan',
@@ -86,8 +86,15 @@ function toSupa(key, obj) {
   const map = FIELD_MAP[key];
   if (!map) return obj;
   const out = {};
+  const uuidFields = ['rfi_id','rfp_id','converted_id','status_tracker_id','approved_id','project_id','id'];
   for (const [local, remote] of Object.entries(map)) {
-    if (obj[local] !== undefined && obj[local] !== '') out[remote] = obj[local];
+    if (obj[local] !== undefined && obj[local] !== '') {
+      // Skip UUID fields that contain non-UUID values (e.g. index numbers)
+      const isUuidField = uuidFields.includes(remote);
+      const looksLikeUuid = typeof obj[local] === 'string' && obj[local].includes('-');
+      if (isUuidField && !looksLikeUuid) continue;
+      out[remote] = obj[local];
+    }
   }
   return out;
 }
@@ -941,7 +948,7 @@ function renderRFI() {
 
 function renderConv() {
   const d = DB.converted;
-  const pending = DB.rfi.filter((r,i) => r.status==='Converted to Proposal' && !DB.converted.some(c=>c.rfiIndex===String(i)));
+  const pending = DB.rfi.filter((r,i) => r.status==='Converted to Proposal' && !DB.converted.some(c=>c.rfiIndex===r._id || c.rfiIndex===String(i)));
   document.getElementById('conv-notice').innerHTML = pending.length
     ? ntc('n-warn','⚠️',pending.length+' inquiry berstatus "Converted" belum tercatat. Klik "→ Convert" di RFI Tracker.')
     : d.length ? ntc('n-ok','✅','Semua inquiry converted sudah tercatat.') : '';
@@ -1237,10 +1244,10 @@ async function syncProjReportFromProject(namaProyek, klien, pm, lokasi) {
 }
 async function promoteRFI(i) {
   const r = DB.rfi[i]; if (!r) return;
-  if (DB.converted.some(c => c.rfiIndex===String(i))) { toast('Sudah ada di bridge Converted.','wn'); return; }
+  if (DB.converted.some(c => c.rfiIndex===r._id)) { toast('Sudah ada di bridge Converted.','wn'); return; }
   showLoading(true);
   if (r._id) await dbUpdate('rfi', r._id, {...r, status:'Converted to Proposal'});
-  await dbInsert('converted', {rfiIndex:String(i), klien:r.perusahaan||'', pic:r.pic||'', kontak:r.kontak||'', kebutuhan:r.kebutuhan||'', lokasi:r.lokasi||'', tglConverted:new Date().toISOString().slice(0,10), refRfp:'', statusRfp:'Belum Diisi', catatan:''});
+  await dbInsert('converted', {rfiIndex:r._id||'', klien:r.perusahaan||'', pic:r.pic||'', kontak:r.kontak||'', kebutuhan:r.kebutuhan||'', lokasi:r.lokasi||'', tglConverted:new Date().toISOString().slice(0,10), refRfp:'', statusRfp:'Belum Diisi', catatan:''});
   await dbLoad();
   showLoading(false);
   toast('✅ "'+r.perusahaan+'" dipindah ke Converted → RFP!','ok');
@@ -1255,19 +1262,19 @@ async function promoteConv(i) {
 
 async function promoteRFP(i) {
   const r = DB.rfp[i]; if (!r) return;
-  if (DB.status.some(s => s.rfpIdx===String(i))) { toast('Sudah ada di Status Tracker.','wn'); return; }
-  DB.status.push({rfpIdx:String(i), noRef:String(i+1), klien:r.klien||'', layanan:r.layanan||'', sektor:r.sektor||'', deadline:r.deadline||'', prioritas:r.prioritas||'', tglRequest:new Date().toISOString().slice(0,10), tglKirim:'', status:'Draft', nilai:'', feedback:'', tindakLanjut:''});
-  dbSave('status');
+  if (DB.status.some(s => s.rfpIdx===r._id || s.rfpIdx===String(i))) { toast('Sudah ada di Status Tracker.','wn'); return; }
+  await dbInsert('status', {rfpIdx:r._id||'', noRef:String(i+1), klien:r.klien||'', layanan:r.layanan||'', sektor:r.sektor||'', deadline:r.deadline||'', prioritas:r.prioritas||'Medium', tglRequest:new Date().toISOString().slice(0,10), tglKirim:'', status:'Draft', nilai:'', feedback:'', tindakLanjut:''});
+  await dbLoad();
   toast('📊 "'+r.klien+'" masuk ke Status Tracker!','ok');
   updateBadges();
 }
 
 async function approveStatus(i) {
   const s = DB.status[i]; if (!s) return;
-  if (DB.approved.some(a => a.statusIdx===String(i))) { toast('Sudah ada di bridge Disetujui.','wn'); renderStat(); return; }
+  if (DB.approved.some(a => a.statusIdx===s._id || a.statusIdx===String(i))) { toast('Sudah ada di bridge Disetujui.','wn'); renderStat(); return; }
   showLoading(true);
   if (s._id) await dbUpdate('status', s._id, {...s, status:'Disetujui'});
-  await dbInsert('approved', {statusIdx:String(i), noRef:s.noRef||String(i+1), klien:s.klien||'', layanan:s.layanan||'', nilai:s.nilai||'', tglDisetujui:new Date().toISOString().slice(0,10), pm:'', tglMulai:'', statusOnboarding:'Onboarding', linkedProject:'', catatan:''});
+  await dbInsert('approved', {statusIdx:s._id||'', noRef:s.noRef||String(i+1), klien:s.klien||'', layanan:s.layanan||'', nilai:s.nilai||'', tglDisetujui:new Date().toISOString().slice(0,10), pm:'', tglMulai:'', statusOnboarding:'Onboarding', linkedProject:'', catatan:''});
   await dbLoad();
   showLoading(false);
   toast('🚀 "'+s.klien+'" pindah ke bridge Disetujui → Project!','ok');
