@@ -111,7 +111,16 @@ async function dbLoad() {
   await Promise.all(tables.map(async key => {
     try {
       const { data, error } = await supa.from(TABLE[key]).select('*').order('created_at', {ascending: true});
-      if (!error && data) DB[key] = data.map(r => fromSupa(key, r));
+      if (error) {
+        console.warn('Supabase error on', key, error.message);
+        // Fallback to localStorage if available
+        const lsKey = {rfi:'e3_rfi',converted:'e3_cv',rfp:'e3_rfp',status:'e3_st',approved:'e3_ap',projects:'e3_pj',monev:'e3_mn',weekly:'e3_wk',projreport:'e4_pr',resdoc:'e4_rd'}[key];
+        if (lsKey) {
+          try { DB[key] = JSON.parse(localStorage.getItem(lsKey)) || []; } catch {}
+        }
+      } else if (data) {
+        DB[key] = data.map(r => fromSupa(key, r));
+      }
     } catch(e) { console.warn('Load error', key, e); }
   }));
 }
@@ -505,8 +514,9 @@ tr:hover td { background: #fafbfc; }
   flex-direction: column;
   gap: 12px;
   backdrop-filter: blur(2px);
+  pointer-events: none;
 }
-#loading-overlay.on { display: flex; }
+#loading-overlay.on { display: flex; pointer-events: all; }
 .loading-spinner {
   width: 40px; height: 40px;
   border: 4px solid #e2e8f0;
@@ -1671,9 +1681,15 @@ document.getElementById('m-save').addEventListener('click', saveModal);
 // ── INIT ──────────────────────────────────────────────
 document.getElementById('tb-date').textContent = new Date().toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
 (async function init() {
-  showLoading(true, 'Memuat data dari server...');
-  await dbLoad();
-  showLoading(false);
+  try {
+    showLoading(true, 'Memuat data dari server...');
+    await dbLoad();
+  } catch(e) {
+    console.error('Init load error:', e);
+    toast('Gagal memuat data: ' + e.message, 'er');
+  } finally {
+    showLoading(false);
+  }
   updateBadges();
   renderDash();
 })();
