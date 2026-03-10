@@ -189,7 +189,7 @@ function dbSave(k) { /* no-op, replaced by async Supabase calls */ }
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; background: transparent; color: var(--ink); min-height: 100vh; font-size: 13.5px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; background: var(--sur); color: var(--ink); min-height: 100vh; font-size: 13.5px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
 
 /* ── SIDEBAR ── */
 .sidebar {
@@ -475,34 +475,7 @@ tr:hover td { background: #fafbfc; }
 @keyframes ti { from { transform: translateX(30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 @keyframes to { to { transform: translateX(30px); opacity: 0; } }
 
-/* ── SLIDESHOW BACKGROUND ── */
-.bg-slideshow {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  overflow: hidden;
-  pointer-events: none;
-}
-.bg-slideshow .bg-slide {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  opacity: 0;
-  transition: opacity 1.5s ease-in-out;
-  pointer-events: none;
-}
-.bg-slideshow .bg-slide.active {
-  opacity: 1;
-}
-.bg-slideshow::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(255,255,255,0.82);
-  z-index: 1;
-  pointer-events: none;
-}
+
 
 
 /* ── LOADING OVERLAY ── */
@@ -519,7 +492,7 @@ tr:hover td { background: #fafbfc; }
   backdrop-filter: blur(2px);
   pointer-events: none;
 }
-#loading-overlay.on { display: flex; pointer-events: all; }
+#loading-overlay.on { display: flex; }
 .loading-spinner {
   width: 40px; height: 40px;
   border: 4px solid #e2e8f0;
@@ -541,12 +514,7 @@ tr:hover td { background: #fafbfc; }
 </div>
 
 
-<!-- SLIDESHOW BACKGROUND -->
-<div class="bg-slideshow">
-  <div class="bg-slide active" style="background-image:url('https://raw.githubusercontent.com/ferynurwahid-cyber/DASHBOARD-ESI/daca4cfb79460ab91daaca9b39388ca6d56a18ad/WhatsApp%20Image%202026-03-10%20at%2017.13.07.jpeg')"></div>
-  <div class="bg-slide" style="background-image:url('https://raw.githubusercontent.com/ferynurwahid-cyber/DASHBOARD-ESI/daca4cfb79460ab91daaca9b39388ca6d56a18ad/WhatsApp%20Image%202026-03-10%20at%2017.13.06%20(2).jpeg')"></div>
-  <div class="bg-slide" style="background-image:url('https://raw.githubusercontent.com/ferynurwahid-cyber/DASHBOARD-ESI/daca4cfb79460ab91daaca9b39388ca6d56a18ad/WhatsApp%20Image%202026-03-10%20at%2017.13.06.jpeg')"></div>
-  <div class="bg-slide" style="background-image:url('https://raw.githubusercontent.com/ferynurwahid-cyber/DASHBOARD-ESI/daca4cfb79460ab91daaca9b39388ca6d56a18ad/WhatsApp%20Image%202026-03-10%20at%2017.13.07%20(1).jpeg')"></div>
+
 </div>
 
 
@@ -1205,7 +1173,7 @@ function renderResDoc() {
 }
 
 // ── EDIT HANDLERS FOR NEW MODULES ─────────────────────
-function editProjReport(i) {
+async function editProjReport(i) {
   const r = DB.projreport[i];
   CUR_MODAL = 'projreport'; MODAL_CTX = {type:'edit', i};
   const def = FORMS['projreport'];
@@ -1227,7 +1195,7 @@ function editProjReport(i) {
   document.getElementById('ov').classList.add('on');
 }
 
-function editResDoc(i) {
+async function editResDoc(i) {
   const r = DB.resdoc[i];
   CUR_MODAL = 'resdoc'; MODAL_CTX = {type:'edit', i};
   const def = FORMS['resdoc'];
@@ -1250,7 +1218,7 @@ function editResDoc(i) {
 }
 
 // ── SYNC PROJECT REPORT FROM PROJECT ──────────────────
-function syncProjReportFromProject(namaProyek, klien, pm, lokasi) {
+async function syncProjReportFromProject(namaProyek, klien, pm, lokasi) {
   const exists = DB.projreport.find(r => r.jenisRiset===namaProyek && r.client===klien);
   if (!exists) {
     DB.projreport.push({jenisRiset:namaProyek, client:klien||'', pm:pm||'', lokasi:lokasi||'', linkDraft:'https://', inputData:'☐', bab1:'☐', bab2:'☐', bab3:'☐', bab4:'☐', bab5:'☐', status:'Belum Mulai', catatan:''});
@@ -1259,7 +1227,7 @@ function syncProjReportFromProject(namaProyek, klien, pm, lokasi) {
     updateBadges();
   }
 }
-function promoteRFI(i) {
+async function promoteRFI(i) {
   const r = DB.rfi[i]; if (!r) return;
   if (DB.converted.some(c => c.rfiIndex===String(i))) { toast('Sudah ada di bridge Converted.','wn'); return; }
   showLoading(true);
@@ -1271,13 +1239,13 @@ function promoteRFI(i) {
   renderRFI(); updateBadges();
 }
 
-function promoteConv(i) {
+async function promoteConv(i) {
   const c = DB.converted[i]; if (!c) return;
   MODAL_CTX = {type:'rfp_from_conv', ci:i};
   openModal('rfp', {klien:c.klien, pic:c.pic||'', lokasi:c.lokasi||'', convertedRef:String(i+1), _msg:'Data terisi dari bridge Converted (klien: '+c.klien+')'});
 }
 
-function promoteRFP(i) {
+async function promoteRFP(i) {
   const r = DB.rfp[i]; if (!r) return;
   if (DB.status.some(s => s.rfpIdx===String(i))) { toast('Sudah ada di Status Tracker.','wn'); return; }
   DB.status.push({rfpIdx:String(i), noRef:String(i+1), klien:r.klien||'', layanan:r.layanan||'', sektor:r.sektor||'', deadline:r.deadline||'', prioritas:r.prioritas||'', tglRequest:new Date().toISOString().slice(0,10), tglKirim:'', status:'Draft', nilai:'', feedback:'', tindakLanjut:''});
@@ -1286,7 +1254,7 @@ function promoteRFP(i) {
   updateBadges();
 }
 
-function approveStatus(i) {
+async function approveStatus(i) {
   const s = DB.status[i]; if (!s) return;
   if (DB.approved.some(a => a.statusIdx===String(i))) { toast('Sudah ada di bridge Disetujui.','wn'); renderStat(); return; }
   showLoading(true);
@@ -1298,7 +1266,7 @@ function approveStatus(i) {
   renderStat(); updateBadges();
 }
 
-function promoteAppr(i) {
+async function promoteAppr(i) {
   const a = DB.approved[i]; if (!a) return;
   MODAL_CTX = {type:'proj_from_appr', ai:i};
   openModal('project', {nama:'Project '+a.klien, klien:a.klien||'', pm:a.pm||'', nilai:a.nilai||'', tglMulai:a.tglMulai||'', _msg:'Data dari approval klien: '+a.klien});
@@ -1556,7 +1524,7 @@ async function saveModal() {
 }
 
 // ── EDIT HELPERS ──────────────────────────────────────
-function editProj(i) {
+async function editProj(i) {
   const p = DB.projects[i];
   CUR_MODAL = 'project'; MODAL_CTX = {type:'edit', i};
   const def = FORMS['project'];
@@ -1586,7 +1554,7 @@ function editProj(i) {
   document.getElementById('ov').classList.add('on');
 }
 
-function editMonev(i) {
+async function editMonev(i) {
   const m = DB.monev[i];
   CUR_MODAL = 'monev'; MODAL_CTX = {type:'edit', i};
   const def = FORMS['monev'];
@@ -1615,7 +1583,7 @@ function editMonev(i) {
   document.getElementById('ov').classList.add('on');
 }
 
-async function delItem(key, i, renderName) {
+async async function delItem(key, i, renderName) {
   if (!confirm('Hapus data ini?')) return;
   const item = DB[key][i];
   if (item && item._id) {
@@ -1697,17 +1665,6 @@ document.getElementById('tb-date').textContent = new Date().toLocaleDateString('
   renderDash();
 })();
 </script>
-<script>
-// ── SLIDESHOW BACKGROUND ──
-(function(){
-  const slides = document.querySelectorAll('.bg-slide');
-  let cur = 0;
-  setInterval(function(){
-    slides[cur].classList.remove('active');
-    cur = (cur + 1) % slides.length;
-    slides[cur].classList.add('active');
-  }, 5000);
-})();
-</script>
+
 </body>
 </html>
