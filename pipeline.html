@@ -189,7 +189,7 @@ function dbSave(k) { /* no-op, replaced by async Supabase calls */ }
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; background: var(--sur); color: var(--ink); min-height: 100vh; font-size: 13.5px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; background: transparent; color: var(--ink); min-height: 100vh; font-size: 13.5px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
 
 /* ── SIDEBAR ── */
 .sidebar {
@@ -249,7 +249,7 @@ body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; background: var(
 .sfooter::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
 
 /* ── MAIN ── */
-.main { margin-left: 240px; min-height: 100vh; }
+.main { margin-left: 240px; min-height: 100vh; position: relative; z-index: 1; }
 
 /* ── TOPBAR ── */
 .topbar {
@@ -481,6 +481,7 @@ tr:hover td { background: #fafbfc; }
   inset: 0;
   z-index: -1;
   overflow: hidden;
+  pointer-events: none;
 }
 .bg-slideshow .bg-slide {
   position: absolute;
@@ -489,6 +490,7 @@ tr:hover td { background: #fafbfc; }
   background-position: center;
   opacity: 0;
   transition: opacity 1.5s ease-in-out;
+  pointer-events: none;
 }
 .bg-slideshow .bg-slide.active {
   opacity: 1;
@@ -499,6 +501,7 @@ tr:hover td { background: #fafbfc; }
   inset: 0;
   background: rgba(255,255,255,0.82);
   z-index: 1;
+  pointer-events: none;
 }
 
 
