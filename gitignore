@@ -1,0 +1,50 @@
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment & Secrets
+.env
+.env.local
+.env.*.local
+*.env
+supabase/.env
+
+# Supabase local dev
+supabase/.branches
+supabase/.temp
+
+# Node (jika nanti ada tooling)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dist/
+build/
+
+# Logs
+*.log
+logs/
+
+# Temp files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Export files (jangan commit data export)
+exports/
+*.csv
+!database/seeds/*.csv

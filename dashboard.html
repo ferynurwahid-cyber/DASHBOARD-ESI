@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESI Executive Dashboard — Enviro Strategic Indonesia</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@600;700&family=Satoshi:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #0a0a0f;
+  --bg-2:      #111118;
+  --bg-3:      #18181f;
+  --border:    rgba(255,255,255,.07);
+  --border-hi: rgba(255,255,255,.14);
+
+  --ink:       #f0f0f5;
+  --ink-2:     #a8a8b8;
+  --ink-3:     #6a6a7a;
+  --ink-4:     #3a3a4a;
+
+  --neon:      #c8ff00;
+  --neon-dim:  rgba(200,255,0,.08);
+  --neon-glow: rgba(200,255,0,.25);
+
+  --pink:      #ff3cac;
+  --pink-dim:  rgba(255,60,172,.08);
+  --cyan:      #00e5ff;
+  --cyan-dim:  rgba(0,229,255,.08);
+  --amber:     #ffb800;
+  --amber-dim: rgba(255,184,0,.08);
+  --red:       #ff4444;
+  --red-dim:   rgba(255,68,68,.08);
+
+  --accent:    var(--neon);
+  --green:     var(--neon);
+  --green-lt:  var(--neon-dim);
+  --amber-lt:  var(--amber-dim);
+  --red-lt:    var(--red-dim);
+  --rule:      var(--border);
+  --rule-lt:   rgba(255,255,255,.03);
+  --surface:   var(--bg-2);
+  --white:     var(--bg-3);
+  --accent-lt: var(--neon-dim);
+  --accent-2:  var(--neon);
+
+  --f-display: 'Clash Display', 'Satoshi', sans-serif;
+  --f-body:    'Satoshi', system-ui, sans-serif;
+  --f-mono:    'JetBrains Mono', monospace;
+
+  --r: 10px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; }
+
+body {
+  font-family: var(--f-body);
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* grain texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: .4;
+}
+
+/* ── LAYOUT ── */
+.shell { display: grid; grid-template-columns: 228px 1fr; min-height: 100vh; }
+
+/* ── SIDEBAR ── */
+.nav {
+  background: var(--bg-2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.nav-brand {
+  padding: 28px 22px 22px;
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-brand-name {
+  font-family: var(--f-display);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--ink);
+  letter-spacing: -.02em;
+}
+
+.nav-brand-sub {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--ink-3);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-top: 6px;
+  font-family: var(--f-mono);
+}
+
+.nav-section { padding: 20px 0 4px; }
+
+.nav-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  padding: 0 22px;
+  margin-bottom: 4px;
+  font-family: var(--f-mono);
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 22px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: all .18s;
+  border-radius: 0;
+  position: relative;
+  margin: 1px 0;
+}
+
+.nav-item:hover {
+  color: var(--ink);
+  background: rgba(255,255,255,.04);
+}
+
+.nav-item.active {
+  color: var(--bg);
+  background: var(--neon);
+  font-weight: 700;
+}
+
+.nav-item.active::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: rgba(0,0,0,.2);
+}
+
+.nav-item-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--ink-4);
+  flex-shrink: 0;
+  transition: background .18s;
+}
+
+.nav-item.active .nav-item-dot { background: rgba(0,0,0,.4); }
+.nav-item:hover:not(.active) .nav-item-dot { background: var(--neon); }
+
+.nav-footer {
+  margin-top: auto;
+  padding: 18px 22px;
+  border-top: 1px solid var(--border);
+}
+
+.nav-footer-text {
+  font-size: 10px;
+  color: var(--ink-4);
+  font-family: var(--f-mono);
+}
+
+/* ── MAIN ── */
+.main { display: flex; flex-direction: column; min-height: 100vh; }
+
+/* ── TOPBAR ── */
+.topbar {
+  background: rgba(10,10,15,.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 36px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.topbar-left { display: flex; align-items: center; gap: 14px; }
+
+.topbar-title {
+  font-family: var(--f-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -.02em;
+}
+
+.topbar-pipe {
+  width: 1px; height: 16px;
+  background: var(--border-hi);
+}
+
+.topbar-sub {
+  font-size: 11px;
+  color: var(--ink-3);
+  font-weight: 500;
+  font-family: var(--f-mono);
+  letter-spacing: .03em;
+}
+
+.topbar-right { display: flex; align-items: center; gap: 16px; }
+
+.topbar-date {
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  color: var(--ink-4);
+  letter-spacing: .04em;
+  background: var(--bg-3);
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+}
+
+.status-live {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--neon);
+  font-family: var(--f-mono);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.status-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--neon);
+  box-shadow: 0 0 8px var(--neon-glow);
+  animation: pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--neon-glow); }
+  50%       { opacity: .5; box-shadow: 0 0 3px var(--neon-glow); }
+}
+
+/* ── CONTENT ── */
+.content { padding: 32px 36px 56px; flex: 1; }
+
+/* ── SECTION HEADER ── */
+.section-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 22px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-hi);
+}
+
+.section-title {
+  font-family: var(--f-display);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -.03em;
+}
+
+.section-meta {
+  font-size: 10px;
+  color: var(--neon);
+  font-family: var(--f-mono);
+  letter-spacing: .1em;
+  font-weight: 500;
+}
+
+/* ── KPI ROW ── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+  animation: fadeUp .4s ease both;
+}
+
+.kpi-card {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 22px 22px 18px;
+  position: relative;
+  transition: border-color .2s, transform .2s;
+  overflow: hidden;
+}
+
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--neon), transparent);
+  opacity: 0;
+  transition: opacity .2s;
+}
+
+.kpi-card:hover {
+  border-color: var(--border-hi);
+  transform: translateY(-2px);
+}
+
+.kpi-card:hover::before { opacity: 1; }
+
+.kpi-card:nth-child(2):hover::before { background: linear-gradient(90deg, transparent, var(--cyan), transparent); }
+.kpi-card:nth-child(3):hover::before { background: linear-gradient(90deg, transparent, var(--amber), transparent); }
+.kpi-card:nth-child(4):hover::before { background: linear-gradient(90deg, transparent, var(--pink), transparent); }
+
+.kpi-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 14px;
+  font-family: var(--f-mono);
+}
+
+.kpi-value {
+  font-family: var(--f-display);
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1;
+  margin-bottom: 12px;
+  letter-spacing: -.04em;
+}
+
+.kpi-card:nth-child(1) .kpi-value { color: var(--neon); }
+.kpi-card:nth-child(2) .kpi-value { color: var(--cyan); }
+.kpi-card:nth-child(3) .kpi-value { color: var(--amber); }
+.kpi-card:nth-child(4) .kpi-value { color: var(--pink); }
+
+.kpi-delta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+}
+
+.kpi-delta.up { color: var(--neon); }
+.kpi-delta.dn { color: var(--red); }
+.kpi-delta.nu { color: var(--ink-3); }
+
+.kpi-bar {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--bg-3);
+}
+
+.kpi-bar-fill {
+  height: 100%;
+  background: var(--neon);
+  transition: width 1.2s cubic-bezier(.22,1,.36,1);
+  box-shadow: 0 0 8px var(--neon-glow);
+}
+
+.kpi-card:nth-child(2) .kpi-bar-fill { background: var(--cyan); box-shadow: 0 0 8px rgba(0,229,255,.35); }
+.kpi-card:nth-child(3) .kpi-bar-fill { background: var(--amber); box-shadow: 0 0 8px rgba(255,184,0,.35); }
+.kpi-card:nth-child(4) .kpi-bar-fill { background: var(--pink); box-shadow: 0 0 8px rgba(255,60,172,.35); }
+
+/* ── GRIDS ── */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+  animation: fadeUp .4s .08s ease both;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+  animation: fadeUp .4s .16s ease both;
+}
+
+/* ── CARD ── */
+.card {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+
+.card-head {
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  font-family: var(--f-mono);
+}
+
+.card-tag {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--neon);
+  background: var(--neon-dim);
+  padding: 3px 9px;
+  border-radius: 20px;
+  letter-spacing: .08em;
+  border: 1px solid rgba(200,255,0,.15);
+}
+
+.card-body { padding: 18px 20px; }
+
+/* ── FUNNEL ── */
+.funnel { display: flex; flex-direction: column; gap: 9px; }
+
+.funnel-row {
+  display: grid;
+  grid-template-columns: 100px 1fr 48px;
+  align-items: center;
+  gap: 12px;
+}
+
+.funnel-label {
+  font-size: 11px;
+  color: var(--ink-3);
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--f-mono);
+}
+
+.funnel-track {
+  height: 20px;
+  background: var(--bg-3);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.funnel-fill {
+  height: 100%;
+  background: var(--neon);
+  border-radius: 4px;
+  transition: width 1.4s cubic-bezier(.22,1,.36,1);
+}
+
+.funnel-row:nth-child(2) .funnel-fill { background: var(--cyan); }
+.funnel-row:nth-child(3) .funnel-fill { background: var(--amber); }
+.funnel-row:nth-child(4) .funnel-fill { background: #a855f7; }
+.funnel-row:nth-child(5) .funnel-fill { background: var(--pink); }
+.funnel-row:nth-child(6) .funnel-fill { background: var(--neon); opacity: .55; }
+
+.funnel-num {
+  font-family: var(--f-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-2);
+  text-align: right;
+}
+
+/* ── PIPE TABLE ── */
+.pipe-table { width: 100%; border-collapse: collapse; }
+
+.pipe-table th {
+  padding: 0 0 10px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  text-align: left;
+  border-bottom: 1px solid var(--border-hi);
+  font-family: var(--f-mono);
+}
+
+.pipe-table th:last-child,
+.pipe-table td:last-child { text-align: right; }
+
+.pipe-table td {
+  padding: 11px 0;
+  font-size: 12.5px;
+  color: var(--ink);
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.pipe-table tr:last-child td { border-bottom: none; }
+.pipe-table tr:hover td { background: rgba(255,255,255,.02); }
+
+.proj-name { font-weight: 700; font-size: 12.5px; }
+.proj-client { font-size: 10.5px; color: var(--ink-3); margin-top: 2px; font-family: var(--f-mono); }
+
+/* ── PROGRESS BAR ── */
+.prog { display: flex; align-items: center; gap: 8px; }
+
+.prog-track {
+  flex: 1;
+  height: 4px;
+  background: var(--bg-3);
+  border-radius: 2px;
+  min-width: 60px;
+}
+
+.prog-fill {
+  height: 100%;
+  background: var(--neon);
+  border-radius: 2px;
+  box-shadow: 0 0 6px var(--neon-glow);
+}
+
+.prog-fill.warn { background: var(--amber); box-shadow: 0 0 6px rgba(255,184,0,.35); }
+.prog-fill.late { background: var(--red);   box-shadow: 0 0 6px rgba(255,68,68,.35); }
+.prog-fill.done { background: var(--neon);  }
+
+.prog-pct {
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  color: var(--ink-3);
+  min-width: 28px;
+  text-align: right;
+}
+
+/* ── BADGE ── */
+.badge {
+  display: inline-block;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-family: var(--f-mono);
+  border: 1px solid;
+}
+
+.badge-blue  { color: var(--cyan);  border-color: rgba(0,229,255,.25);  background: rgba(0,229,255,.08); }
+.badge-green { color: var(--neon);  border-color: rgba(200,255,0,.25);  background: rgba(200,255,0,.08); }
+.badge-amber { color: var(--amber); border-color: rgba(255,184,0,.25);  background: rgba(255,184,0,.08); }
+.badge-red   { color: var(--red);   border-color: rgba(255,68,68,.25);  background: rgba(255,68,68,.08); }
+.badge-gray  { color: var(--ink-3); border-color: var(--border-hi);     background: var(--bg-3); }
+
+/* ── GATE STATUS ── */
+.gates { display: flex; gap: 3px; }
+
+.gate {
+  width: 14px; height: 14px;
+  border-radius: 3px;
+  border: 1px solid var(--border-hi);
+  background: var(--bg-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 7px;
+}
+
+.gate.pass { background: var(--neon-dim);  border-color: rgba(200,255,0,.3);  color: var(--neon); }
+.gate.fail { background: var(--red-dim);   border-color: rgba(255,68,68,.3);  color: var(--red); }
+.gate.rev  { background: var(--amber-dim); border-color: rgba(255,184,0,.3);  color: var(--amber); }
+
+/* ── DONUT ── */
+.donut-wrap { display: flex; align-items: center; gap: 24px; }
+.donut-svg { flex-shrink: 0; }
+.donut-legend { display: flex; flex-direction: column; gap: 10px; }
+
+.donut-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.donut-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.donut-item-label { color: var(--ink-3); font-size: 11px; font-family: var(--f-mono); }
+.donut-item-val   { font-family: var(--f-mono); font-weight: 700; margin-left: auto; font-size: 12px; color: var(--ink); }
+
+/* ── WEEK LOG ── */
+.week-log { display: flex; flex-direction: column; }
+
+.week-entry {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: 12px;
+}
+
+.week-entry:last-child { border-bottom: none; }
+
+.week-proj { font-weight: 700; font-size: 12.5px; color: var(--ink); }
+.week-detail { font-size: 11px; color: var(--ink-3); margin-top: 3px; line-height: 1.5; font-family: var(--f-mono); }
+
+.week-pct {
+  font-family: var(--f-display);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--neon);
+  text-align: right;
+  line-height: 1;
+  letter-spacing: -.04em;
+}
+
+.week-pct-label {
+  font-size: 8.5px;
+  color: var(--ink-4);
+  text-align: right;
+  font-family: var(--f-mono);
+  margin-top: 3px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+/* ── INSIGHT STRIP ── */
+.insights {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+  animation: fadeUp .4s .04s ease both;
+}
+
+.insight {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 16px 18px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  transition: border-color .2s;
+}
+
+.insight:hover { border-color: var(--border-hi); }
+
+.insight-num {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--neon);
+  background: var(--neon-dim);
+  padding: 2px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  letter-spacing: .06em;
+}
+
+.insight-text {
+  font-size: 12.5px;
+  color: var(--ink-2);
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+.insight-text strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+/* ── DIVIDER ── */
+.divider { height: 1px; background: var(--border); margin: 28px 0; }
+
+/* ── REPORT TABLE ── */
+.report-table { width: 100%; border-collapse: collapse; }
+
+.report-table th {
+  padding: 0 14px 10px 0;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  text-align: left;
+  border-bottom: 1px solid var(--border-hi);
+  white-space: nowrap;
+  font-family: var(--f-mono);
+}
+
+.report-table td {
+  padding: 12px 14px 12px 0;
+  font-size: 12px;
+  color: var(--ink-2);
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.report-table tr:last-child td { border-bottom: none; }
+.report-table tr:hover td { background: rgba(255,255,255,.02); }
+
+/* ── CHECK BOX ── */
+.check-cell { display: flex; gap: 3px; }
+
+.check-box {
+  width: 16px; height: 16px;
+  border-radius: 4px;
+  border: 1px solid rgba(200,255,0,.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  color: var(--neon);
+  background: var(--neon-dim);
+}
+
+.check-box.empty { background: var(--bg-3); color: transparent; border-color: var(--border-hi); }
+
+/* ── ANIMATE ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── PAGE SYSTEM ── */
+.page { display: none; }
+.page.on { display: block; }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  padding: 48px 0;
+  text-align: center;
+  color: var(--ink-4);
+  font-size: 12px;
+  border: 1px dashed var(--border-hi);
+  border-radius: var(--r);
+  font-family: var(--f-mono);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1100px) {
+  .kpi-row  { grid-template-columns: repeat(2, 1fr); }
+  .grid-2   { grid-template-columns: 1fr; }
+  .grid-3   { grid-template-columns: 1fr; }
+  .insights { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <nav class="nav">
+    <div class="nav-brand">
+      <div class="nav-brand-name">Enviro Strategic<br>Indonesia</div>
+      <div class="nav-brand-sub">Executive Dashboard · 2026</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Overview</div>
+      <div class="nav-item active" data-page="dashboard">
+        <div class="nav-item-dot"></div>
+        Executive Summary
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Pipeline</div>
+      <div class="nav-item" data-page="pipeline">
+        <div class="nav-item-dot"></div>
+        RFI &amp; Inquiry
+      </div>
+      <div class="nav-item" data-page="proposal">
+        <div class="nav-item-dot"></div>
+        Proposal &amp; Status
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Delivery</div>
+      <div class="nav-item" data-page="projects">
+        <div class="nav-item-dot"></div>
+        Active Projects
+      </div>
+      <div class="nav-item" data-page="reporting">
+        <div class="nav-item-dot"></div>
+        Project Report
+      </div>
+      <div class="nav-item" data-page="research">
+        <div class="nav-item-dot"></div>
+        Research Docs
+      </div>
+    </div>
+
+    <div class="nav-footer">
+      <div class="nav-footer-text">v4.0 · Terintegrasi</div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-title" id="page-title">Executive Summary</span>
+        <div class="topbar-pipe"></div>
+        <span class="topbar-sub" id="page-sub">Business Performance · Q1 2026</span>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-date" id="topbar-date">—</span>
+        <div class="status-live">
+          <div class="status-dot"></div>
+          Live Data
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- ══════════════════════════════════════════ -->
+      <!-- PAGE: DASHBOARD -->
+      <!-- ══════════════════════════════════════════ -->
+      <div class="page on" id="pg-dashboard">
+
+        <!-- KPI Row -->
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <div class="kpi-label">Total Inquiry</div>
+            <div class="kpi-value" id="kpi-inquiry">—</div>
+            <div class="kpi-delta up" id="kpi-inquiry-d">↑ from last quarter</div>
+            <div class="kpi-bar"><div class="kpi-bar-fill" id="bar-inquiry" style="width:0%"></div></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Proposal Disetujui</div>
+            <div class="kpi-value" id="kpi-approved">—</div>
+            <div class="kpi-delta up" id="kpi-approved-d">↑ approval rate</div>
+            <div class="kpi-bar"><div class="kpi-bar-fill" id="bar-approved" style="width:0%"></div></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Project Aktif</div>
+            <div class="kpi-value" id="kpi-active">—</div>
+            <div class="kpi-delta nu" id="kpi-active-d">sedang berjalan</div>
+            <div class="kpi-bar"><div class="kpi-bar-fill" id="bar-active" style="width:0%"></div></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Avg. Progress</div>
+            <div class="kpi-value" id="kpi-progress">—</div>
+            <div class="kpi-delta nu" id="kpi-progress-d">across all projects</div>
+            <div class="kpi-bar"><div class="kpi-bar-fill" id="bar-progress" style="width:0%"></div></div>
+          </div>
+        </div>
+
+        <!-- Key Insights -->
+        <div class="insights" id="dash-insights"></div>
+
+        <!-- Funnel + Donut -->
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head">
+              <span class="card-title">Conversion Funnel</span>
+              <span class="card-tag">PIPELINE</span>
+            </div>
+            <div class="card-body">
+              <div class="funnel" id="dash-funnel"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <span class="card-title">Project Status Distribution</span>
+              <span class="card-tag">EXECUTION</span>
+            </div>
+            <div class="card-body">
+              <div class="donut-wrap" id="dash-donut-wrap">
+                <svg class="donut-svg" width="110" height="110" viewBox="0 0 110 110">
+                  <circle cx="55" cy="55" r="42" fill="none" stroke="#18181f" stroke-width="14"/>
+                  <circle id="donut-arc-1" cx="55" cy="55" r="42" fill="none" stroke="#c8ff00" stroke-width="14"
+                    stroke-dasharray="0 264" stroke-dashoffset="66" style="transition:stroke-dasharray 1.2s cubic-bezier(.22,1,.36,1)"/>
+                  <circle id="donut-arc-2" cx="55" cy="55" r="42" fill="none" stroke="#ffb800" stroke-width="14"
+                    stroke-dasharray="0 264" stroke-dashoffset="66" style="transition:stroke-dasharray 1.2s .1s cubic-bezier(.22,1,.36,1)"/>
+                  <circle id="donut-arc-3" cx="55" cy="55" r="42" fill="none" stroke="#ff4444" stroke-width="14"
+                    stroke-dasharray="0 264" stroke-dashoffset="66" style="transition:stroke-dasharray 1.2s .2s cubic-bezier(.22,1,.36,1)"/>
+                  <circle id="donut-arc-4" cx="55" cy="55" r="42" fill="none" stroke="#00e5ff" stroke-width="14"
+                    stroke-dasharray="0 264" stroke-dashoffset="66" style="transition:stroke-dasharray 1.2s .3s cubic-bezier(.22,1,.36,1)"/>
+                  <text x="55" y="51" text-anchor="middle" font-family="Clash Display,sans-serif" font-size="22" fill="#f0f0f5" font-weight="700" id="donut-center-num">0</text>
+                  <text x="55" y="64" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="7" fill="#6a6a7a" letter-spacing="2">PROJECTS</text>
+                </svg>
+                <div class="donut-legend" id="dash-donut-legend"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Projects Table -->
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-head">
+              <span class="card-title">Active Project Register</span>
+              <span class="card-tag" id="proj-count-tag">0 PROJECTS</span>
+            </div>
+            <div class="card-body" style="padding-top:4px">
+              <table class="pipe-table" id="dash-proj-table">
+                <thead>
+                  <tr>
+                    <th>Project</th>
+                    <th>PM</th>
+                    <th>Phase</th>
+                    <th style="min-width:120px">Progress</th>
+                    <th>Gate</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="dash-proj-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <span class="card-title">Weekly Highlight</span>
+              <span class="card-tag">LATEST</span>
+            </div>
+            <div class="card-body" style="padding:0 22px">
+              <div class="week-log" id="dash-weekly"></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /pg-dashboard -->
+
+
+      <!-- ══════════════════════════════════════════ -->
+      <!-- PAGE: PIPELINE (RFI) -->
+      <!-- ══════════════════════════════════════════ -->
+      <div class="page" id="pg-pipeline">
+        <div class="section-header">
+          <span class="section-title">RFI &amp; Inquiry Tracker</span>
+          <span class="section-meta" id="rfi-meta">PHASE 1 — 0 RECORDS</span>
+        </div>
+        <div class="kpi-row" id="rfi-kpi"></div>
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">Daftar Inquiry</span>
+            <span class="card-tag">PHASE 1 · RFI</span>
+          </div>
+          <div class="card-body" style="padding-top:4px">
+            <table class="report-table" id="rfi-table">
+              <thead>
+                <tr>
+                  <th>#</th><th>Perusahaan</th><th>Industri</th><th>PIC</th>
+                  <th>Kebutuhan</th><th>Lokasi</th><th>Sumber</th><th>Status</th><th>Potensi</th>
+                </tr>
+              </thead>
+              <tbody id="rfi-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════ -->
+      <!-- PAGE: PROPOSAL -->
+      <!-- ══════════════════════════════════════════ -->
+      <div class="page" id="pg-proposal">
+        <div class="section-header">
+          <span class="section-title">Proposal &amp; Status Tracker</span>
+          <span class="section-meta" id="prop-meta">PHASE 2 — 0 RECORDS</span>
+        </div>
+        <div class="kpi-row" id="prop-kpi"></div>
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">Status Proposal</span>
+            <span class="card-tag">PHASE 2 · PROPOSAL</span>
+          </div>
+          <div class="card-body" style="padding-top:4px">
+            <table class="report-table" id="prop-table">
+              <thead>
+                <tr>
+                  <th>Ref</th><th>Klien</th><th>Layanan</th><th>Deadline</th>
+                  <th>Tgl Kirim</th><th>Status</th><th>Nilai (Rp)</th><th>Tindak Lanjut</th>
+                </tr>
+              </thead>
+              <tbody id="prop-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════ -->
+      <!-- PAGE: PROJECTS -->
+      <!-- ══════════════════════════════════════════ -->
+      <div class="page" id="pg-projects">
+        <div class="section-header">
+          <span class="section-title">Active Project Register</span>
+          <span class="section-meta" id="projs-meta">PHASE 3 — 0 RECORDS</span>
+        </div>
+        <div class="kpi-row" id="projs-kpi"></div>
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">Data Proyek Lengkap</span>
+            <span class="card-tag">PHASE 3 · EXECUTION</span>
+          </div>
+          <div class="card-body" style="padding-top:4px;overflow-x:auto">
+            <table class="report-table" id="projs-table">
+              <thead>
+                <tr>
+                  <th>#</th><th>Nama Proyek</th><th>Klien</th><th>PM</th><th>Deadline</th>
+                  <th>Progress</th><th>Fase</th><th>Status</th><th>MONEV Gate</th>
+                </tr>
+              </thead>
+              <tbody id="projs-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════ -->
+      <!-- PAGE: PROJECT REPORT -->
+      <!-- ══════════════════════════════════════════ -->
+      <div class="page" id="pg-reporting">
+        <div class="section-header">
+          <span class="section-title">Project Report Tracker</span>
+          <span class="section-meta" id="pr-meta">DELIVERABLE — 0 RECORDS</span>
+        </div>
+        <div class="kpi-row" id="pr-kpi"></div>
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">Progres Penulisan Laporan</span>
+            <span class="card-tag">DELIVERABLE</span>
+          </div>
+          <div class="card-body" style="padding-top:4px;overflow-x:auto">
+            <table class="report-table" id="pr-table">
+              <thead>
+                <tr>
+                  <th>#</th><th>Jenis Riset</th><th>Client</th><th>PM</th>
+                  <th style="text-align:center">Input</th><th style="text-align:center">Bab 1</th>
+                  <th style="text-align:center">Bab 2</th><th style="text-align:center">Bab 3</th>
+                  <th style="text-align:center">Bab 4</th><th style="text-align:center">Bab 5</th>
+                  <th>Status</th><th>Link</th>
+                </tr>
+              </thead>
+              <tbody id="pr-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════ -->
+      <!-- PAGE: RESEARCH DOCS -->
+      <!-- ══════════════════════════════════════════ -->
+      <div class="page" id="pg-research">
+        <div class="section-header">
+          <span class="section-title">Research Documentation</span>
+          <span class="section-meta" id="rd-meta">DELIVERABLE — 0 RECORDS</span>
+        </div>
+        <div class="kpi-row" id="rd-kpi"></div>
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">Register Dokumentasi Riset</span>
+            <span class="card-tag">RESEARCH</span>
+          </div>
+          <div class="card-body" style="padding-top:4px;overflow-x:auto">
+            <table class="report-table" id="rd-table">
+              <thead>
+                <tr>
+                  <th>#</th><th>Judul Riset</th><th>Client</th><th>Lokasi</th>
+                  <th>Tgl Mulai</th><th>Tgl Selesai</th><th>Metodologi</th>
+                  <th>Output</th><th>Temuan Utama</th><th>Link</th>
+                </tr>
+              </thead>
+              <tbody id="rd-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+// ── DATA BRIDGE: Baca dari localStorage ESI Pipeline App ──
+const KEYS = {
+  rfi:'e3_rfi', converted:'e3_cv', rfp:'e3_rfp',
+  status:'e3_st', approved:'e3_ap', projects:'e3_pj',
+  monev:'e3_mn', weekly:'e3_wk',
+  projreport:'e4_pr', resdoc:'e4_rd'
+};
+
+let DB = {};
+function dbLoad() {
+  for (const [k,v] of Object.entries(KEYS)) {
+    try { DB[k] = JSON.parse(localStorage.getItem(v)) || []; }
+    catch { DB[k] = []; }
+  }
+}
+dbLoad();
+
+// ── HELPERS ──
+function rp(v) { return v ? 'Rp '+Number(v).toLocaleString('id') : '—'; }
+function esc(s) { return (s||'').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+const STATUS_BADGE = {
+  '🟢 On Track':'badge-green','✅ Selesai':'badge-green','Disetujui':'badge-green','Qualified':'badge-green',
+  '🟡 Perhatian':'badge-amber','Converted to Proposal':'badge-amber','Draft':'badge-amber','Review Internal':'badge-amber',
+  '🔴 Terlambat':'badge-red','Ditolak':'badge-red','Tidak Dilanjutkan':'badge-red',
+  '⏸ Ditunda':'badge-gray','Belum Mulai':'badge-gray','Dalam Pengerjaan':'badge-blue',
+  'Diskusi Awal':'badge-blue','Terkirim':'badge-blue','On Hold':'badge-gray',
+  'Selesai':'badge-green','Dalam Proses':'badge-amber',
+};
+
+function badge(s) {
+  const cls = STATUS_BADGE[s] || 'badge-gray';
+  return '<span class="badge '+cls+'">'+esc(s||'—')+'</span>';
+}
+
+function progBar(pct, extraCls) {
+  const n = Math.min(100, Math.max(0, parseInt(pct)||0));
+  const cls = n >= 70 ? '' : n >= 40 ? 'warn' : 'late';
+  return '<div class="prog">'
+    +'<div class="prog-track"><div class="prog-fill '+cls+' '+(extraCls||'')+'" style="width:'+n+'%"></div></div>'
+    +'<span class="prog-pct">'+n+'%</span></div>';
+}
+
+function gateDisplay(namaProyek) {
+  const m = DB.monev.find(x => x.namaProyek===namaProyek);
+  if (!m) return '<div class="gates"><div class="gate empty"></div><div class="gate empty"></div><div class="gate empty"></div><div class="gate empty"></div></div>';
+  return '<div class="gates">'+
+    [m.g1,m.g2,m.g3,m.g4].map(g => {
+      const cls = g==='✅ Approved'?'pass':g==='❌ Revisi'?'fail':g==='🔄 On Review'?'rev':'';
+      const ic  = g==='✅ Approved'?'✓':g==='❌ Revisi'?'✕':g==='🔄 On Review'?'◎':'';
+      return '<div class="gate '+cls+'">'+ic+'</div>';
+    }).join('')+'</div>';
+}
+
+function chkCell(val) {
+  const on = val==='☑'||val===true||val==='true';
+  return '<div class="check-box'+(on?'':' empty')+'">'+(on?'✓':'')+'</div>';
+}
+
+function makeKpiRow(cards) {
+  return cards.map(c =>
+    '<div class="kpi-card">'
+    +'<div class="kpi-label">'+c.label+'</div>'
+    +'<div class="kpi-value">'+c.value+'</div>'
+    +'<div class="kpi-delta '+c.dc+'">'+c.delta+'</div>'
+    +'<div class="kpi-bar"><div class="kpi-bar-fill" style="width:'+c.fill+'%"></div></div>'
+    +'</div>'
+  ).join('');
+}
+
+function emptyRow(cols) {
+  return '<tr><td colspan="'+cols+'" style="text-align:center;padding:40px;color:#9b9b9b;font-size:12px">'
+    +'Belum ada data · Tambahkan melalui ESI Pipeline App</td></tr>';
+}
+
+// ── NAVIGATION ──
+const PAGE_CONFIG = {
+  dashboard: { title:'Executive Summary',   sub:'Business Performance · Q1 2026' },
+  pipeline:  { title:'RFI & Inquiry',       sub:'Phase 1 — Pipeline' },
+  proposal:  { title:'Proposal & Status',   sub:'Phase 2 — Proposal' },
+  projects:  { title:'Active Projects',     sub:'Phase 3 — Execution' },
+  reporting: { title:'Project Report',      sub:'Deliverable — Laporan' },
+  research:  { title:'Research Documentation', sub:'Deliverable — Dokumentasi' },
+};
+
+document.querySelectorAll('.nav-item').forEach(el => {
+  el.addEventListener('click', () => {
+    const page = el.dataset.page;
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
+    el.classList.add('active');
+    const pg = document.getElementById('pg-'+page);
+    if (pg) pg.classList.add('on');
+    const meta = PAGE_CONFIG[page]||{};
+    document.getElementById('page-title').textContent = meta.title||page;
+    document.getElementById('page-sub').textContent = meta.sub||'';
+    renderPage(page);
+  });
+});
+
+// ── RENDER DASHBOARD ──
+function renderDashboard() {
+  const r = DB.rfi, pr = DB.projects, wk = DB.weekly;
+
+  const ql  = r.filter(x=>x.status==='Qualified').length;
+  const cv  = r.filter(x=>x.status==='Converted to Proposal').length;
+  const ak  = pr.filter(x=>x.status!=='✅ Selesai'&&x.status!=='⏸ Ditunda').length;
+  const sl  = pr.filter(x=>x.status==='✅ Selesai').length;
+  const avg = pr.length ? Math.round(pr.reduce((s,p)=>s+(parseInt(p.progress)||0),0)/pr.length) : 0;
+
+  // KPIs
+  document.getElementById('kpi-inquiry').textContent  = r.length;
+  document.getElementById('kpi-approved').textContent = DB.approved.length;
+  document.getElementById('kpi-active').textContent   = ak;
+  document.getElementById('kpi-progress').textContent = avg+'%';
+
+  const mx = Math.max(r.length, 1);
+  document.getElementById('bar-inquiry').style.width  = Math.round(r.length/mx*100)+'%';
+  document.getElementById('bar-approved').style.width = DB.approved.length ? '70%' : '0%';
+  document.getElementById('bar-active').style.width   = ak ? '60%' : '0%';
+  document.getElementById('bar-progress').style.width = avg+'%';
+
+  document.getElementById('kpi-inquiry-d').textContent  = ql+' qualified · '+cv+' converted';
+  document.getElementById('kpi-approved-d').textContent = sl+' selesai total';
+  document.getElementById('kpi-active-d').textContent   = (pr.filter(x=>x.status==='🔴 Terlambat').length)+' terlambat';
+  document.getElementById('kpi-progress-d').textContent = 'rata-rata '+pr.length+' proyek';
+
+  // Insights
+  const lateProj = pr.filter(x=>x.status==='🔴 Terlambat').length;
+  const convRate = r.length ? Math.round(cv/r.length*100) : 0;
+  const g4done   = DB.monev.filter(m=>m.g4==='✅ Approved').length;
+  document.getElementById('dash-insights').innerHTML = [
+    { n:'01', t:'<strong>'+r.length+' inquiry</strong> masuk dengan <strong>'+convRate+'%</strong> conversion rate ke proposal.' },
+    { n:'02', t:'<strong>'+ak+' proyek</strong> aktif berjalan. '+lateProj+' proyek <strong>terlambat</strong> perlu eskalasi segera.' },
+    { n:'03', t:'<strong>'+g4done+' proyek</strong> telah melewati Gate 4 Final MONEV dengan rata-rata progres <strong>'+avg+'%</strong>.' },
+  ].map(ins =>
+    '<div class="insight"><span class="insight-num">'+ins.n+'</span><span class="insight-text">'+ins.t+'</span></div>'
+  ).join('');
+
+  // Funnel
+  const funnelData = [
+    {l:'Inquiry Masuk',v:r.length},{l:'Qualified',v:ql},
+    {l:'Converted',v:cv},{l:'Request Form',v:DB.rfp.length},
+    {l:'Project Aktif',v:ak},{l:'Selesai',v:sl},
+  ];
+  const fmx = Math.max(...funnelData.map(f=>f.v), 1);
+  document.getElementById('dash-funnel').innerHTML = funnelData.map(f =>
+    '<div class="funnel-row">'
+    +'<span class="funnel-label">'+f.l+'</span>'
+    +'<div class="funnel-track"><div class="funnel-fill" style="width:'+Math.max(2,Math.round(f.v/fmx*100))+'%"></div></div>'
+    +'<span class="funnel-num">'+f.v+'</span>'
+    +'</div>'
+  ).join('');
+
+  // Donut
+  const statMap = {'🟢 On Track':'#c8ff00','🟡 Perhatian':'#ffb800','🔴 Terlambat':'#ff4444','✅ Selesai':'#00e5ff','⏸ Ditunda':'#3a3a4a'};
+  const statLabels = {'🟢 On Track':'On Track','🟡 Perhatian':'Perhatian','🔴 Terlambat':'Terlambat','✅ Selesai':'Selesai','⏸ Ditunda':'Ditunda'};
+  const stats = {};
+  pr.forEach(p => { stats[p.status] = (stats[p.status]||0)+1; });
+  const total = pr.length || 1;
+  const circ  = 2 * Math.PI * 42; // ≈ 264
+
+  let offset = 66; // start from top (−66 = 90° rotation equivalent for dashoffset)
+  document.getElementById('donut-center-num').textContent = pr.length;
+
+  // Reset arcs
+  ['donut-arc-1','donut-arc-2','donut-arc-3','donut-arc-4'].forEach(id => {
+    document.getElementById(id).setAttribute('stroke-dasharray','0 264');
+  });
+
+  const entries = Object.entries(stats).slice(0,4);
+  const arcIds = ['donut-arc-1','donut-arc-2','donut-arc-3','donut-arc-4'];
+  const colors = ['#c8ff00','#ffb800','#ff4444','#00e5ff'];
+
+  setTimeout(() => {
+    entries.forEach(([s,v], i) => {
+      const arc = Math.round(v/total*circ);
+      const el = document.getElementById(arcIds[i]);
+      el.setAttribute('stroke', statMap[s]||colors[i]);
+      el.setAttribute('stroke-dasharray', arc+' '+(circ-arc));
+      el.setAttribute('stroke-dashoffset', offset);
+      offset -= arc;
+    });
+  }, 80);
+
+  document.getElementById('dash-donut-legend').innerHTML = entries.map(([s,v]) =>
+    '<div class="donut-item">'
+    +'<div class="donut-dot" style="background:'+(statMap[s]||'#aaa')+'"></div>'
+    +'<span class="donut-item-label">'+(statLabels[s]||s)+'</span>'
+    +'<span class="donut-item-val">'+v+'</span>'
+    +'</div>'
+  ).join('');
+
+  // Project Table
+  document.getElementById('proj-count-tag').textContent = pr.length+' PROJECTS';
+  document.getElementById('dash-proj-tbody').innerHTML = pr.length
+    ? pr.slice(0,8).map(p =>
+        '<tr>'
+        +'<td><div class="proj-name">'+esc(p.nama||'—')+'</div><div class="proj-client">'+esc(p.klien||'')+'</div></td>'
+        +'<td style="font-size:11.5px">'+esc(p.pm||'—')+'</td>'
+        +'<td><span class="badge badge-gray" style="font-size:9px">'+esc(p.fase||'—')+'</span></td>'
+        +'<td>'+progBar(p.progress)+'</td>'
+        +'<td>'+gateDisplay(p.nama)+'</td>'
+        +'<td>'+badge(p.status)+'</td>'
+        +'</tr>'
+      ).join('')
+    : '<tr><td colspan="6" style="text-align:center;padding:32px;color:#9b9b9b;font-size:12px">Belum ada proyek aktif</td></tr>';
+
+  // Weekly
+  const latest = [...wk].reverse().slice(0,3);
+  document.getElementById('dash-weekly').innerHTML = latest.length
+    ? latest.map(w =>
+        '<div class="week-entry">'
+        +'<div><div class="week-proj">'+esc(w.namaProyek||'—')+'</div>'
+        +'<div class="week-detail">Minggu ke-'+(w.minggu||'?')+' · '+(w.pm||'')+'<br>'+(w.sudah||'—')+'</div></div>'
+        +'<div><div class="week-pct">'+(w.progress||0)+'</div><div class="week-pct-label">PERSEN</div></div>'
+        +'</div>'
+      ).join('')
+    : '<div style="padding:32px 0;text-align:center;color:#9b9b9b;font-size:12px">Belum ada weekly update</div>';
+}
+
+// ── RENDER RFI ──
+function renderPipeline() {
+  const d = DB.rfi;
+  const ql=d.filter(r=>r.status==='Qualified').length;
+  const cv=d.filter(r=>r.status==='Converted to Proposal').length;
+  const no=d.filter(r=>r.status==='Tidak Dilanjutkan').length;
+  document.getElementById('rfi-meta').textContent = 'PHASE 1 — '+d.length+' RECORDS';
+  document.getElementById('rfi-kpi').innerHTML = makeKpiRow([
+    {label:'Total Inquiry',  value:d.length,  delta:'semua masuk',    dc:'nu', fill:100},
+    {label:'Qualified',      value:ql,         delta:'siap proposal',  dc:'up', fill:Math.round(ql/Math.max(d.length,1)*100)},
+    {label:'Converted',      value:cv,         delta:'ke Phase 2',     dc:'up', fill:Math.round(cv/Math.max(d.length,1)*100)},
+    {label:'Tidak Lanjut',   value:no,         delta:'drop rate',      dc:'dn', fill:Math.round(no/Math.max(d.length,1)*100)},
+  ]);
+  document.getElementById('rfi-tbody').innerHTML = d.length
+    ? d.map((r,i) => '<tr>'
+        +'<td style="font-family:var(--f-mono);color:#9b9b9b;font-size:11px">'+(i+1).toString().padStart(2,'0')+'</td>'
+        +'<td><div style="font-weight:500">'+esc(r.perusahaan||'—')+'</div></td>'
+        +'<td><span class="badge badge-gray" style="font-size:9px">'+esc(r.industri||'—')+'</span></td>'
+        +'<td style="font-size:11.5px">'+esc(r.pic||'—')+'</td>'
+        +'<td style="font-size:11.5px;max-width:150px">'+esc(r.kebutuhan||'—')+'</td>'
+        +'<td style="font-size:11.5px">'+esc(r.lokasi||'—')+'</td>'
+        +'<td style="font-size:11px;color:#6b6b6b">'+esc(r.sumber||'—')+'</td>'
+        +'<td>'+badge(r.status)+'</td>'
+        +'<td><span style="font-size:11px;font-weight:500;color:'+(r.potensi==='High'?'var(--red)':r.potensi==='Medium'?'var(--amber)':'var(--ink-4)')+'">'+esc(r.potensi||'—')+'</span></td>'
+        +'</tr>'
+      ).join('')
+    : emptyRow(9);
+}
+
+// ── RENDER PROPOSAL ──
+function renderProposal() {
+  const d = DB.status;
+  const ap=d.filter(r=>r.status==='Disetujui').length;
+  const dn=d.filter(r=>r.status==='Ditolak').length;
+  const totalVal = d.reduce((s,r)=>s+(parseFloat(r.nilai)||0),0);
+  document.getElementById('prop-meta').textContent = 'PHASE 2 — '+d.length+' RECORDS';
+  document.getElementById('prop-kpi').innerHTML = makeKpiRow([
+    {label:'Total Proposal',  value:d.length,  delta:'semua status',   dc:'nu', fill:100},
+    {label:'Disetujui',       value:ap,         delta:'win rate '+Math.round(ap/Math.max(d.length,1)*100)+'%', dc:'up', fill:Math.round(ap/Math.max(d.length,1)*100)},
+    {label:'Ditolak',         value:dn,         delta:'loss rate',      dc:'dn', fill:Math.round(dn/Math.max(d.length,1)*100)},
+    {label:'Total Nilai',     value:'Rp '+Math.round(totalVal/1e6)+'jt', delta:'pipeline value', dc:'nu', fill:60},
+  ]);
+  document.getElementById('prop-tbody').innerHTML = d.length
+    ? d.map((r,i) => '<tr>'
+        +'<td style="font-family:var(--f-mono);color:var(--accent-2);font-size:11px">#'+esc(r.noRef||String(i+1))+'</td>'
+        +'<td style="font-weight:500">'+esc(r.klien||'—')+'</td>'
+        +'<td style="font-size:11.5px">'+esc(r.layanan||'—')+'</td>'
+        +'<td style="font-family:var(--f-mono);font-size:11px">'+esc(r.deadline||'—')+'</td>'
+        +'<td style="font-family:var(--f-mono);font-size:11px">'+esc(r.tglKirim||'—')+'</td>'
+        +'<td>'+badge(r.status)+'</td>'
+        +'<td style="font-family:var(--f-mono);font-size:11.5px">'+rp(r.nilai)+'</td>'
+        +'<td style="font-size:11px;color:#6b6b6b;max-width:130px">'+esc(r.tindakLanjut||'—')+'</td>'
+        +'</tr>'
+      ).join('')
+    : emptyRow(8);
+}
+
+// ── RENDER PROJECTS ──
+function renderProjects() {
+  const d = DB.projects;
+  const ot=d.filter(x=>x.status==='🟢 On Track').length;
+  const tl=d.filter(x=>x.status==='🔴 Terlambat').length;
+  const sl=d.filter(x=>x.status==='✅ Selesai').length;
+  const avg = d.length ? Math.round(d.reduce((s,p)=>s+(parseInt(p.progress)||0),0)/d.length) : 0;
+  document.getElementById('projs-meta').textContent = 'PHASE 3 — '+d.length+' RECORDS';
+  document.getElementById('projs-kpi').innerHTML = makeKpiRow([
+    {label:'Total Proyek',  value:d.length,  delta:'terdaftar', dc:'nu', fill:100},
+    {label:'On Track',      value:ot,         delta:'berjalan lancar', dc:'up', fill:Math.round(ot/Math.max(d.length,1)*100)},
+    {label:'Terlambat',     value:tl,         delta:'perlu perhatian', dc:'dn', fill:Math.round(tl/Math.max(d.length,1)*100)},
+    {label:'Avg Progress',  value:avg+'%',    delta:'rata-rata semua proyek', dc:'nu', fill:avg},
+  ]);
+  document.getElementById('projs-tbody').innerHTML = d.length
+    ? d.map((p,i) => '<tr>'
+        +'<td style="font-family:var(--f-mono);color:#9b9b9b;font-size:11px">'+(i+1).toString().padStart(2,'0')+'</td>'
+        +'<td><div style="font-weight:500">'+esc(p.nama||'—')+'</div><div style="font-size:10px;color:#9b9b9b">'+esc(p.jenisRiset||'')+'</div></td>'
+        +'<td style="font-size:11.5px">'+esc(p.klien||'—')+'</td>'
+        +'<td style="font-size:11.5px">'+esc(p.pm||'—')+'</td>'
+        +'<td style="font-family:var(--f-mono);font-size:11px">'+esc(p.deadline||'—')+'</td>'
+        +'<td style="min-width:130px">'+progBar(p.progress)+'</td>'
+        +'<td><span class="badge badge-gray" style="font-size:9px">'+esc(p.fase||'—')+'</span></td>'
+        +'<td>'+badge(p.status)+'</td>'
+        +'<td>'+gateDisplay(p.nama)+'</td>'
+        +'</tr>'
+      ).join('')
+    : emptyRow(9);
+}
+
+// ── RENDER PROJECT REPORT ──
+function renderReporting() {
+  const d = DB.projreport;
+  const done=d.filter(r=>r.status==='Selesai').length;
+  const inp=d.filter(r=>r.status==='Dalam Pengerjaan').length;
+  const belum=d.filter(r=>r.status==='Belum Mulai').length;
+  document.getElementById('pr-meta').textContent = 'DELIVERABLE — '+d.length+' RECORDS';
+  document.getElementById('pr-kpi').innerHTML = makeKpiRow([
+    {label:'Total Report',       value:d.length, delta:'terdaftar',        dc:'nu', fill:100},
+    {label:'Selesai',            value:done,      delta:'laporan final',    dc:'up', fill:Math.round(done/Math.max(d.length,1)*100)},
+    {label:'Dalam Pengerjaan',   value:inp,       delta:'sedang ditulis',   dc:'nu', fill:Math.round(inp/Math.max(d.length,1)*100)},
+    {label:'Belum Mulai',        value:belum,     delta:'perlu tindakan',   dc:'dn', fill:Math.round(belum/Math.max(d.length,1)*100)},
+  ]);
+  document.getElementById('pr-tbody').innerHTML = d.length
+    ? d.map((r,i) => '<tr>'
+        +'<td style="font-family:var(--f-mono);color:#9b9b9b;font-size:11px">'+(i+1).toString().padStart(2,'0')+'</td>'
+        +'<td style="font-weight:500;font-size:12px">'+esc(r.jenisRiset||'—')+'</td>'
+        +'<td style="font-size:11.5px">'+esc(r.client||'—')+'</td>'
+        +'<td style="font-size:11.5px">'+esc(r.pm||'—')+'</td>'
+        +'<td style="text-align:center">'+chkCell(r.inputData)+'</td>'
+        +'<td style="text-align:center">'+chkCell(r.bab1)+'</td>'
+        +'<td style="text-align:center">'+chkCell(r.bab2)+'</td>'
+        +'<td style="text-align:center">'+chkCell(r.bab3)+'</td>'
+        +'<td style="text-align:center">'+chkCell(r.bab4)+'</td>'
+        +'<td style="text-align:center">'+chkCell(r.bab5)+'</td>'
+        +'<td>'+badge(r.status||'Belum Mulai')+'</td>'
+        +'<td>'+(r.linkDraft&&r.linkDraft!=='https://'?'<a href="'+esc(r.linkDraft)+'" target="_blank" style="color:var(--accent-2);font-size:11px;font-family:var(--f-mono)">↗</a>':'<span style="color:#ddd">—</span>')+'</td>'
+        +'</tr>'
+      ).join('')
+    : emptyRow(12);
+}
+
+// ── RENDER RESEARCH DOCS ──
+function renderResearch() {
+  const d = DB.resdoc;
+  const mets = [...new Set(d.map(r=>r.metodologi).filter(Boolean))].length;
+  const done = d.filter(r=>r.tglSelesai).length;
+  document.getElementById('rd-meta').textContent = 'DELIVERABLE — '+d.length+' RECORDS';
+  document.getElementById('rd-kpi').innerHTML = makeKpiRow([
+    {label:'Total Dokumentasi', value:d.length,  delta:'terdaftar',      dc:'nu', fill:100},
+    {label:'Sudah Selesai',     value:done,       delta:'ada tgl selesai',dc:'up', fill:Math.round(done/Math.max(d.length,1)*100)},
+    {label:'Metodologi Unik',   value:mets,       delta:'pendekatan',     dc:'nu', fill:70},
+    {label:'Lokasi Unik',       value:[...new Set(d.map(r=>r.lokasi).filter(Boolean))].length, delta:'area kajian', dc:'nu', fill:60},
+  ]);
+  document.getElementById('rd-tbody').innerHTML = d.length
+    ? d.map((r,i) => '<tr>'
+        +'<td style="font-family:var(--f-mono);color:#9b9b9b;font-size:11px">'+(i+1).toString().padStart(2,'0')+'</td>'
+        +'<td style="font-weight:500;font-size:12px;max-width:160px">'+esc(r.judul||'—')+'</td>'
+        +'<td style="font-size:11.5px">'+esc(r.client||'—')+'</td>'
+        +'<td style="font-size:11.5px">'+esc(r.lokasi||'—')+'</td>'
+        +'<td style="font-family:var(--f-mono);font-size:11px">'+esc(r.tglMulai||'—')+'</td>'
+        +'<td style="font-family:var(--f-mono);font-size:11px">'+esc(r.tglSelesai||'—')+'</td>'
+        +'<td><span class="badge badge-blue" style="font-size:9px">'+esc(r.metodologi||'—')+'</span></td>'
+        +'<td style="font-size:11px">'+esc(r.researchOutput||'—')+'</td>'
+        +'<td style="font-size:11px;color:#6b6b6b;max-width:140px">'+esc(r.temuan||'—')+'</td>'
+        +'<td>'+(r.linkDok&&r.linkDok!=='https://'?'<a href="'+esc(r.linkDok)+'" target="_blank" style="color:var(--accent-2);font-size:11px;font-family:var(--f-mono)">↗</a>':'<span style="color:#ddd">—</span>')+'</td>'
+        +'</tr>'
+      ).join('')
+    : emptyRow(10);
+}
+
+// ── ROUTER ──
+function renderPage(page) {
+  const map = {
+    dashboard: renderDashboard,
+    pipeline:  renderPipeline,
+    proposal:  renderProposal,
+    projects:  renderProjects,
+    reporting: renderReporting,
+    research:  renderResearch,
+  };
+  if (map[page]) map[page]();
+}
+
+// ── INIT ──
+document.getElementById('topbar-date').textContent =
+  new Date().toLocaleDateString('id-ID', {weekday:'short', day:'numeric', month:'long', year:'numeric'});
+
+renderDashboard();
+</script>
+</body>
+</html>
