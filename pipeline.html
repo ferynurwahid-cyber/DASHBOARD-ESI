@@ -664,6 +664,7 @@ tr:hover td { background: #fafbfc; }
   <div class="page" id="pg-banklayanan">
     <div class="ph">
       <div class="ph-l"><h1>📚 Bank Referensi Layanan</h1><p>Daftar nama baku layanan ESI. Gunakan nama ini saat mengisi Request Form agar konsisten dan mudah di-tracking.</p></div>
+      <div class="ph-r"><button class="btn b-gr bsm" onclick="openBankModal()">+ Tambah Layanan</button></div>
     </div>
     <div class="tc">
       <div class="th"><h3>Bank Referensi Layanan & Proposal/BOQ</h3><span style="font-size:11px;color:var(--ink2);font-weight:400">Acuan saja — tidak terhubung ke modul lain</span></div>
@@ -675,10 +676,43 @@ tr:hover td { background: #fafbfc; }
             <th>Kategori</th>
             <th>Link Proposal/BOQ</th>
             <th>Catatan Khusus</th>
+            <th style="width:80px">Aksi</th>
           </tr>
         </thead>
         <tbody id="banklayanan-tb"></tbody>
       </table>
+    </div>
+  </div>
+
+  <!-- MODAL BANK LAYANAN -->
+  <div class="ov" id="ov-bank">
+    <div class="modal" style="max-width:500px">
+      <div class="modal-hd">
+        <span id="bank-modal-title">+ Tambah Layanan</span>
+        <button class="mc" onclick="closeBankModal()">✕</button>
+      </div>
+      <div class="modal-bd">
+        <div class="fg">
+          <div class="ff"><label class="fl">Nama Layanan Lengkap *</label><input id="b-nama" class="fi" type="text" placeholder="e.g. Pemetaan Sosial"></div>
+          <div class="ff"><label class="fl">Kategori</label>
+            <select id="b-kategori" class="fi">
+              <option value="Riset Sosial">Riset Sosial</option>
+              <option value="Riset Kualitatif">Riset Kualitatif</option>
+              <option value="Lingkungan">Lingkungan</option>
+              <option value="Konsultasi & Engagement">Konsultasi & Engagement</option>
+              <option value="Pelatihan & Kapasitas">Pelatihan & Kapasitas</option>
+              <option value="Publikasi">Publikasi</option>
+              <option value="Lainnya">Lainnya</option>
+            </select>
+          </div>
+          <div class="ff"><label class="fl">Link Proposal/BOQ</label><input id="b-link" class="fi" type="text" placeholder="https://drive.google.com/..."></div>
+          <div class="ff"><label class="fl">Catatan Khusus</label><textarea id="b-catatan" class="fi" rows="3" placeholder="Deskripsi singkat layanan..."></textarea></div>
+        </div>
+      </div>
+      <div class="modal-ft">
+        <button class="btn b-nt" onclick="closeBankModal()">Batal</button>
+        <button class="btn b-gr" id="bank-save-btn" onclick="saveBankLayanan()">Simpan</button>
+      </div>
     </div>
   </div>
 
@@ -916,42 +950,100 @@ function renderPage(p) {
 }
 
 
+// ── BANK REFERENSI LAYANAN ────────────────────────────
+const BANK_DEFAULT = [
+  {nama:'Pemetaan Sosial', kategori:'Riset Sosial', link:'', catatan:'Dokumen pemetaan kondisi sosial masyarakat sekitar operasional perusahaan'},
+  {nama:'Indeks Kepuasan Masyarakat (IKM)', kategori:'Riset Sosial', link:'', catatan:'Survei kepuasan masyarakat terhadap program CSR/TJSL perusahaan'},
+  {nama:'Stakeholder Engagement', kategori:'Konsultasi & Engagement', link:'', catatan:'Pemetaan dan pengelolaan keterlibatan pemangku kepentingan'},
+  {nama:'Studi Lingkungan Hidup (SLH)', kategori:'Lingkungan', link:'', catatan:'Kajian dampak lingkungan hidup di area operasional'},
+  {nama:'Jurnal Ilmiah', kategori:'Publikasi', link:'', catatan:'Penulisan dan penerbitan jurnal ilmiah terakreditasi'},
+  {nama:'Rapid Environmental Assessment (REA)', kategori:'Lingkungan', link:'', catatan:'Penilaian cepat kondisi lingkungan di area spesifik'},
+  {nama:'PROPER', kategori:'Lingkungan', link:'', catatan:'Program Penilaian Peringkat Kinerja Perusahaan dalam Pengelolaan Lingkungan Hidup'},
+  {nama:'Social Return on Investment (SROI)', kategori:'Riset Sosial', link:'', catatan:'Pengukuran dampak sosial investasi program CSR/TJSL'},
+  {nama:'Comdev Class', kategori:'Pelatihan & Kapasitas', link:'', catatan:'Pelatihan pengembangan komunitas untuk internal perusahaan'},
+  {nama:'Social Impact Assessment (SIA)', kategori:'Riset Sosial', link:'', catatan:'Penilaian dampak sosial program atau proyek perusahaan'},
+  {nama:'Baseline Survey', kategori:'Riset Sosial', link:'', catatan:'Survei awal kondisi sosial ekonomi masyarakat sebelum program'},
+  {nama:'Endline Survey', kategori:'Riset Sosial', link:'', catatan:'Survei akhir untuk mengukur perubahan setelah program berlangsung'},
+  {nama:'Community Needs Assessment (CNA)', kategori:'Riset Sosial', link:'', catatan:'Penilaian kebutuhan komunitas untuk perencanaan program'},
+  {nama:'Focus Group Discussion (FGD)', kategori:'Riset Kualitatif', link:'', catatan:'Fasilitasi diskusi kelompok terfokus untuk kebutuhan riset'},
+  {nama:'In-depth Interview (IDI)', kategori:'Riset Kualitatif', link:'', catatan:'Wawancara mendalam dengan informan kunci'},
+  {nama:'Analisis Sosial Ekonomi', kategori:'Riset Sosial', link:'', catatan:'Kajian kondisi sosial dan ekonomi masyarakat secara komprehensif'},
+  {nama:'Lainnya / Custom Project', kategori:'Lainnya', link:'', catatan:'Layanan khusus sesuai kebutuhan klien'}
+];
+
+function getBankData() {
+  try { return JSON.parse(localStorage.getItem('esi_bank_layanan')) || BANK_DEFAULT; }
+  catch { return BANK_DEFAULT; }
+}
+function saveBankData(data) { localStorage.setItem('esi_bank_layanan', JSON.stringify(data)); }
+
+let BANK_EDIT_IDX = -1;
+
 function renderBanklayanan() {
-  const data = [
-    {no:1, nama:'Pemetaan Sosial', kategori:'Riset Sosial', link:'—', catatan:'Dokumen pemetaan kondisi sosial masyarakat sekitar operasional perusahaan'},
-    {no:2, nama:'Indeks Kepuasan Masyarakat (IKM)', kategori:'Riset Sosial', link:'—', catatan:'Survei kepuasan masyarakat terhadap program CSR/TJSL perusahaan'},
-    {no:3, nama:'Stakeholder Engagement', kategori:'Konsultasi & Engagement', link:'—', catatan:'Pemetaan dan pengelolaan keterlibatan pemangku kepentingan'},
-    {no:4, nama:'Studi Lingkungan Hidup (SLH)', kategori:'Lingkungan', link:'—', catatan:'Kajian dampak lingkungan hidup di area operasional'},
-    {no:5, nama:'Jurnal Ilmiah', kategori:'Publikasi', link:'—', catatan:'Penulisan dan penerbitan jurnal ilmiah terakreditasi'},
-    {no:6, nama:'Rapid Environmental Assessment (REA)', kategori:'Lingkungan', link:'—', catatan:'Penilaian cepat kondisi lingkungan di area spesifik'},
-    {no:7, nama:'PROPER', kategori:'Lingkungan', link:'—', catatan:'Program Penilaian Peringkat Kinerja Perusahaan dalam Pengelolaan Lingkungan Hidup'},
-    {no:8, nama:'Social Return on Investment (SROI)', kategori:'Riset Sosial', link:'—', catatan:'Pengukuran dampak sosial investasi program CSR/TJSL'},
-    {no:9, nama:'Comdev Class', kategori:'Pelatihan & Kapasitas', link:'—', catatan:'Pelatihan pengembangan komunitas untuk internal perusahaan'},
-    {no:10, nama:'Social Impact Assessment (SIA)', kategori:'Riset Sosial', link:'—', catatan:'Penilaian dampak sosial program atau proyek perusahaan'},
-    {no:11, nama:'Baseline Survey', kategori:'Riset Sosial', link:'—', catatan:'Survei awal kondisi sosial ekonomi masyarakat sebelum program'},
-    {no:12, nama:'Endline Survey', kategori:'Riset Sosial', link:'—', catatan:'Survei akhir untuk mengukur perubahan setelah program berlangsung'},
-    {no:13, nama:'Community Needs Assessment (CNA)', kategori:'Riset Sosial', link:'—', catatan:'Penilaian kebutuhan komunitas untuk perencanaan program'},
-    {no:14, nama:'Focus Group Discussion (FGD)', kategori:'Riset Kualitatif', link:'—', catatan:'Fasilitasi diskusi kelompok terfokus untuk kebutuhan riset'},
-    {no:15, nama:'In-depth Interview (IDI)', kategori:'Riset Kualitatif', link:'—', catatan:'Wawancara mendalam dengan informan kunci'},
-    {no:16, nama:'Analisis Sosial Ekonomi', kategori:'Riset Sosial', link:'—', catatan:'Kajian kondisi sosial dan ekonomi masyarakat secara komprehensif'},
-    {no:17, nama:'Lainnya / Custom Project', kategori:'Lainnya', link:'—', catatan:'Layanan khusus sesuai kebutuhan klien'}
-  ];
+  const data = getBankData();
   const tbody = document.getElementById('banklayanan-tb');
   if (!tbody) return;
-  tbody.innerHTML = data.map(d => `
+  if (!data.length) { tbody.innerHTML = '<tr class="er"><td colspan="6">Belum ada data. Klik "+ Tambah Layanan".</td></tr>'; return; }
+  tbody.innerHTML = data.map((d,i) => `
     <tr>
-      <td style="color:var(--ink2);font-size:11px">${d.no}</td>
+      <td style="color:var(--ink2);font-size:11px">${i+1}</td>
       <td><b>${d.nama}</b></td>
-      <td><span class="badge bgg2">${d.kategori}</span></td>
+      <td><span class="badge bgg2">${d.kategori||'—'}</span></td>
       <td style="font-size:12px">
-        ${d.link === '—' 
-          ? '<span style="color:var(--ink2)">Belum ada link</span>' 
-          : '<a href="'+d.link+'" target="_blank" style="color:var(--blue)">🔗 Buka</a>'
-        }
+        ${d.link ? '<a href="'+d.link+'" target="_blank" style="color:var(--blue)">🔗 Buka</a>' : '<span style="color:var(--ink2)">Belum ada link</span>'}
       </td>
-      <td style="font-size:12px;color:var(--ink2)">${d.catatan}</td>
+      <td style="font-size:12px;color:var(--ink2)">${d.catatan||'—'}</td>
+      <td>
+        <button class="btn bsm b-nt" style="padding:3px 8px;font-size:11px" onclick="editBankLayanan(${i})">✏</button>
+        <button class="btn bsm" style="padding:3px 8px;font-size:11px;background:#fee2e2;color:#dc2626;border:none;border-radius:6px;cursor:pointer" onclick="delBankLayanan(${i})">🗑</button>
+      </td>
     </tr>
   `).join('');
+}
+
+function openBankModal(editIdx) {
+  BANK_EDIT_IDX = (editIdx !== undefined) ? editIdx : -1;
+  const data = getBankData();
+  const d = BANK_EDIT_IDX >= 0 ? data[BANK_EDIT_IDX] : {};
+  document.getElementById('bank-modal-title').textContent = BANK_EDIT_IDX >= 0 ? '✏ Edit Layanan' : '+ Tambah Layanan';
+  document.getElementById('b-nama').value = d.nama||'';
+  document.getElementById('b-kategori').value = d.kategori||'Riset Sosial';
+  document.getElementById('b-link').value = d.link||'';
+  document.getElementById('b-catatan').value = d.catatan||'';
+  document.getElementById('ov-bank').classList.add('on');
+}
+
+function closeBankModal() {
+  document.getElementById('ov-bank').classList.remove('on');
+  BANK_EDIT_IDX = -1;
+}
+
+function saveBankLayanan() {
+  const nama = document.getElementById('b-nama').value.trim();
+  if (!nama) { toast('Nama layanan wajib diisi','er'); return; }
+  const obj = {
+    nama: nama,
+    kategori: document.getElementById('b-kategori').value,
+    link: document.getElementById('b-link').value.trim(),
+    catatan: document.getElementById('b-catatan').value.trim()
+  };
+  const data = getBankData();
+  if (BANK_EDIT_IDX >= 0) { data[BANK_EDIT_IDX] = obj; } else { data.push(obj); }
+  saveBankData(data);
+  closeBankModal();
+  renderBanklayanan();
+  toast(BANK_EDIT_IDX >= 0 ? 'Layanan diperbarui ✓' : 'Layanan ditambahkan ✓', 'ok');
+}
+
+function editBankLayanan(i) { openBankModal(i); }
+
+function delBankLayanan(i) {
+  if (!confirm('Hapus layanan ini?')) return;
+  const data = getBankData();
+  data.splice(i, 1);
+  saveBankData(data);
+  renderBanklayanan();
+  toast('Layanan dihapus.','');
 }
 
 function renderDash() {
