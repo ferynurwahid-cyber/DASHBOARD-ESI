@@ -908,7 +908,8 @@ function renderPage(p) {
     dashboard:renderDash, rfi:renderRFI, converted:renderConv,
     rfp:renderRFP, status:renderStat, approved:renderAppr,
     projects:renderProj, monev:renderMonev, weekly:renderWeekly,
-    projreport:renderProjReport, resdoc:renderResDoc
+    projreport:renderProjReport, resdoc:renderResDoc,
+    banklayanan:renderBanklayanan
   };
   if (fns[p]) fns[p]();
   updateBadges();
