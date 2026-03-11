@@ -305,6 +305,39 @@ body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; background: var(
   font-size: 12px; font-weight: 700; color: white; cursor: pointer;
 }
 
+
+/* ── PROFILE DROPDOWN ── */
+.prof-wrap { position: relative; }
+.prof-dropdown {
+  display: none; position: absolute; top: 42px; right: 0;
+  background: white; border: 1px solid var(--bor);
+  border-radius: 14px; min-width: 230px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.12);
+  z-index: 200; overflow: hidden;
+  animation: fi .15s ease;
+}
+.prof-dropdown.on { display: block; }
+.prof-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 16px 16px 12px;
+}
+.prof-av-lg {
+  width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg,#6ee7b7,#3b82f6);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 700; color: white;
+}
+.prof-name  { font-size: 13px; font-weight: 700; color: var(--ink); }
+.prof-email { font-size: 11px; color: var(--ink2); margin-top: 1px; word-break: break-all; }
+.prof-divider { height: 1px; background: var(--bor); margin: 0 12px; }
+.prof-btn {
+  display: block; width: 100%; padding: 12px 16px;
+  background: none; border: none; text-align: left;
+  font-family: inherit; font-size: 13px; font-weight: 500;
+  color: #dc2626; cursor: pointer;
+}
+.prof-btn:hover { background: #fef2f2; }
+
 /* ── PAGE ── */
 .page { display: none; padding: 26px 28px 48px; animation: fi .2s ease; }
 .page.on { display: block; }
@@ -539,7 +572,7 @@ tr:hover td { background: #fafbfc; }
 
 <aside class="sidebar">
   <div class="slogo">
-    <div class="slogo-icon">🌿</div>
+    <img src="https://raw.githubusercontent.com/ferynurwahid-cyber/DASHBOARD-ESI/eacf9ae30742fa8b20c449537c216a7b86126314/logo%20enviro.png" style="width:34px;height:34px;border-radius:9px;object-fit:contain;flex-shrink:0;" alt="ESI Logo">
     <div>
       <div class="brand">ESI Pipeline</div>
       <div class="tag">Enviro Strategic Indonesia</div>
@@ -587,7 +620,21 @@ tr:hover td { background: #fafbfc; }
     <div class="tb-r">
       <span class="datebadge" id="tb-date"></span>
       <span class="dot"></span>
-      <div class="tb-avatar">ES</div>
+      <!-- PROFILE DROPDOWN -->
+      <div class="prof-wrap" id="prof-wrap">
+        <div class="tb-avatar" id="tb-avatar" onclick="toggleProfile()">ES</div>
+        <div class="prof-dropdown" id="prof-dropdown">
+          <div class="prof-header">
+            <div class="prof-av-lg" id="prof-av-lg">ES</div>
+            <div>
+              <div class="prof-name" id="prof-name">Loading...</div>
+              <div class="prof-email" id="prof-email">—</div>
+            </div>
+          </div>
+          <div class="prof-divider"></div>
+          <button class="prof-btn" onclick="doLogout()">↩&nbsp; Keluar</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1851,6 +1898,44 @@ document.getElementById('tb-date').textContent = new Date().toLocaleDateString('
   updateBadges();
   renderDash();
 })();
+
+// ── PROFILE DROPDOWN ──────────────────────────────
+function toggleProfile() {
+  document.getElementById('prof-dropdown').classList.toggle('on');
+}
+document.addEventListener('click', function(e) {
+  const wrap = document.getElementById('prof-wrap');
+  if (wrap && !wrap.contains(e.target)) {
+    document.getElementById('prof-dropdown').classList.remove('on');
+  }
+});
+
+async function doLogout() {
+  if (!confirm('Yakin ingin keluar?')) return;
+  await supa.auth.signOut();
+  window.location.replace('login.html');
+}
+
+// Load user info into profile dropdown
+(async function loadUser() {
+  const { data: { session } } = await supa.auth.getSession();
+  if (!session) return;
+  const u = session.user;
+  const fullName = u.user_metadata?.full_name || '';
+  const email    = u.email || '';
+  const initials = fullName
+    ? fullName.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)
+    : email.slice(0,2).toUpperCase();
+  ['tb-avatar','prof-av-lg'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = initials;
+  });
+  const nameEl  = document.getElementById('prof-name');
+  const emailEl = document.getElementById('prof-email');
+  if (nameEl)  nameEl.textContent  = fullName || email;
+  if (emailEl) emailEl.textContent = email;
+})();
+
 </script>
 
 </body>
