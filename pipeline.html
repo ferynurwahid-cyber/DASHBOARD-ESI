@@ -547,6 +547,8 @@ tr:hover td { background: #fafbfc; }
     <div class="pipe"></div>
     <div class="ni" data-action="nav" data-page="status"><span class="ni-ic">📊</span>Status Tracker<span class="nbadge" id="b-stat">0</span></div>
     <div class="pipe"></div>
+    <div class="ni" data-action="nav" data-page="banklayanan"><span class="ni-ic">📚</span>Bank Referensi Layanan</div>
+    <div class="pipe"></div>
     <div class="ni" data-action="nav" data-page="approved"><span class="ni-ic">🚀</span>Disetujui → Project<span class="nbadge or" id="b-appr">0</span></div>
   </div>
   <div class="nsec"><div class="nlbl">Phase 3 — Project</div>
@@ -657,6 +659,29 @@ tr:hover td { background: #fafbfc; }
       <tbody id="stat-tb"></tbody></table>
     </div>
   </div>
+
+  <!-- BANK REFERENSI LAYANAN -->
+  <div class="page" id="pg-banklayanan">
+    <div class="ph">
+      <div class="ph-l"><h1>📚 Bank Referensi Layanan</h1><p>Daftar nama baku layanan ESI. Gunakan nama ini saat mengisi Request Form agar konsisten dan mudah di-tracking.</p></div>
+    </div>
+    <div class="tc">
+      <div class="th"><h3>Bank Referensi Layanan & Proposal/BOQ</h3><span style="font-size:11px;color:var(--ink2);font-weight:400">Acuan saja — tidak terhubung ke modul lain</span></div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:32px">#</th>
+            <th>Nama Layanan Lengkap</th>
+            <th>Kategori</th>
+            <th>Link Proposal/BOQ</th>
+            <th>Catatan Khusus</th>
+          </tr>
+        </thead>
+        <tbody id="banklayanan-tb"></tbody>
+      </table>
+    </div>
+  </div>
+
 
   <!-- APPROVED -->
   <div class="page" id="pg-approved">
@@ -806,6 +831,7 @@ const PAGE_META = {
   converted:{title:'Converted → RFP',ph:'Bridge 1→2',pc:'brt'},
   rfp:{title:'Request Form',ph:'Phase 2 — Proposal',pc:'p2t'},
   status:{title:'Status Tracker',ph:'Phase 2 — Proposal',pc:'p2t'},
+  banklayanan:{title:'Bank Referensi Layanan',ph:'Phase 2 — Proposal',pc:'p2t'},
   approved:{title:'Disetujui → Project',ph:'Bridge 2→3',pc:'brt'},
   projects:{title:'Data Project',ph:'Phase 3 — Project',pc:'p3t'},
   monev:{title:'MONEV 4-Gate',ph:'Phase 3 — Project',pc:'p3t'},
@@ -886,6 +912,45 @@ function renderPage(p) {
   };
   if (fns[p]) fns[p]();
   updateBadges();
+}
+
+
+function renderBanklayanan() {
+  const data = [
+    {no:1, nama:'Pemetaan Sosial', kategori:'Riset Sosial', link:'—', catatan:'Dokumen pemetaan kondisi sosial masyarakat sekitar operasional perusahaan'},
+    {no:2, nama:'Indeks Kepuasan Masyarakat (IKM)', kategori:'Riset Sosial', link:'—', catatan:'Survei kepuasan masyarakat terhadap program CSR/TJSL perusahaan'},
+    {no:3, nama:'Stakeholder Engagement', kategori:'Konsultasi & Engagement', link:'—', catatan:'Pemetaan dan pengelolaan keterlibatan pemangku kepentingan'},
+    {no:4, nama:'Studi Lingkungan Hidup (SLH)', kategori:'Lingkungan', link:'—', catatan:'Kajian dampak lingkungan hidup di area operasional'},
+    {no:5, nama:'Jurnal Ilmiah', kategori:'Publikasi', link:'—', catatan:'Penulisan dan penerbitan jurnal ilmiah terakreditasi'},
+    {no:6, nama:'Rapid Environmental Assessment (REA)', kategori:'Lingkungan', link:'—', catatan:'Penilaian cepat kondisi lingkungan di area spesifik'},
+    {no:7, nama:'PROPER', kategori:'Lingkungan', link:'—', catatan:'Program Penilaian Peringkat Kinerja Perusahaan dalam Pengelolaan Lingkungan Hidup'},
+    {no:8, nama:'Social Return on Investment (SROI)', kategori:'Riset Sosial', link:'—', catatan:'Pengukuran dampak sosial investasi program CSR/TJSL'},
+    {no:9, nama:'Comdev Class', kategori:'Pelatihan & Kapasitas', link:'—', catatan:'Pelatihan pengembangan komunitas untuk internal perusahaan'},
+    {no:10, nama:'Social Impact Assessment (SIA)', kategori:'Riset Sosial', link:'—', catatan:'Penilaian dampak sosial program atau proyek perusahaan'},
+    {no:11, nama:'Baseline Survey', kategori:'Riset Sosial', link:'—', catatan:'Survei awal kondisi sosial ekonomi masyarakat sebelum program'},
+    {no:12, nama:'Endline Survey', kategori:'Riset Sosial', link:'—', catatan:'Survei akhir untuk mengukur perubahan setelah program berlangsung'},
+    {no:13, nama:'Community Needs Assessment (CNA)', kategori:'Riset Sosial', link:'—', catatan:'Penilaian kebutuhan komunitas untuk perencanaan program'},
+    {no:14, nama:'Focus Group Discussion (FGD)', kategori:'Riset Kualitatif', link:'—', catatan:'Fasilitasi diskusi kelompok terfokus untuk kebutuhan riset'},
+    {no:15, nama:'In-depth Interview (IDI)', kategori:'Riset Kualitatif', link:'—', catatan:'Wawancara mendalam dengan informan kunci'},
+    {no:16, nama:'Analisis Sosial Ekonomi', kategori:'Riset Sosial', link:'—', catatan:'Kajian kondisi sosial dan ekonomi masyarakat secara komprehensif'},
+    {no:17, nama:'Lainnya / Custom Project', kategori:'Lainnya', link:'—', catatan:'Layanan khusus sesuai kebutuhan klien'}
+  ];
+  const tbody = document.getElementById('banklayanan-tb');
+  if (!tbody) return;
+  tbody.innerHTML = data.map(d => `
+    <tr>
+      <td style="color:var(--ink2);font-size:11px">${d.no}</td>
+      <td><b>${d.nama}</b></td>
+      <td><span class="badge bgg2">${d.kategori}</span></td>
+      <td style="font-size:12px">
+        ${d.link === '—' 
+          ? '<span style="color:var(--ink2)">Belum ada link</span>' 
+          : '<a href="'+d.link+'" target="_blank" style="color:var(--blue)">🔗 Buka</a>'
+        }
+      </td>
+      <td style="font-size:12px;color:var(--ink2)">${d.catatan}</td>
+    </tr>
+  `).join('');
 }
 
 function renderDash() {
