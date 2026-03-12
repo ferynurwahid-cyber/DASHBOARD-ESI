@@ -1065,42 +1065,21 @@ tr:hover td { background: #fafbfc; }
       <div class="cp-form-card">
         <div class="cp-form-shdr green">💳 Termin Pembayaran</div>
         <div class="cp-form-body">
-          <div class="cp-termin-form-grid">
-            <div class="cp-tcol-hdr t1">TERM I</div><div class="cp-tcol-hdr t2">TERM II</div><div class="cp-tcol-hdr t3">TERM III</div>
-            <div class="cp-tig"><div class="cp-tig-lbl">Persentase (%)</div><select class="cp-fi" id="cp-t1-pct"><option value="0">—</option><option value="30">30%</option><option value="40">40%</option><option value="50">50%</option><option value="60">60%</option><option value="70">70%</option><option value="80">80%</option><option value="100">100%</option></select></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">Persentase (%)</div><select class="cp-fi" id="cp-t2-pct"><option value="0">—</option><option value="30">30%</option><option value="40">40%</option><option value="50">50%</option><option value="60">60%</option><option value="70">70%</option><option value="80">80%</option><option value="100">100%</option></select></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">Persentase (%)</div><select class="cp-fi" id="cp-t3-pct"><option value="0">—</option><option value="30">30%</option><option value="40">40%</option><option value="50">50%</option><option value="60">60%</option><option value="70">70%</option><option value="80">80%</option><option value="100">100%</option></select></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">Preparation Date</div><input type="date" id="cp-t1-due"></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">Preparation Date</div><input type="date" id="cp-t2-due"></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">Preparation Date</div><input type="date" id="cp-t3-due"></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">Invoice</div><select id="cp-t1-inv"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">Invoice</div><select id="cp-t2-inv"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">Invoice</div><select id="cp-t3-inv"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">Kuitansi</div><select id="cp-t1-kuitansi"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">Kuitansi</div><select id="cp-t2-kuitansi"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">Kuitansi</div><select id="cp-t3-kuitansi"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">PO/Contract</div><select id="cp-t1-po"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">PO/Contract</div><select id="cp-t2-po"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">PO/Contract</div><select id="cp-t3-po"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">E-Faktur</div><select id="cp-t1-efaktur"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">E-Faktur</div><select id="cp-t2-efaktur"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">E-Faktur</div><select id="cp-t3-efaktur"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">BAST/BAPP</div><select id="cp-t1-bast"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">BAST/BAPP</div><select id="cp-t2-bast"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">BAST/BAPP</div><select id="cp-t3-bast"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">Evidence</div><select id="cp-t1-evidence"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">Evidence</div><select id="cp-t2-evidence"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">Evidence</div><select id="cp-t3-evidence"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">Self-Acceptance</div><select id="cp-t1-selfacc"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">Self-Acceptance</div><select id="cp-t2-selfacc"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">Self-Acceptance</div><select id="cp-t3-selfacc"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">NPWP</div><select id="cp-t1-npwp"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">NPWP</div><select id="cp-t2-npwp"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">NPWP</div><select id="cp-t3-npwp"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">Invoice Delivered</div><input type="date" id="cp-t1-pay"></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">Invoice Delivered</div><input type="date" id="cp-t2-pay"></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">Invoice Delivered</div><input type="date" id="cp-t3-pay"></div>
+          <!-- Pilih jumlah termin -->
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;padding:12px 16px;background:var(--sur);border-radius:8px;border:1.5px solid var(--bor)">
+            <label style="font-size:13px;font-weight:600;color:var(--ink2);white-space:nowrap">Jumlah Termin:</label>
+            <select class="cp-fi" id="cp-termin-count" onchange="cpRebuildTerminForm()" style="width:100px;font-weight:700">
+              <option value="1">1 Termin</option>
+              <option value="2">2 Termin</option>
+              <option value="3" selected>3 Termin</option>
+              <option value="4">4 Termin</option>
+              <option value="5">5 Termin</option>
+              <option value="6">6 Termin</option>
+            </select>
+            <span style="font-size:12px;color:var(--ink3)">Pilih sesuai jumlah termin project ini</span>
           </div>
+          <!-- Dynamic termin grid (rendered by JS) -->
+          <div id="cp-termin-dynamic-grid"></div>
         </div>
         <div class="cp-form-actions">
           <button class="btn b-se" type="button" onclick="cpResetFormA()">Reset</button>
@@ -1515,7 +1494,7 @@ function renderPage(p) {
     'cp-dashboard': cpRenderDashboard,
     'cp-tracker':   cpRenderTracker,
     'cp-termin':    cpRenderTermin,
-    'cp-input':     function(){}
+    'cp-input':     function(){ setTimeout(cpRebuildTerminForm, 50); }
   };
   if (fns[p]) fns[p]();
   updateBadges();
@@ -2633,9 +2612,9 @@ async function cpLoadFromDB() {
     // Map termins to projects
     cpProjects = projects.map(function(p) {
       var pt = termins.filter(function(t) { return t.project_id === p.id; });
-      function findT(n) {
-        var t = pt.find(function(x) { return x.termin_no === n; });
-        if (!t) return {pct:0, due:'', inv:'', kuitansi:'', po:'', efaktur:'', bast:'', evidence:'', selfacc:'', npwp:'', pay:''};
+      // Map all termins dynamically (sort by termin_no)
+      var sortedT = pt.slice().sort(function(a,b){return a.termin_no-b.termin_no;});
+      var termins = sortedT.map(function(t) {
         return {
           _id:      t.id,
           pct:      t.persentase  || 0,
@@ -2650,7 +2629,8 @@ async function cpLoadFromDB() {
           npwp:     t.npwp        || '',
           pay:      t.tgl_payment || '',
         };
-      }
+      });
+      if (!termins.length) termins = [{pct:0,due:'',inv:'',kuitansi:'',po:'',efaktur:'',bast:'',evidence:'',selfacc:'',npwp:'',pay:''}];
       return {
         _id:      p.id,
         id:       p.project_code,
@@ -2666,9 +2646,9 @@ async function cpLoadFromDB() {
         courier:  p.courier_no    || '',
         payterm:  p.payment_term  || '',
         ttd:      p.sign_req      || '',
-        t1: findT(1),
-        t2: findT(2),
-        t3: findT(3),
+        termins:  termins,
+        // backward compat
+        t1: termins[0]||{}, t2: termins[1]||{}, t3: termins[2]||{},
       };
     });
   } catch(e) {
@@ -2705,9 +2685,18 @@ async function cpSaveToDB(p) {
     if (upsertRes.error) throw upsertRes.error;
     var projectId = upsertRes.data.id;
 
-    // Upsert all 3 termins
-    var termData = [1,2,3].map(function(n) {
-      var t = p['t' + n] || {};
+    // Delete old termin rows that are beyond the new count (dynamic termin support)
+    var termCount = p.termins ? p.termins.length : 3;
+    await supa.from('compliance_termin')
+      .delete()
+      .eq('project_id', projectId)
+      .gt('termin_no', termCount);
+
+    // Upsert N termins dynamically
+    var termNums = [];
+    for (var n = 1; n <= termCount; n++) termNums.push(n);
+    var termData = termNums.map(function(n) {
+      var t = p.termins ? (p.termins[n-1] || {}) : (p['t' + n] || {});
       return {
         project_id:   projectId,
         termin_no:    n,
@@ -2958,61 +2947,73 @@ function cpRenderTermin() {
   cpLoadFromDB().then(function() { _cpDrawTermin(); });
 }
 function _cpDrawTermin() {
-  var s = {t1pay:0, t2pay:0, t3pay:0};
-  var t3c = 0;
+  // Collect all unique termin numbers across all projects
+  var maxTermin = 0;
   cpProjects.forEach(function(p) {
-    if (p.t1 && p.t1.pay) s.t1pay++;
-    if (p.t2 && p.t2.pay) s.t2pay++;
-    if (p.t3 && p.t3.pct > 0) { t3c++; if (p.t3.pay) s.t3pay++; }
+    if (p.termins) maxTermin = Math.max(maxTermin, p.termins.length);
   });
+  if (!maxTermin) maxTermin = 3;
+
+  // Build KPI for each termin slot
   var kpiEl = document.getElementById('cp-termin-kpi');
-  if (kpiEl) kpiEl.innerHTML = [
-    {l:'Term I Paid',   v:s.t1pay+'/'+cpProjects.length, c:'blue',  ic:'💰'},
-    {l:'Term II Paid',  v:s.t2pay+'/'+cpProjects.length, c:'teal',  ic:'💳'},
-    {l:'Term III Paid', v:s.t3pay+'/'+(t3c||0),           c:'green', ic:'🏆'},
-  ].map(function(k) {
-    return '<div class="cp-kpi-card ' + k.c + '">'
-      + '<div class="cp-kpi-icon">' + k.ic + '</div>'
-      + '<div class="cp-kpi-label">' + k.l + '</div>'
-      + '<div class="cp-kpi-value" style="font-size:30px">' + k.v + '</div>'
-      + '</div>';
-  }).join('');
+  var icons = ['💰','💳','🏆','📦','🎯','✅'];
+  var colors = ['blue','teal','green','indigo','orange','purple'];
+  if (kpiEl) {
+    var kpiCards = [];
+    for (var k = 1; k <= maxTermin; k++) {
+      (function(idx) {
+        var active = cpProjects.filter(function(p) { return p.termins && p.termins[idx] && p.termins[idx].pct > 0; });
+        var paid   = active.filter(function(p) { return p.termins[idx].pay; }).length;
+        var ic = icons[idx] || '📋';
+        var cl = colors[idx] || 'blue';
+        kpiCards.push('<div class="cp-kpi-card ' + cl + '">'
+          + '<div class="cp-kpi-icon">' + ic + '</div>'
+          + '<div class="cp-kpi-label">Term ' + ['I','II','III','IV','V','VI'][idx] + ' Paid</div>'
+          + '<div class="cp-kpi-value" style="font-size:30px">' + paid + '/' + active.length + '</div>'
+          + '</div>');
+      })(k - 1);
+    }
+    kpiEl.innerHTML = kpiCards.join('');
+  }
 
   var grid = document.getElementById('cp-termin-grid');
   if (!grid) return;
-  grid.innerHTML = [
-    {title:'TERM I',   cls:'t1', key:'t1'},
-    {title:'TERM II',  cls:'t2', key:'t2'},
-    {title:'TERM III', cls:'t3', key:'t3'},
-  ].map(function(term) {
-    var active = cpProjects.filter(function(p) { return p[term.key] && p[term.key].pct > 0; });
-    var paid   = active.filter(function(p) { return p[term.key].pay; }).length;
-    var rows   = [
-      ['Invoice',           active.filter(function(p){return p[term.key].inv==='✓ Ada';}).length],
-      ['Kuitansi',          active.filter(function(p){return p[term.key].kuitansi==='✓ Ada';}).length],
-      ['PO/Contract',       active.filter(function(p){return p[term.key].po==='✓ Ada';}).length],
-      ['E-Faktur',          active.filter(function(p){return p[term.key].efaktur==='✓ Ada';}).length],
-      ['BAST/BAPP',         active.filter(function(p){return p[term.key].bast==='✓ Ada';}).length],
-      ['Invoice Delivered', paid],
-    ];
-    return '<div class="cp-termin-card">'
-      + '<div class="cp-termin-hd ' + term.cls + '"><span>' + term.title + '</span><span>' + paid + '/' + active.length + ' Paid</span></div>'
-      + '<div class="cp-termin-bd">'
-      + rows.map(function(r) {
-          return '<div class="cp-doc-row">'
-            + '<div class="cp-doc-name">' + r[0] + '</div>'
-            + '<div class="cp-doc-stat ' + (r[1]>0 ? 'ok' : 'miss') + '">' + r[1] + ' / ' + active.length + '</div>'
-            + '</div>';
-        }).join('')
-      + (active.length ? '<div style="margin-top:10px">' + active.map(function(p) {
-          return '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--bor2);font-size:11px">'
-            + '<span style="color:var(--ink3)">' + p.id + '</span>'
-            + '<span style="color:var(--ink2);max-width:120px;overflow:hidden;text-overflow:ellipsis">' + p.project.substring(0,18) + '…</span>'
-            + (p[term.key].pay ? '<span style="color:#15803d;font-weight:700">✓ PAID</span>' : '<span style="color:#f97316">Belum</span>')
-            + '</div>';
-        }).join('') + '</div>' : '')
-      + '</div></div>';
-  }).join('');
+  var termLabels = ['TERM I','TERM II','TERM III','TERM IV','TERM V','TERM VI'];
+  var termCls    = ['t1','t2','t3','t1','t2','t3'];
+  var cards = [];
+  for (var ti = 0; ti < maxTermin; ti++) {
+    (function(idx) {
+      var active = cpProjects.filter(function(p) { return p.termins && p.termins[idx] && p.termins[idx].pct > 0; });
+      var paid   = active.filter(function(p) { return p.termins[idx].pay; }).length;
+      var rows = [
+        ['Invoice',           active.filter(function(p){return p.termins[idx].inv==='✓ Ada';}).length],
+        ['Kuitansi',          active.filter(function(p){return p.termins[idx].kuitansi==='✓ Ada';}).length],
+        ['PO/Contract',       active.filter(function(p){return p.termins[idx].po==='✓ Ada';}).length],
+        ['E-Faktur',          active.filter(function(p){return p.termins[idx].efaktur==='✓ Ada';}).length],
+        ['BAST/BAPP',         active.filter(function(p){return p.termins[idx].bast==='✓ Ada';}).length],
+        ['Invoice Delivered', paid],
+      ];
+      cards.push('<div class="cp-termin-card">'
+        + '<div class="cp-termin-hd ' + termCls[idx] + '"><span>' + termLabels[idx] + '</span><span>' + paid + '/' + active.length + ' Paid</span></div>'
+        + '<div class="cp-termin-bd">'
+        + rows.map(function(r) {
+            return '<div class="cp-doc-row">'
+              + '<div class="cp-doc-name">' + r[0] + '</div>'
+              + '<div class="cp-doc-stat ' + (r[1]>0?'ok':'miss') + '">' + r[1] + ' / ' + active.length + '</div>'
+              + '</div>';
+          }).join('')
+        + (active.length ? '<div style="margin-top:10px">' + active.map(function(p) {
+            var t = p.termins[idx];
+            return '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--bor2);font-size:11px">'
+              + '<span style="color:var(--ink3)">' + p.id + '</span>'
+              + '<span style="color:var(--ink2);max-width:120px;overflow:hidden;text-overflow:ellipsis">' + p.project.substring(0,18) + '…</span>'
+              + (t.pay ? '<span style="color:#15803d;font-weight:700">✓ PAID</span>' : '<span style="color:#f97316">Belum</span>')
+              + '</div>';
+          }).join('') + '</div>' : '')
+        + '</div></div>');
+    })(ti);
+  }
+  grid.innerHTML = cards.join('');
 }
 
 // ── TAB SWITCHER ──
@@ -3050,26 +3051,103 @@ function cpLoadForB(id) {
 }
 
 // ── FORM A ──
+// ── DYNAMIC TERMIN FORM ──
+function cpRebuildTerminForm(preloadData) {
+  var count = parseInt(document.getElementById('cp-termin-count').value) || 3;
+  var container = document.getElementById('cp-termin-dynamic-grid');
+  if (!container) return;
+
+  var pctOpts = '<option value="0">—</option><option value="10">10%</option><option value="20">20%</option><option value="30">30%</option><option value="40">40%</option><option value="50">50%</option><option value="60">60%</option><option value="70">70%</option><option value="80">80%</option><option value="90">90%</option><option value="100">100%</option>';
+  var docOpts = '<option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option>';
+  var labels  = ['TERM I','TERM II','TERM III','TERM IV','TERM V','TERM VI'];
+  var hdrCls  = ['t1','t2','t3','t1','t2','t3'];
+
+  // Grid columns: up to 3 per row
+  var cols = count <= 3 ? count : 3;
+  var rows = Math.ceil(count / cols);
+  var html = '<div style="overflow-x:auto">';
+
+  for (var row = 0; row < rows; row++) {
+    var startN = row * cols + 1;
+    var endN   = Math.min(startN + cols - 1, count);
+    var colCount = endN - startN + 1;
+    html += '<div class="cp-termin-form-grid" style="grid-template-columns:repeat(' + colCount + ',1fr);margin-bottom:' + (row < rows-1 ? '16px' : '0') + '">';
+
+    // Headers
+    for (var n = startN; n <= endN; n++) {
+      html += '<div class="cp-tcol-hdr ' + hdrCls[n-1] + '">' + labels[n-1] + '</div>';
+    }
+
+    // Each field row
+    var fields = [
+      {lbl:'Persentase (%)', type:'sel', sfx:'pct',      opts:pctOpts},
+      {lbl:'Preparation Date', type:'date', sfx:'due'},
+      {lbl:'Invoice',          type:'sel', sfx:'inv',      opts:docOpts},
+      {lbl:'Kuitansi',         type:'sel', sfx:'kuitansi', opts:docOpts},
+      {lbl:'PO/Contract',      type:'sel', sfx:'po',       opts:docOpts},
+      {lbl:'E-Faktur',         type:'sel', sfx:'efaktur',  opts:docOpts},
+      {lbl:'BAST/BAPP',        type:'sel', sfx:'bast',     opts:docOpts},
+      {lbl:'Evidence',         type:'sel', sfx:'evidence', opts:docOpts},
+      {lbl:'Self-Acceptance',  type:'sel', sfx:'selfacc',  opts:docOpts},
+      {lbl:'NPWP',             type:'sel', sfx:'npwp',     opts:docOpts},
+      {lbl:'Invoice Delivered',type:'date', sfx:'pay'},
+    ];
+
+    fields.forEach(function(f) {
+      for (var n = startN; n <= endN; n++) {
+        var eid = 'cp-t' + n + '-' + f.sfx;
+        if (f.type === 'date') {
+          html += '<div class="cp-tig"><div class="cp-tig-lbl">' + f.lbl + '</div><input type="date" id="' + eid + '"></div>';
+        } else {
+          html += '<div class="cp-tig"><div class="cp-tig-lbl">' + f.lbl + '</div><select class="cp-fi" id="' + eid + '">' + f.opts + '</select></div>';
+        }
+      }
+    });
+
+    html += '</div>'; // close grid
+  }
+  html += '</div>';
+  container.innerHTML = html;
+
+  // Restore preload values if provided (when editing existing project)
+  if (preloadData && preloadData.length) {
+    preloadData.forEach(function(t, idx) {
+      var n = idx + 1;
+      var flds = ['pct','due','inv','kuitansi','po','efaktur','bast','evidence','selfacc','npwp','pay'];
+      var vals = [t.pct,t.due,t.inv,t.kuitansi,t.po,t.efaktur,t.bast,t.evidence,t.selfacc,t.npwp,t.pay];
+      flds.forEach(function(f, fi) {
+        var el = document.getElementById('cp-t' + n + '-' + f);
+        if (el && vals[fi] !== undefined) el.value = vals[fi];
+      });
+    });
+  }
+}
+
 function cpSubmitA() {
   var id   = document.getElementById('cp-f-id').value.trim();
   var user = document.getElementById('cp-f-user').value.trim();
   var proj = document.getElementById('cp-f-project').value.trim();
   if (!id || !user || !proj) { toast('ID, Klien, dan Nama Project wajib diisi', 'er'); return; }
-  function tGet(pfx) {
+  var count = parseInt(document.getElementById('cp-termin-count').value) || 3;
+  function tGet(n) {
+    var pfx = 'cp-t' + n;
+    function gv(s) { var el=document.getElementById(pfx+'-'+s); return el ? el.value : ''; }
     return {
-      pct:      document.getElementById('cp-' + pfx + '-pct').value      || 0,
-      due:      document.getElementById('cp-' + pfx + '-due').value,
-      inv:      document.getElementById('cp-' + pfx + '-inv').value,
-      kuitansi: document.getElementById('cp-' + pfx + '-kuitansi').value,
-      po:       document.getElementById('cp-' + pfx + '-po').value,
-      efaktur:  document.getElementById('cp-' + pfx + '-efaktur').value,
-      bast:     document.getElementById('cp-' + pfx + '-bast').value,
-      evidence: document.getElementById('cp-' + pfx + '-evidence').value,
-      selfacc:  document.getElementById('cp-' + pfx + '-selfacc').value,
-      npwp:     document.getElementById('cp-' + pfx + '-npwp').value,
-      pay:      document.getElementById('cp-' + pfx + '-pay').value,
+      pct:      gv('pct') || 0,
+      due:      gv('due'),
+      inv:      gv('inv'),
+      kuitansi: gv('kuitansi'),
+      po:       gv('po'),
+      efaktur:  gv('efaktur'),
+      bast:     gv('bast'),
+      evidence: gv('evidence'),
+      selfacc:  gv('selfacc'),
+      npwp:     gv('npwp'),
+      pay:      gv('pay'),
     };
   }
+  var terminsArr = [];
+  for (var n = 1; n <= count; n++) terminsArr.push(tGet(n));
   var p = {
     id: id, user: user, project: proj,
     nospk:    document.getElementById('cp-f-nospk').value,
@@ -3079,7 +3157,7 @@ function cpSubmitA() {
     end:      document.getElementById('cp-f-end').value,
     ttd:      document.getElementById('cp-f-ttd').value,
     received: '', delivered: '', courier: '', payterm: '',
-    t1: tGet('t1'), t2: tGet('t2'), t3: tGet('t3'),
+    termins:  terminsArr,
   };
   showLoading(true);
   cpSaveToDB(p).then(function(pid) {
@@ -3094,11 +3172,8 @@ function cpResetFormA() {
   ['cp-f-id','cp-f-user','cp-f-project','cp-f-status','cp-f-nospk','cp-f-nilai','cp-f-start','cp-f-end','cp-f-ttd'].forEach(function(id) {
     var el = document.getElementById(id); if (el) el.value = '';
   });
-  ['t1','t2','t3'].forEach(function(t) {
-    ['pct','due','inv','kuitansi','po','efaktur','bast','evidence','selfacc','npwp','pay'].forEach(function(f) {
-      var el = document.getElementById('cp-' + t + '-' + f); if (el) el.value = '';
-    });
-  });
+  document.getElementById('cp-termin-count').value = '3';
+  cpRebuildTerminForm();
 }
 
 // ── FORM B ──
