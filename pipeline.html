@@ -614,7 +614,7 @@ tr:hover td { background: #fafbfc; }
     <div class="ni" data-action="nav" data-page="cp-termin"><span class="ni-ic">💳</span>Termin Pembayaran</div>
     <div class="ni" data-action="nav" data-page="cp-input"><span class="ni-ic">➕</span>Input Project</div>
   </div>
-  <div class="sfooter">v4.0 · Data tersimpan lokal</div>
+  <div class="sfooter">v4.1 · Data tersimpan di Supabase</div>
 </aside>
 
 <main class="main">
@@ -2594,7 +2594,19 @@ var cpLoading  = false;
 async function cpLoadFromDB() {
   try {
     var res = await supa.from('compliance_project').select('*').order('created_at', {ascending: false});
-    if (res.error) throw res.error;
+    if (res.error) {
+      // Table not created yet - show helpful message
+      if (res.error.code === '42P01' || (res.error.message && res.error.message.includes('does not exist'))) {
+        var els = ['cp-kpi-grid','cp-dash-tbody','cp-tracker-tbody','cp-termin-kpi','cp-termin-grid'];
+        els.forEach(function(id) {
+          var el = document.getElementById(id);
+          if (el) el.innerHTML = '<div style="padding:24px;text-align:center;color:#b91c1c;background:#fef2f2;border-radius:8px;font-size:13px">⚠️ Tabel <b>compliance_project</b> belum dibuat di Supabase.<br>Jalankan SQL <b>ESI_Pipeline_Compliance_v1.sql</b> di Supabase SQL Editor terlebih dahulu.</div>';
+        });
+        cpProjects = [];
+        return;
+      }
+      throw res.error;
+    }
     var projects = res.data || [];
 
     // Load all termins in one query
@@ -2704,7 +2716,12 @@ async function cpSaveToDB(p) {
     return projectId;
   } catch(e) {
     console.error('cpSaveToDB error:', e);
-    toast('Gagal menyimpan data compliance: ' + (e.message||e), 'er');
+    var msg = (e.message||String(e));
+    if (msg.includes('does not exist') || (e.code === '42P01')) {
+      toast('⚠️ Tabel belum dibuat! Jalankan ESI_Pipeline_Compliance_v1.sql di Supabase dulu.', 'er');
+    } else {
+      toast('Gagal menyimpan: ' + msg, 'er');
+    }
     return null;
   }
 }
@@ -2823,7 +2840,7 @@ function _cpDrawDashboard() {
   var tbody = document.getElementById('cp-dash-tbody');
   if (!tbody) return;
   if (!cpProjects.length) {
-    tbody.innerHTML = '<tr class="er"><td colspan="8">Belum ada data. Klik "+ Tambah Project".</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:32px"><div style="color:var(--ink3);font-size:13px;margin-bottom:12px">Belum ada project compliance.</div><button class="btn b-bl" onclick="navTo(\'cp-input\')" style="font-size:13px;padding:10px 24px">➕ Tambah Project Pertama</button></td></tr>';
     return;
   }
   function cpTdot(t) {
