@@ -6,386 +6,6 @@
 <title>ESI Pipeline — Enviro Strategic Indonesia · Data Enviro</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script>
-// ── SUPABASE CONFIG ──────────────────────────────────
-const SUPA_URL = 'https://fzplvluohnbuggvdqkkw.supabase.co';
-const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6cGx2bHVvaG5idWdndmRxa2t3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5OTE4NTMsImV4cCI6MjA4ODU2Nzg1M30.Q3BDZRWJhai63P_yWAbt-TTNqqtnS45zjfevDHbIj1U';
-const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
-  // =====================================================
-// DATABASE TABLE MAP
-// =====================================================
-
-const TABLE = {
-
-rfi:'rfi',
-converted:'converted',
-rfp:'rfp',
-status:'status_tracker',
-approved:'approved',
-
-projects:'projects',
-monev:'monev',
-weekly:'weekly',
-
-projreport:'project_report',
-resdoc:'research_doc',
-
-cp_project:'compliance_project',
-cp_termin:'compliance_termin'
-
-}
-
-
-// =====================================================
-// MEMORY DATABASE
-// =====================================================
-
-let DB = {
-rfi:[],
-converted:[],
-rfp:[],
-status:[],
-approved:[],
-projects:[],
-monev:[],
-weekly:[],
-projreport:[],
-resdoc:[],
-cp_project:[],
-cp_termin:[]
-}
-
-
-// =====================================================
-// LOAD DATA FROM SUPABASE
-// =====================================================
-
-async function dbLoad(){
-
-for(const key in TABLE){
-
-try{
-
-const { data, error } = await supa
-.from(TABLE[key])
-.select("*")
-
-if(error){
-console.error("DB LOAD ERROR:",TABLE[key],error)
-DB[key] = []
-}else{
-DB[key] = data || []
-}
-
-}catch(err){
-
-console.error(err)
-DB[key] = []
-
-}
-
-}
-
-console.log("DATABASE LOADED",DB)
-
-if(typeof renderAll === "function"){
-renderAll()
-}
-
-}
-
-
-// =====================================================
-// INSERT DATA TO SUPABASE
-// =====================================================
-
-async function dbInsert(key,obj){
-
-const { error } = await supa
-.from(TABLE[key])
-.insert([obj])
-
-if(error){
-console.error(error)
-return
-}
-
-await dbLoad()
-
-}
-// =====================================================
-// UPDATE DATA
-// =====================================================
-
-async function dbUpdate(key,id,obj){
-
-const { error } = await supa
-.from(TABLE[key])
-.update(obj)
-.eq("id",id)
-
-if(error){
-console.error(error)
-return
-}
-
-await dbLoad()
-
-}
-
-// =====================================================
-// DELETE DATA
-// =====================================================
-
-async function dbDelete(key,id){
-
-const { error } = await supa
-.from(TABLE[key])
-.delete()
-.eq("id",id)
-
-if(error){
-console.error(error)
-return
-}
-
-await dbLoad()
-
-}
-// =====================================================
-// AUTO LOAD DATABASE
-// =====================================================
-
-window.addEventListener("load",dbLoad)
-
-// ── AUTH GUARD ── redirect to login if not logged in
-(async function() {
-  const { data: { session } } = await supa.auth.getSession();
-  if (!session) window.location.replace('login.html');
-})();
-
-// Table name mapping: DB key → Supabase table
-const TABLE = {
-  rfi:       'rfi',
-  converted: 'converted',
-  rfp:       'rfp',
-  status:    'status_tracker',
-  approved:  'approved',
-  projects:  'projects',
-  monev:     'monev',
-  weekly:    'weekly',
-  projreport:'project_report',
-  resdoc:    'research_doc',
-  // PHASE 4
-  cp_project:'compliance_project',
-  cp_termin:'compliance_termin'
-};
-
-// Field mapping: camelCase (local) → snake_case (supabase)
-const FIELD_MAP = {
-  rfi: {
-    perusahaan:'perusahaan', industri:'industri', pic:'pic', jabatan:'jabatan',
-    kontak:'kontak', sumber:'sumber', kebutuhan:'kebutuhan', lokasi:'lokasi',
-    status:'status', potensi:'potensi', nextAction:'next_action', catatan:'catatan'
-  },
-  converted: {
-    rfiIndex:'rfi_id', klien:'klien', pic:'pic', kontak:'kontak',
-    kebutuhan:'kebutuhan', lokasi:'lokasi', tglConverted:'tgl_converted',
-    statusRfp:'status_rfp', catatan:'catatan'
-  },
-  rfp: {
-    klien:'klien', pic:'pic', sektor:'sektor', layanan:'layanan',
-    jumlah:'jumlah', lokasi:'lokasi', deadline:'deadline',
-    targetMulai:'target_mulai', prioritas:'prioritas', output:'output', catatan:'catatan'
-  },
-  status: {
-    noRef:'no_ref', klien:'klien', layanan:'layanan', sektor:'sektor',
-    deadline:'deadline', prioritas:'prioritas', tglRequest:'tgl_request',
-    tglKirim:'tgl_kirim', status:'status', nilai:'nilai',
-    feedback:'feedback', tindakLanjut:'tindak_lanjut'
-  },
-  approved: {
-    noRef:'no_ref', klien:'klien', layanan:'layanan', nilai:'nilai',
-    tglDisetujui:'tgl_disetujui', pm:'pm', tglMulai:'tgl_mulai',
-    statusOnboarding:'status_onboarding', linkedProject:'catatan', catatan:'catatan'
-  },
-  projects: {
-    nama:'nama', jenisRiset:'jenis_riset', klien:'klien', pm:'pm',
-    tglMulai:'tgl_mulai', deadline:'deadline', timPeneliti:'tim_peneliti',
-    lokasi:'lokasi', nilai:'nilai', progress:'progress', fase:'fase',
-    status:'status', catatan:'catatan'
-  },
-  monev: {
-    namaProyek:'nama_proyek', pm:'pm', jenisRiset:'jenis_riset',
-    g1:'g1', g2:'g2', g3:'g3', g4:'g4', keputusan:'keputusan', catatan:'catatan'
-  },
-  weekly: {
-    namaProyek:'nama_proyek', pm:'pm', minggu:'minggu', progress:'progress',
-    tglUpdate:'tgl_update', sudah:'sudah', rencana:'rencana',
-    kendala:'kendala', bantuanBd:'bantuan_bd'
-  },
-  projreport: {
-    jenisRiset:'jenis_riset', client:'client', pm:'pm', lokasi:'lokasi',
-    linkDraft:'link_draft', inputData:'input_data', bab1:'bab1', bab2:'bab2',
-    bab3:'bab3', bab4:'bab4', bab5:'bab5', status:'status', catatan:'catatan'
-  },
-  resdoc: {
-    judul:'judul', client:'client', lokasi:'lokasi', tglMulai:'tgl_mulai',
-    tglSelesai:'tgl_selesai', metodologi:'metodologi', researchOutput:'research_output',
-    researchOverview:'research_overview', temuan:'temuan', scope:'scope',
-    linkDok:'link_dok', catatan:'catatan'
-  }
-};
-
-
-// Allowed ENUM values per Supabase column (must match schema exactly)
-const ENUM_VALS = {
-  status_rfi:      ['Diskusi Awal','Qualified','Converted to Proposal','Tidak Dilanjutkan'],
-  potensi_level:   ['High','Medium','Low'],
-  prioritas_level: ['High','Medium','Low'],
-  status_rfp:      ['Belum Diisi','Sudah Diisi','Dalam Review Internal','Proposal Terkirim'],
-  status_proposal: ['Draft','Review Internal','Terkirim','Revisi','Disetujui','Ditolak','On Hold'],
-  status_onboarding:['Belum Dimulai','Onboarding','Kick-off Done','Dalam Pengerjaan','Selesai'],
-  status_project:  ['🟢 On Track','🟡 Perhatian','🔴 Terlambat','✅ Selesai','⏸ Ditunda'],
-  fase_project:    ['Persiapan','Fieldwork','Analisis Data','Penulisan','Review Internal','Gate Review','Revisi','Finalisasi','Selesai'],
-  status_gate:     ['⬜ Belum','🔄 On Review','❌ Revisi','✅ Approved'],
-  keputusan_monev: ['Dalam Proses','Approved','Ditolak','Perlu Revisi Mayor'],
-  status_laporan:  ['Belum Mulai','Dalam Pengerjaan','Review Internal','Final','Selesai'],
-  jenis_layanan:   ['Pemetaan Sosial','IKM','Stakeholder Engagement','SLH','Jurnal Ilmiah','REA','PROPER','SROI','Comdev Class','Lainnya'],
-  kluster_industri:['Manufaktur','Migas','Perbankan','FMCG','Energi','Makanan & Minuman','Konstruksi','Telekomunikasi','Pertambangan','Transportasi','Kesehatan','Pemerintahan','Lainnya'],
-  output_rfp:      ['Proposal','BOQ','Keduanya'],
-};
-
-// Map: supabase column name → enum type name
-const COL_ENUM = {
-  status:           'status_rfi',       // rfi.status (overridden per table below)
-  potensi:          'potensi_level',
-  prioritas:        'prioritas_level',
-  status_rfp:       'status_rfp',
-  output:           'output_rfp',
-  fase:             'fase_project',
-  g1:'status_gate', g2:'status_gate', g3:'status_gate', g4:'status_gate',
-  keputusan:        'keputusan_monev',
-  layanan:          'jenis_layanan',
-  jenis_riset:      'jenis_layanan',
-  sektor:           'kluster_industri',
-  status_onboarding:'status_onboarding',
-};
-
-const TABLE_STATUS_ENUM = {
-  rfi:'status_rfi', status:'status_proposal', approved:'status_onboarding',
-  projects:'status_project', projreport:'status_laporan'
-};
-
-// Convert local camelCase obj → supabase snake_case obj
-function toSupa(key, obj) {
-  const map = FIELD_MAP[key];
-  if (!map) return obj;
-  const out = {};
-  const uuidFields    = ['rfi_id','rfp_id','converted_id','status_tracker_id','approved_id','project_id','id'];
-  const boolFields    = ['input_data','bab1','bab2','bab3','bab4','bab5'];
-  const intFields     = ['progress','minggu'];
-  const numericFields = ['nilai','jumlah'];
-  for (const [local, remote] of Object.entries(map)) {
-    if (obj[local] === undefined) continue;
-    let val = obj[local];
-    // Skip empty UUID fields containing non-UUID values
-    if (uuidFields.includes(remote)) {
-      if (val === '' || val === null) continue;
-      if (typeof val === 'string' && !val.includes('-')) continue;
-    }
-    // Boolean fields: convert checkbox strings / truthy values
-    if (boolFields.includes(remote)) {
-      val = val === true || val === '☑' || val === 'true' || val === 1 || val === '1';
-    }
-    // Integer fields
-    if (intFields.includes(remote)) {
-      val = parseInt(val) || 0;
-    }
-    // Numeric fields
-    if (numericFields.includes(remote)) {
-      val = parseFloat(String(val).replace(/[^0-9.]/g,'')) || null;
-      if (val === null) continue;
-    }
-    // Skip empty strings for non-essential fields
-    if (val === '') continue;
-    // Validate ENUM fields — skip if value not in allowed list
-    let enumType = COL_ENUM[remote];
-    if (remote === 'status') enumType = TABLE_STATUS_ENUM[key] || 'status_rfi';
-    if (enumType && ENUM_VALS[enumType]) {
-      if (!ENUM_VALS[enumType].includes(val)) continue; // skip invalid enum value
-    }
-    out[remote] = val;
-  }
-  return out;
-}
-
-// Convert supabase snake_case row → local camelCase obj
-function fromSupa(key, row) {
-  const map = FIELD_MAP[key];
-  if (!map) return row;
-  const rev = Object.fromEntries(Object.entries(map).map(([l,r])=>[r,l]));
-  const boolFields = ['input_data','bab1','bab2','bab3','bab4','bab5'];
-  const out = { _id: row.id };
-  for (const [remote, local] of Object.entries(rev)) {
-    if (row[remote] === undefined) continue;
-    let val = row[remote] ?? '';
-    // Convert booleans to checkbox display strings
-    if (boolFields.includes(remote)) {
-      val = val === true ? '☑' : '☐';
-    }
-    out[local] = val;
-  }
-  return out;
-}
-
-// Load all data from Supabase
-async function dbLoad() {
-  DB = { rfi:[], converted:[], rfp:[], status:[], approved:[], projects:[], monev:[], weekly:[], projreport:[], resdoc:[] };
-  const tables = Object.keys(TABLE);
-  await Promise.all(tables.map(async key => {
-    try {
-      const { data, error } = await supa.from(TABLE[key]).select('*').order('created_at', {ascending: true});
-      if (error) {
-        console.warn('Supabase error on', key, error.message);
-        // Fallback to localStorage if available
-        const lsKey = {rfi:'e3_rfi',converted:'e3_cv',rfp:'e3_rfp',status:'e3_st',approved:'e3_ap',projects:'e3_pj',monev:'e3_mn',weekly:'e3_wk',projreport:'e4_pr',resdoc:'e4_rd'}[key];
-        if (lsKey) {
-          try { DB[key] = JSON.parse(localStorage.getItem(lsKey)) || []; } catch {}
-        }
-      } else if (data) {
-        DB[key] = data.map(r => fromSupa(key, r));
-      }
-    } catch(e) { console.warn('Load error', key, e); }
-  }));
-}
-
-// Save new row to Supabase
-async function dbInsert(key, obj) {
-  const row = toSupa(key, obj);
-  const { data, error } = await supa.from(TABLE[key]).insert(row).select().single();
-  if (error) { console.error('Insert error', key, error); toast('Gagal simpan: '+error.message, 'er'); return null; }
-  return data;
-}
-
-// Update existing row in Supabase
-async function dbUpdate(key, id, obj) {
-  const row = toSupa(key, obj);
-  const { error } = await supa.from(TABLE[key]).update(row).eq('id', id);
-  if (error) { console.error('Update error', key, error); toast('Gagal update: '+error.message, 'er'); return false; }
-  return true;
-}
-
-// Delete row from Supabase
-async function dbDelete(key, id) {
-  const { error } = await supa.from(TABLE[key]).delete().eq('id', id);
-  if (error) { console.error('Delete error', key, error); toast('Gagal hapus: '+error.message, 'er'); return false; }
-  return true;
-}
-
-function dbSave(k) { /* no-op, replaced by async Supabase calls */ }
-</script>
-
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1544,7 +1164,238 @@ tr:hover td { background: #fafbfc; }
 
 <div class="tct" id="tct"></div>
 
+
 <script>
+
+// ── SUPABASE CONFIG ──────────────────────────────────
+const SUPA_URL = 'https://fzplvluohnbuggvdqkkw.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6cGx2bHVvaG5idWdndmRxa2t3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5OTE4NTMsImV4cCI6MjA4ODU2Nzg1M30.Q3BDZRWJhai63P_yWAbt-TTNqqtnS45zjfevDHbIj1U';
+const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+// ── AUTH GUARD ── redirect to login if not logged in
+(async function() {
+  const { data: { session } } = await supa.auth.getSession();
+  if (!session) window.location.replace('login.html');
+})();
+
+// Table name mapping: DB key → Supabase table
+const TABLE = {
+  rfi:       'rfi',
+  converted: 'converted',
+  rfp:       'rfp',
+  status:    'status_tracker',
+  approved:  'approved',
+  projects:  'projects',
+  monev:     'monev',
+  weekly:    'weekly',
+  projreport:'project_report',
+  resdoc:    'research_doc'
+};
+
+// Field mapping: camelCase (local) → snake_case (supabase)
+const FIELD_MAP = {
+  rfi: {
+    perusahaan:'perusahaan', industri:'industri', pic:'pic', jabatan:'jabatan',
+    kontak:'kontak', sumber:'sumber', kebutuhan:'kebutuhan', lokasi:'lokasi',
+    status:'status', potensi:'potensi', nextAction:'next_action', catatan:'catatan'
+  },
+  converted: {
+    rfiIndex:'rfi_id', klien:'klien', pic:'pic', kontak:'kontak',
+    kebutuhan:'kebutuhan', lokasi:'lokasi', tglConverted:'tgl_converted',
+    statusRfp:'status_rfp', catatan:'catatan'
+  },
+  rfp: {
+    klien:'klien', pic:'pic', sektor:'sektor', layanan:'layanan',
+    jumlah:'jumlah', lokasi:'lokasi', deadline:'deadline',
+    targetMulai:'target_mulai', prioritas:'prioritas', output:'output', catatan:'catatan'
+  },
+  status: {
+    noRef:'no_ref', klien:'klien', layanan:'layanan', sektor:'sektor',
+    deadline:'deadline', prioritas:'prioritas', tglRequest:'tgl_request',
+    tglKirim:'tgl_kirim', status:'status', nilai:'nilai',
+    feedback:'feedback', tindakLanjut:'tindak_lanjut'
+  },
+  approved: {
+    noRef:'no_ref', klien:'klien', layanan:'layanan', nilai:'nilai',
+    tglDisetujui:'tgl_disetujui', pm:'pm', tglMulai:'tgl_mulai',
+    statusOnboarding:'status_onboarding', linkedProject:'catatan', catatan:'catatan'
+  },
+  projects: {
+    nama:'nama', jenisRiset:'jenis_riset', klien:'klien', pm:'pm',
+    tglMulai:'tgl_mulai', deadline:'deadline', timPeneliti:'tim_peneliti',
+    lokasi:'lokasi', nilai:'nilai', progress:'progress', fase:'fase',
+    status:'status', catatan:'catatan'
+  },
+  monev: {
+    namaProyek:'nama_proyek', pm:'pm', jenisRiset:'jenis_riset',
+    g1:'g1', g2:'g2', g3:'g3', g4:'g4', keputusan:'keputusan', catatan:'catatan'
+  },
+  weekly: {
+    namaProyek:'nama_proyek', pm:'pm', minggu:'minggu', progress:'progress',
+    tglUpdate:'tgl_update', sudah:'sudah', rencana:'rencana',
+    kendala:'kendala', bantuanBd:'bantuan_bd'
+  },
+  projreport: {
+    jenisRiset:'jenis_riset', client:'client', pm:'pm', lokasi:'lokasi',
+    linkDraft:'link_draft', inputData:'input_data', bab1:'bab1', bab2:'bab2',
+    bab3:'bab3', bab4:'bab4', bab5:'bab5', status:'status', catatan:'catatan'
+  },
+  resdoc: {
+    judul:'judul', client:'client', lokasi:'lokasi', tglMulai:'tgl_mulai',
+    tglSelesai:'tgl_selesai', metodologi:'metodologi', researchOutput:'research_output',
+    researchOverview:'research_overview', temuan:'temuan', scope:'scope',
+    linkDok:'link_dok', catatan:'catatan'
+  }
+};
+
+
+// Allowed ENUM values per Supabase column (must match schema exactly)
+const ENUM_VALS = {
+  status_rfi:      ['Diskusi Awal','Qualified','Converted to Proposal','Tidak Dilanjutkan'],
+  potensi_level:   ['High','Medium','Low'],
+  prioritas_level: ['High','Medium','Low'],
+  status_rfp:      ['Belum Diisi','Sudah Diisi','Dalam Review Internal','Proposal Terkirim'],
+  status_proposal: ['Draft','Review Internal','Terkirim','Revisi','Disetujui','Ditolak','On Hold'],
+  status_onboarding:['Belum Dimulai','Onboarding','Kick-off Done','Dalam Pengerjaan','Selesai'],
+  status_project:  ['🟢 On Track','🟡 Perhatian','🔴 Terlambat','✅ Selesai','⏸ Ditunda'],
+  fase_project:    ['Persiapan','Fieldwork','Analisis Data','Penulisan','Review Internal','Gate Review','Revisi','Finalisasi','Selesai'],
+  status_gate:     ['⬜ Belum','🔄 On Review','❌ Revisi','✅ Approved'],
+  keputusan_monev: ['Dalam Proses','Approved','Ditolak','Perlu Revisi Mayor'],
+  status_laporan:  ['Belum Mulai','Dalam Pengerjaan','Review Internal','Final','Selesai'],
+  jenis_layanan:   ['Pemetaan Sosial','IKM','Stakeholder Engagement','SLH','Jurnal Ilmiah','REA','PROPER','SROI','Comdev Class','Lainnya'],
+  kluster_industri:['Manufaktur','Migas','Perbankan','FMCG','Energi','Makanan & Minuman','Konstruksi','Telekomunikasi','Pertambangan','Transportasi','Kesehatan','Pemerintahan','Lainnya'],
+  output_rfp:      ['Proposal','BOQ','Keduanya'],
+};
+
+// Map: supabase column name → enum type name
+const COL_ENUM = {
+  status:           'status_rfi',       // rfi.status (overridden per table below)
+  potensi:          'potensi_level',
+  prioritas:        'prioritas_level',
+  status_rfp:       'status_rfp',
+  output:           'output_rfp',
+  fase:             'fase_project',
+  g1:'status_gate', g2:'status_gate', g3:'status_gate', g4:'status_gate',
+  keputusan:        'keputusan_monev',
+  layanan:          'jenis_layanan',
+  jenis_riset:      'jenis_layanan',
+  sektor:           'kluster_industri',
+  status_onboarding:'status_onboarding',
+};
+
+const TABLE_STATUS_ENUM = {
+  rfi:'status_rfi', status:'status_proposal', approved:'status_onboarding',
+  projects:'status_project', projreport:'status_laporan'
+};
+
+// Convert local camelCase obj → supabase snake_case obj
+function toSupa(key, obj) {
+  const map = FIELD_MAP[key];
+  if (!map) return obj;
+  const out = {};
+  const uuidFields    = ['rfi_id','rfp_id','converted_id','status_tracker_id','approved_id','project_id','id'];
+  const boolFields    = ['input_data','bab1','bab2','bab3','bab4','bab5'];
+  const intFields     = ['progress','minggu'];
+  const numericFields = ['nilai','jumlah'];
+  for (const [local, remote] of Object.entries(map)) {
+    if (obj[local] === undefined) continue;
+    let val = obj[local];
+    // Skip empty UUID fields containing non-UUID values
+    if (uuidFields.includes(remote)) {
+      if (val === '' || val === null) continue;
+      if (typeof val === 'string' && !val.includes('-')) continue;
+    }
+    // Boolean fields: convert checkbox strings / truthy values
+    if (boolFields.includes(remote)) {
+      val = val === true || val === '☑' || val === 'true' || val === 1 || val === '1';
+    }
+    // Integer fields
+    if (intFields.includes(remote)) {
+      val = parseInt(val) || 0;
+    }
+    // Numeric fields
+    if (numericFields.includes(remote)) {
+      val = parseFloat(String(val).replace(/[^0-9.]/g,'')) || null;
+      if (val === null) continue;
+    }
+    // Skip empty strings for non-essential fields
+    if (val === '') continue;
+    // Validate ENUM fields — skip if value not in allowed list
+    let enumType = COL_ENUM[remote];
+    if (remote === 'status') enumType = TABLE_STATUS_ENUM[key] || 'status_rfi';
+    if (enumType && ENUM_VALS[enumType]) {
+      if (!ENUM_VALS[enumType].includes(val)) continue; // skip invalid enum value
+    }
+    out[remote] = val;
+  }
+  return out;
+}
+
+// Convert supabase snake_case row → local camelCase obj
+function fromSupa(key, row) {
+  const map = FIELD_MAP[key];
+  if (!map) return row;
+  const rev = Object.fromEntries(Object.entries(map).map(([l,r])=>[r,l]));
+  const boolFields = ['input_data','bab1','bab2','bab3','bab4','bab5'];
+  const out = { _id: row.id };
+  for (const [remote, local] of Object.entries(rev)) {
+    if (row[remote] === undefined) continue;
+    let val = row[remote] ?? '';
+    // Convert booleans to checkbox display strings
+    if (boolFields.includes(remote)) {
+      val = val === true ? '☑' : '☐';
+    }
+    out[local] = val;
+  }
+  return out;
+}
+
+// Load all data from Supabase
+async function dbLoad() {
+  DB = { rfi:[], converted:[], rfp:[], status:[], approved:[], projects:[], monev:[], weekly:[], projreport:[], resdoc:[] };
+  const tables = Object.keys(TABLE);
+  await Promise.all(tables.map(async key => {
+    try {
+      const { data, error } = await supa.from(TABLE[key]).select('*').order('created_at', {ascending: true});
+      if (error) {
+        console.warn('Supabase error on', key, error.message);
+        // Fallback to localStorage if available
+        const lsKey = {rfi:'e3_rfi',converted:'e3_cv',rfp:'e3_rfp',status:'e3_st',approved:'e3_ap',projects:'e3_pj',monev:'e3_mn',weekly:'e3_wk',projreport:'e4_pr',resdoc:'e4_rd'}[key];
+        if (lsKey) {
+          try { DB[key] = JSON.parse(localStorage.getItem(lsKey)) || []; } catch {}
+        }
+      } else if (data) {
+        DB[key] = data.map(r => fromSupa(key, r));
+      }
+    } catch(e) { console.warn('Load error', key, e); }
+  }));
+}
+
+// Save new row to Supabase
+async function dbInsert(key, obj) {
+  const row = toSupa(key, obj);
+  const { data, error } = await supa.from(TABLE[key]).insert(row).select().single();
+  if (error) { console.error('Insert error', key, error); toast('Gagal simpan: '+error.message, 'er'); return null; }
+  return data;
+}
+
+// Update existing row in Supabase
+async function dbUpdate(key, id, obj) {
+  const row = toSupa(key, obj);
+  const { error } = await supa.from(TABLE[key]).update(row).eq('id', id);
+  if (error) { console.error('Update error', key, error); toast('Gagal update: '+error.message, 'er'); return false; }
+  return true;
+}
+
+// Delete row from Supabase
+async function dbDelete(key, id) {
+  const { error } = await supa.from(TABLE[key]).delete().eq('id', id);
+  if (error) { console.error('Delete error', key, error); toast('Gagal hapus: '+error.message, 'er'); return false; }
+  return true;
+}
+
+function dbSave(k) { /* no-op, replaced by async Supabase calls */ }
+
 // ── DATA ──────────────────────────────────────────────
 const KEYS = {rfi:'e3_rfi',converted:'e3_cv',rfp:'e3_rfp',status:'e3_st',approved:'e3_ap',projects:'e3_pj',monev:'e3_mn',weekly:'e3_wk',projreport:'e4_pr',resdoc:'e4_rd'};
 let DB = {};
@@ -2735,14 +2586,152 @@ async function doLogout() {
 // ══════════════════════════════════════════════════
 
 var cpProjects = [];
+var cpLoading  = false;
 
-function cpSave() {
-  try { localStorage.setItem('esi_cp_projects', JSON.stringify(cpProjects)); } catch(e){}
+// ── SUPABASE CRUD ──────────────────────────────────────
+
+// Load all projects + their termins from Supabase
+async function cpLoadFromDB() {
+  try {
+    var res = await supa.from('compliance_project').select('*').order('created_at', {ascending: false});
+    if (res.error) throw res.error;
+    var projects = res.data || [];
+
+    // Load all termins in one query
+    var tRes = await supa.from('compliance_termin').select('*');
+    if (tRes.error) throw tRes.error;
+    var termins = tRes.data || [];
+
+    // Map termins to projects
+    cpProjects = projects.map(function(p) {
+      var pt = termins.filter(function(t) { return t.project_id === p.id; });
+      function findT(n) {
+        var t = pt.find(function(x) { return x.termin_no === n; });
+        if (!t) return {pct:0, due:'', inv:'', kuitansi:'', po:'', efaktur:'', bast:'', evidence:'', selfacc:'', npwp:'', pay:''};
+        return {
+          _id:      t.id,
+          pct:      t.persentase  || 0,
+          due:      t.due_date    || '',
+          inv:      t.invoice     || '',
+          kuitansi: t.kuitansi    || '',
+          po:       t.po_contract || '',
+          efaktur:  t.e_faktur    || '',
+          bast:     t.bast_bapp   || '',
+          evidence: t.evidence    || '',
+          selfacc:  t.self_acc    || '',
+          npwp:     t.npwp        || '',
+          pay:      t.tgl_payment || '',
+        };
+      }
+      return {
+        _id:      p.id,
+        id:       p.project_code,
+        user:     p.user_klien,
+        project:  p.nama_project,
+        nospk:    p.no_spk        || '',
+        nilai:    p.nilai         || '',
+        ovstatus: p.status,
+        start:    p.tgl_mulai     || '',
+        end:      p.tgl_akhir     || '',
+        received: p.tgl_diterima  || '',
+        delivered:p.tgl_dikirim   || '',
+        courier:  p.courier_no    || '',
+        payterm:  p.payment_term  || '',
+        ttd:      p.sign_req      || '',
+        t1: findT(1),
+        t2: findT(2),
+        t3: findT(3),
+      };
+    });
+  } catch(e) {
+    console.error('cpLoadFromDB error:', e);
+    toast('Gagal memuat data compliance', 'er');
+  }
 }
+
+// Save / upsert a project + its 3 termins
+async function cpSaveToDB(p) {
+  try {
+    // Upsert main project row (match by project_code)
+    var projData = {
+      project_code: p.id,
+      user_klien:   p.user,
+      nama_project: p.project,
+      no_invoicing: p.nospk   || null,
+      no_spk:       p.nospk   || null,
+      nilai:        p.nilai   ? parseInt(String(p.nilai).replace(/[^0-9]/g,'')) : null,
+      status:       p.ovstatus|| 'On Track',
+      tgl_mulai:    p.start   || null,
+      tgl_akhir:    p.end     || null,
+      tgl_diterima: p.received  || null,
+      tgl_dikirim:  p.delivered || null,
+      courier_no:   p.courier   || null,
+      payment_term: p.payterm   || null,
+      sign_req:     p.ttd       || null,
+    };
+    var upsertRes = await supa
+      .from('compliance_project')
+      .upsert(projData, {onConflict: 'project_code'})
+      .select('id')
+      .single();
+    if (upsertRes.error) throw upsertRes.error;
+    var projectId = upsertRes.data.id;
+
+    // Upsert all 3 termins
+    var termData = [1,2,3].map(function(n) {
+      var t = p['t' + n] || {};
+      return {
+        project_id:   projectId,
+        termin_no:    n,
+        persentase:   parseInt(t.pct) || 0,
+        due_date:     t.due      || null,
+        invoice:      t.inv      || null,
+        kuitansi:     t.kuitansi || null,
+        po_contract:  t.po       || null,
+        e_faktur:     t.efaktur  || null,
+        bast_bapp:    t.bast     || null,
+        evidence:     t.evidence || null,
+        self_acc:     t.selfacc  || null,
+        npwp:         t.npwp     || null,
+        tgl_payment:  t.pay      || null,
+      };
+    });
+    var termRes = await supa
+      .from('compliance_termin')
+      .upsert(termData, {onConflict: 'project_id,termin_no'});
+    if (termRes.error) throw termRes.error;
+
+    return projectId;
+  } catch(e) {
+    console.error('cpSaveToDB error:', e);
+    toast('Gagal menyimpan data compliance: ' + (e.message||e), 'er');
+    return null;
+  }
+}
+
+// Delete project from Supabase (cascade deletes termins)
+async function cpDeleteFromDB(projectCode) {
+  try {
+    var res = await supa
+      .from('compliance_project')
+      .delete()
+      .eq('project_code', projectCode);
+    if (res.error) throw res.error;
+  } catch(e) {
+    console.error('cpDeleteFromDB error:', e);
+    toast('Gagal menghapus: ' + (e.message||e), 'er');
+  }
+}
+
+// ── LEGACY WRAPPERS (now async) ──
 function cpLoad() {
-  try { cpProjects = JSON.parse(localStorage.getItem('esi_cp_projects')) || []; } catch(e){ cpProjects = []; }
+  return cpLoadFromDB();
+}
+function cpSave() {
+  // no-op: saves happen per-action via cpSaveToDB
 }
 
+// ── STATUS TAG ──
 function cpStatusTag(s) {
   var cls = {Completed:'completed','In Progress':'in-progress','On Track':'on-track','On Hold':'on-hold',Cancelled:'cancelled'};
   return '<span class="cp-stag ' + (cls[s]||'') + '">' + (s||'—') + '</span>';
@@ -2755,7 +2744,9 @@ function cpParseCurrency(v) { return v ? v.replace(/[^0-9]/g,'') : ''; }
 
 // ── DASHBOARD ──
 function cpRenderDashboard() {
-  cpLoad();
+  cpLoadFromDB().then(function() { _cpDrawDashboard(); });
+}
+function _cpDrawDashboard() {
   var s = {total:0,completed:0,inprogress:0,ontrack:0,onhold:0,cancelled:0,t1pay:0,t2pay:0,t3pay:0};
   s.total = cpProjects.length;
   cpProjects.forEach(function(p) {
@@ -2823,15 +2814,12 @@ function cpRenderDashboard() {
   ].map(function(p) {
     var pct = Math.round(p.paid / Math.max(p.total,1) * 100);
     return '<div class="cp-pay-item">'
-      + '<div class="cp-pay-top">'
-      +   '<div class="cp-pay-name">' + p.name + '</div>'
-      +   '<div class="cp-pay-nums">' + p.paid + '/' + p.total + ' (' + pct + '%)</div>'
-      + '</div>'
+      + '<div class="cp-pay-top"><div class="cp-pay-name">' + p.name + '</div>'
+      + '<div class="cp-pay-nums">' + p.paid + '/' + p.total + ' (' + pct + '%)</div></div>'
       + '<div class="cp-prog-bar"><div class="cp-prog-fill" style="width:' + pct + '%;background:' + p.color + '"></div></div>'
       + '</div>';
   }).join('');
 
-  // Mini table - use data-cpid attribute instead of inline onclick to avoid quote issues
   var tbody = document.getElementById('cp-dash-tbody');
   if (!tbody) return;
   if (!cpProjects.length) {
@@ -2840,9 +2828,7 @@ function cpRenderDashboard() {
   }
   function cpTdot(t) {
     if (!t) return '<span class="cp-tdot pending"></span>';
-    return t.pay
-      ? '<span class="cp-tdot done"></span>'
-      : (t.inv ? '<span class="cp-tdot partial"></span>' : '<span class="cp-tdot pending"></span>');
+    return t.pay ? '<span class="cp-tdot done"></span>' : (t.inv ? '<span class="cp-tdot partial"></span>' : '<span class="cp-tdot pending"></span>');
   }
   tbody.innerHTML = cpProjects.slice(0,6).map(function(p) {
     var t3html = (p.t3 && p.t3.pct > 0)
@@ -2859,7 +2845,6 @@ function cpRenderDashboard() {
       + '<td>' + t3html + '</td>'
       + '</tr>';
   }).join('');
-  // Attach click via event delegation
   tbody.querySelectorAll('tr.cp-row').forEach(function(row) {
     row.addEventListener('click', function() { cpOpenDetail(this.dataset.cpid); });
   });
@@ -2875,7 +2860,9 @@ function cpFilterStatus(s, btn) {
   cpRenderTracker();
 }
 function cpRenderTracker() {
-  cpLoad();
+  cpLoadFromDB().then(function() { _cpDrawTracker(); });
+}
+function _cpDrawTracker() {
   var data = cpProjects.filter(function(p) {
     var ms = cpTrackerFilter === 'all' || p.ovstatus === cpTrackerFilter;
     var q  = cpTrackerSearch;
@@ -2911,7 +2898,6 @@ function cpRenderTracker() {
         + '</td>'
         + '</tr>';
     }).join('');
-    // Attach events
     tbody.querySelectorAll('tr.cp-row').forEach(function(row) {
       row.addEventListener('click', function() { cpOpenDetail(this.dataset.cpid); });
     });
@@ -2926,17 +2912,19 @@ function cpRenderTracker() {
   if (countEl) countEl.textContent = 'Menampilkan ' + slice.length + ' dari ' + data.length + ' data';
   var pagDiv = document.getElementById('cp-tracker-pages');
   if (!pagDiv) return;
-  var btns = '<button class="cp-pbtn" ' + (cpTrackerPage<=1 ? 'disabled' : '') + ' onclick="cpTrackerPage--;cpRenderTracker()">‹</button>';
+  var btns = '<button class="cp-pbtn" ' + (cpTrackerPage<=1 ? 'disabled' : '') + ' onclick="cpTrackerPage--;_cpDrawTracker()">‹</button>';
   for (var i = 1; i <= pages; i++) {
-    btns += '<button class="cp-pbtn ' + (i===cpTrackerPage ? 'on' : '') + '" onclick="cpTrackerPage=' + i + ';cpRenderTracker()">' + i + '</button>';
+    btns += '<button class="cp-pbtn ' + (i===cpTrackerPage ? 'on' : '') + '" onclick="cpTrackerPage=' + i + ';_cpDrawTracker()">' + i + '</button>';
   }
-  btns += '<button class="cp-pbtn" ' + (cpTrackerPage>=pages ? 'disabled' : '') + ' onclick="cpTrackerPage++;cpRenderTracker()">›</button>';
+  btns += '<button class="cp-pbtn" ' + (cpTrackerPage>=pages ? 'disabled' : '') + ' onclick="cpTrackerPage++;_cpDrawTracker()">›</button>';
   pagDiv.innerHTML = btns;
 }
 
 // ── TERMIN ──
 function cpRenderTermin() {
-  cpLoad();
+  cpLoadFromDB().then(function() { _cpDrawTermin(); });
+}
+function _cpDrawTermin() {
   var s = {t1pay:0, t2pay:0, t3pay:0};
   var t3c = 0;
   cpProjects.forEach(function(p) {
@@ -3007,19 +2995,19 @@ function cpSwitchTab(tab) {
   if (!isA) cpPopulateBSelector();
 }
 function cpPopulateBSelector() {
-  cpLoad();
-  var sel = document.getElementById('cp-b-select');
-  sel.innerHTML = '<option value="">— Pilih Project —</option>'
-    + cpProjects.map(function(p) {
-        return '<option value="' + p.id + '">' + p.id + ' — ' + p.project.substring(0,35) + '</option>';
-      }).join('');
+  cpLoadFromDB().then(function() {
+    var sel = document.getElementById('cp-b-select');
+    sel.innerHTML = '<option value="">— Pilih Project —</option>'
+      + cpProjects.map(function(p) {
+          return '<option value="' + p.id + '">' + p.id + ' — ' + p.project.substring(0,35) + '</option>';
+        }).join('');
+  });
 }
 function cpLoadForB(id) {
   var card = document.getElementById('cp-b-card');
   var ph   = document.getElementById('cp-b-placeholder');
   var nm   = document.getElementById('cp-b-pname');
   if (!id) { card.style.opacity='.45'; card.style.pointerEvents='none'; ph.style.display='block'; nm.value=''; return; }
-  cpLoad();
   var p = cpProjects.find(function(x) { return x.id === id; });
   if (!p) return;
   nm.value = p.project;
@@ -3037,7 +3025,6 @@ function cpSubmitA() {
   var user = document.getElementById('cp-f-user').value.trim();
   var proj = document.getElementById('cp-f-project').value.trim();
   if (!id || !user || !proj) { toast('ID, Klien, dan Nama Project wajib diisi', 'er'); return; }
-  cpLoad();
   function tGet(pfx) {
     return {
       pct:      document.getElementById('cp-' + pfx + '-pct').value      || 0,
@@ -3063,14 +3050,14 @@ function cpSubmitA() {
     received: '', delivered: '', courier: '', payterm: '', ttd: '',
     t1: tGet('t1'), t2: tGet('t2'), t3: tGet('t3'),
   };
-  var idx = cpProjects.findIndex(function(x) { return x.id === id; });
-  if (idx >= 0) cpProjects[idx] = Object.assign(cpProjects[idx], p);
-  else cpProjects.unshift(p);
-  cpSave();
-  cpRenderDashboard();
-  toast('Project compliance berhasil disimpan ✓', 'ok');
-  cpResetFormA();
-  setTimeout(function() { navTo('cp-tracker'); }, 600);
+  showLoading(true);
+  cpSaveToDB(p).then(function(pid) {
+    showLoading(false);
+    if (!pid) return;
+    toast('Project compliance berhasil disimpan ✓', 'ok');
+    cpResetFormA();
+    setTimeout(function() { navTo('cp-tracker'); }, 600);
+  });
 }
 function cpResetFormA() {
   ['cp-f-id','cp-f-user','cp-f-project','cp-f-status','cp-f-nospk','cp-f-nilai','cp-f-start','cp-f-end'].forEach(function(id) {
@@ -3087,17 +3074,20 @@ function cpResetFormA() {
 function cpSubmitB() {
   var id = document.getElementById('cp-b-select').value;
   if (!id) { toast('Pilih project terlebih dahulu', 'wn'); return; }
-  cpLoad();
-  var idx = cpProjects.findIndex(function(x) { return x.id === id; });
-  if (idx < 0) return;
-  cpProjects[idx].received  = document.getElementById('cp-f-rec').value;
-  cpProjects[idx].delivered = document.getElementById('cp-f-del').value;
-  cpProjects[idx].courier   = document.getElementById('cp-f-courier').value;
-  cpProjects[idx].payterm   = document.getElementById('cp-f-payterm').value;
-  cpProjects[idx].ttd       = document.getElementById('cp-f-ttd').value;
-  cpSave();
-  toast('Korespondensi diperbarui ✓', 'ok');
-  setTimeout(function() { navTo('cp-tracker'); }, 600);
+  var p = cpProjects.find(function(x) { return x.id === id; });
+  if (!p) return;
+  p.received  = document.getElementById('cp-f-rec').value;
+  p.delivered = document.getElementById('cp-f-del').value;
+  p.courier   = document.getElementById('cp-f-courier').value;
+  p.payterm   = document.getElementById('cp-f-payterm').value;
+  p.ttd       = document.getElementById('cp-f-ttd').value;
+  showLoading(true);
+  cpSaveToDB(p).then(function(pid) {
+    showLoading(false);
+    if (!pid) return;
+    toast('Korespondensi diperbarui ✓', 'ok');
+    setTimeout(function() { navTo('cp-tracker'); }, 600);
+  });
 }
 function cpResetFormB() {
   ['cp-f-rec','cp-f-del','cp-f-courier','cp-f-payterm','cp-f-ttd'].forEach(function(id) {
@@ -3110,7 +3100,6 @@ function cpResetFormB() {
 
 // ── DETAIL MODAL ──
 function cpOpenDetail(id) {
-  cpLoad();
   var p = cpProjects.find(function(x) { return x.id === id; });
   if (!p) return;
   document.getElementById('cp-modal-title').textContent = p.id + ' — ' + p.project;
@@ -3170,35 +3159,22 @@ document.addEventListener('click', function(e) {
 });
 
 function cpDeleteProject(id) {
-  if (!confirm('Hapus project ' + id + '?')) return;
-  cpLoad();
-  cpProjects = cpProjects.filter(function(x) { return x.id !== id; });
-  cpSave();
-  cpRenderTracker();
-  toast('Project dihapus.', '');
+  if (!confirm('Hapus project ' + id + '? Data tidak dapat dikembalikan.')) return;
+  showLoading(true);
+  cpDeleteFromDB(id).then(function() {
+    showLoading(false);
+    cpRenderTracker();
+    toast('Project dihapus.', '');
+  });
 }
 
-// Init compliance on page load
-cpLoad();
+// Init — pre-load data
+cpLoadFromDB();
 
-window.addEventListener("load",dbLoad)
-  
+
+
+
 </script>
 
 </body>
 </html>
-const TABLE = {
-  rfi:'rfi',
-  converted:'converted',
-  rfp:'rfp',
-  status:'status_tracker',
-  approved:'approved',
-  projects:'projects',
-  monev:'monev',
-  weekly:'weekly',
-  projreport:'project_report',
-  resdoc:'research_doc',
-
-  cp_project:'compliance_project',
-  cp_termin:'compliance_termin'
-};
