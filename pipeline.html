@@ -101,33 +101,23 @@ renderAll()
 
 async function dbInsert(key,obj){
 
-try{
-
 const { error } = await supa
 .from(TABLE[key])
 .insert([obj])
 
 if(error){
-console.error("INSERT ERROR:",error)
+console.error(error)
 return
 }
 
 await dbLoad()
 
-}catch(err){
-console.error(err)
 }
-
-}
-
-
 // =====================================================
 // UPDATE DATA
 // =====================================================
 
 async function dbUpdate(key,id,obj){
-
-try{
 
 const { error } = await supa
 .from(TABLE[key])
@@ -135,18 +125,13 @@ const { error } = await supa
 .eq("id",id)
 
 if(error){
-console.error("UPDATE ERROR:",error)
+console.error(error)
 return
 }
 
 await dbLoad()
 
-}catch(err){
-console.error(err)
 }
-
-}
-
 
 // =====================================================
 // DELETE DATA
@@ -154,27 +139,19 @@ console.error(err)
 
 async function dbDelete(key,id){
 
-try{
-
 const { error } = await supa
 .from(TABLE[key])
 .delete()
 .eq("id",id)
 
 if(error){
-console.error("DELETE ERROR:",error)
+console.error(error)
 return
 }
 
 await dbLoad()
 
-}catch(err){
-console.error(err)
 }
-
-}
-
-
 // =====================================================
 // AUTO LOAD DATABASE
 // =====================================================
@@ -3204,7 +3181,8 @@ function cpDeleteProject(id) {
 // Init compliance on page load
 cpLoad();
 
-
+window.addEventListener("load",dbLoad)
+  
 </script>
 
 </body>
