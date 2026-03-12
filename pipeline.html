@@ -357,6 +357,7 @@ body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; background: var(
 .p2t { background: var(--accent-lt); color: var(--accent-d); }
 .p3t { background: var(--purple-lt); color: var(--purple); }
 .brt { background: var(--yellow-lt); color: var(--yellow); }
+.p4t { background: #eff6ff; color: #1d4ed8; }
 
 .tb-r { display: flex; align-items: center; gap: 12px; }
 .datebadge {
@@ -630,6 +631,130 @@ tr:hover td { background: #fafbfc; }
 .chart-sub   { font-size: 11px; color: var(--ink3); margin-top: 2px; }
 .chart-wrap  { position: relative; }
 
+
+/* ══════════════════════════════════
+   PHASE 4 — PROJECT COMPLIANCE CSS
+══════════════════════════════════ */
+.cp-kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px; }
+.cp-kpi-card {
+  background:var(--card); border:1px solid var(--bor); border-radius:var(--radius);
+  padding:18px 18px 14px; position:relative; overflow:hidden;
+  box-shadow:var(--shadow); transition:transform .15s, box-shadow .15s;
+}
+.cp-kpi-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-md); }
+.cp-kpi-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+.cp-kpi-card.blue::before   { background:#2e75b6; }
+.cp-kpi-card.green::before  { background:#4caf50; }
+.cp-kpi-card.orange::before { background:#f57c00; }
+.cp-kpi-card.teal::before   { background:#2a9aa8; }
+.cp-kpi-card.red::before    { background:#c62828; }
+.cp-kpi-card.sky::before    { background:#4da3e0; }
+.cp-kpi-icon { position:absolute; right:14px; top:14px; font-size:26px; opacity:.12; }
+.cp-kpi-label { font-size:11px; font-weight:700; color:var(--ink2); text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px; }
+.cp-kpi-value { font-size:36px; font-weight:800; color:var(--ink); line-height:1; margin-bottom:6px; letter-spacing:-.02em; }
+.cp-kpi-sub   { font-size:11px; color:var(--ink3); }
+
+.cp-chart-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
+.cp-card { background:var(--card); border:1px solid var(--bor); border-radius:var(--radius); padding:20px; box-shadow:var(--shadow); }
+.cp-card-title { font-size:12px; font-weight:700; color:var(--ink); margin-bottom:16px; text-transform:uppercase; letter-spacing:.05em; display:flex; align-items:center; gap:8px; }
+
+.cp-donut-wrap { display:flex; align-items:center; gap:24px; }
+.cp-donut { width:120px; height:120px; border-radius:50%; flex-shrink:0; position:relative; }
+.cp-donut-inner { position:absolute; inset:20px; border-radius:50%; background:var(--card); display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.cp-donut-total { font-size:26px; font-weight:800; color:var(--ink); line-height:1; }
+.cp-donut-lbl   { font-size:9px; color:var(--ink3); font-weight:600; text-transform:uppercase; }
+.cp-legend { display:flex; flex-direction:column; gap:7px; flex:1; }
+.cp-legend-item { display:flex; align-items:center; justify-content:space-between; font-size:12px; }
+.cp-swatch { width:9px; height:9px; border-radius:2px; flex-shrink:0; }
+.cp-legend-name { display:flex; align-items:center; gap:7px; color:var(--ink2); }
+.cp-legend-count { font-size:12px; font-weight:700; color:var(--ink); min-width:20px; text-align:right; }
+
+.cp-pay-list { display:flex; flex-direction:column; gap:12px; }
+.cp-pay-item {}
+.cp-pay-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+.cp-pay-name { font-size:13px; font-weight:600; color:var(--ink2); }
+.cp-pay-nums { font-size:11px; color:var(--ink3); }
+.cp-prog-bar { height:7px; background:var(--bor); border-radius:4px; overflow:hidden; }
+.cp-prog-fill { height:100%; border-radius:4px; transition:width .8s; }
+
+.cp-table-wrap { background:var(--card); border:1px solid var(--bor); border-radius:var(--radius); overflow:hidden; margin-bottom:16px; box-shadow:var(--shadow); }
+.cp-table-toolbar { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid var(--bor); gap:10px; flex-wrap:wrap; }
+.cp-search-box { display:flex; align-items:center; gap:7px; background:var(--sur); border:1px solid var(--bor); border-radius:8px; padding:7px 11px; flex:1; max-width:280px; }
+.cp-search-box input { border:none; background:none; font-family:inherit; font-size:13px; color:var(--ink); width:100%; outline:none; }
+.cp-filter-row { display:flex; gap:6px; flex-wrap:wrap; }
+.cp-fbtn { display:inline-flex; align-items:center; padding:5px 11px; border-radius:6px; border:1px solid var(--bor); background:var(--card); font-size:11.5px; font-weight:500; cursor:pointer; color:var(--ink2); font-family:inherit; transition:all .13s; }
+.cp-fbtn:hover, .cp-fbtn.on { background:var(--blue); color:#fff; border-color:var(--blue); }
+.cp-pagination { display:flex; align-items:center; justify-content:space-between; padding:10px 16px; border-top:1px solid var(--bor); font-size:12px; color:var(--ink3); }
+.cp-page-btns { display:flex; gap:3px; }
+.cp-pbtn { width:30px; height:30px; display:flex; align-items:center; justify-content:center; border-radius:6px; border:1px solid var(--bor); background:var(--card); cursor:pointer; font-size:12px; color:var(--ink2); font-family:inherit; transition:all .12s; }
+.cp-pbtn:hover { background:var(--bor2); }
+.cp-pbtn.on { background:var(--blue); color:#fff; border-color:var(--blue); }
+.cp-pbtn:disabled { opacity:.35; cursor:default; }
+
+.cp-stag { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:20px; font-size:11px; font-weight:600; white-space:nowrap; }
+.cp-stag::before { content:''; width:5px; height:5px; border-radius:50%; flex-shrink:0; }
+.cp-stag.completed   { background:#dcfce7; color:#15803d; } .cp-stag.completed::before   { background:#22c55e; }
+.cp-stag.in-progress { background:#dbeafe; color:#1d4ed8; } .cp-stag.in-progress::before { background:#3b82f6; }
+.cp-stag.on-track    { background:#ccfbf1; color:#0f766e; } .cp-stag.on-track::before    { background:#14b8a6; }
+.cp-stag.on-hold     { background:#ffedd5; color:#c2410c; } .cp-stag.on-hold::before     { background:#f97316; }
+.cp-stag.cancelled   { background:#fee2e2; color:#b91c1c; } .cp-stag.cancelled::before   { background:#ef4444; }
+
+.cp-term-cell { display:flex; gap:4px; align-items:center; }
+.cp-tdot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.cp-tdot.done    { background:#22c55e; }
+.cp-tdot.pending { background:#e5e7eb; border:1px solid #d1d5db; }
+.cp-tdot.partial { background:#f97316; }
+
+.cp-termin-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:20px; }
+.cp-termin-card { background:var(--card); border:1px solid var(--bor); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; }
+.cp-termin-hd { padding:12px 16px; font-size:13px; font-weight:700; color:#fff; display:flex; align-items:center; justify-content:space-between; }
+.cp-termin-hd.t1 { background:#2e75b6; } .cp-termin-hd.t2 { background:#2a9aa8; } .cp-termin-hd.t3 { background:#2e7d32; }
+.cp-termin-bd { padding:14px 16px; }
+.cp-doc-row { display:flex; align-items:center; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--bor2); font-size:12px; }
+.cp-doc-row:last-child { border-bottom:none; }
+.cp-doc-name { color:var(--ink2); }
+.cp-doc-stat { display:flex; align-items:center; gap:4px; font-size:11px; font-weight:600; }
+.cp-doc-stat::before { content:''; width:6px; height:6px; border-radius:50%; }
+.cp-doc-stat.ok   { color:#15803d; } .cp-doc-stat.ok::before   { background:#22c55e; }
+.cp-doc-stat.miss { color:#b91c1c; } .cp-doc-stat.miss::before { background:#ef4444; }
+.cp-doc-stat.na   { color:var(--ink3); } .cp-doc-stat.na::before { background:#d1d5db; }
+
+.cp-form-card { background:var(--card); border:1px solid var(--bor); border-radius:var(--radius); box-shadow:var(--shadow); margin-bottom:18px; overflow:hidden; }
+.cp-form-shdr { padding:12px 20px; font-size:12px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; color:#fff; display:flex; align-items:center; gap:8px; }
+.cp-form-shdr.blue { background:#1d4ed8; } .cp-form-shdr.teal { background:#0f766e; } .cp-form-shdr.green { background:#15803d; }
+.cp-form-body { padding:18px 20px; }
+.cp-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px 20px; }
+.cp-fg { display:flex; flex-direction:column; gap:5px; }
+.cp-fg.full { grid-column:1/-1; }
+.cp-fl { font-size:11px; font-weight:700; color:var(--ink2); text-transform:uppercase; letter-spacing:.04em; }
+.cp-fi { padding:9px 11px; border:1.5px solid var(--bor); border-radius:8px; font-family:inherit; font-size:13px; color:var(--ink); background:var(--card); outline:none; transition:border-color .15s; width:100%; }
+.cp-fi:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(59,130,246,.1); }
+.cp-termin-form-grid { display:grid; grid-template-columns:repeat(3,1fr); border:1.5px solid var(--bor); border-radius:10px; overflow:hidden; }
+.cp-tcol-hdr { padding:9px 12px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:#fff; text-align:center; }
+.cp-tcol-hdr.t1 { background:#2e75b6; } .cp-tcol-hdr.t2 { background:#2a9aa8; } .cp-tcol-hdr.t3 { background:#2e7d32; }
+.cp-tig { padding:8px 12px; border-top:1px solid var(--bor2); }
+.cp-tig-lbl { font-size:10px; color:var(--ink3); font-weight:600; margin-bottom:3px; text-transform:uppercase; }
+.cp-tig input, .cp-tig select { width:100%; padding:6px 8px; border:1.5px solid var(--bor); border-radius:6px; font-family:inherit; font-size:12px; background:var(--sur); color:var(--ink); outline:none; transition:border-color .15s; }
+.cp-tig input:focus, .cp-tig select:focus { border-color:var(--blue); background:var(--card); }
+.cp-form-actions { display:flex; justify-content:flex-end; gap:10px; padding:16px 20px; border-top:1px solid var(--bor); }
+.cp-tabs { display:flex; border-bottom:1px solid var(--bor); background:var(--card); border-radius:var(--radius) var(--radius) 0 0; overflow:hidden; }
+.cp-tab-btn { flex:1; padding:14px 18px; border:none; background:var(--sur); cursor:pointer; font-family:inherit; font-size:13px; font-weight:600; color:var(--ink2); display:flex; align-items:center; justify-content:center; gap:8px; transition:all .18s; border-right:1px solid var(--bor); }
+.cp-tab-btn:last-child { border-right:none; }
+.cp-tab-btn.on { background:var(--blue); color:#fff; }
+.cp-modal-ov { position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:600; display:none; align-items:center; justify-content:center; backdrop-filter:blur(3px); }
+.cp-modal-ov.open { display:flex; }
+.cp-modal { background:var(--card); border-radius:16px; width:560px; max-width:96vw; max-height:86vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,.25); animation:fi .2s ease; }
+.cp-modal-hd { padding:20px 24px 0; display:flex; align-items:center; justify-content:space-between; }
+.cp-modal-title { font-size:16px; font-weight:700; color:var(--ink); }
+.cp-modal-close { width:30px; height:30px; border-radius:7px; background:var(--bor2); border:none; cursor:pointer; font-size:16px; color:var(--ink3); display:flex; align-items:center; justify-content:center; }
+.cp-modal-close:hover { background:var(--bor); }
+.cp-modal-bd { padding:16px 24px 24px; }
+.cp-detail-row { display:flex; gap:8px; margin-bottom:8px; }
+.cp-detail-key { width:140px; flex-shrink:0; font-size:11px; font-weight:700; color:var(--ink3); text-transform:uppercase; letter-spacing:.04em; padding-top:2px; }
+.cp-detail-val { font-size:13px; color:var(--ink); flex:1; }
+.cp-detail-div { height:1px; background:var(--bor); margin:12px 0; }
+.cp-detail-sec { font-size:10px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--blue); margin-bottom:10px; padding-bottom:5px; border-bottom:2px solid var(--blue); }
+
 /* ── TOAST ── */
 .tct { position: fixed; bottom: 20px; right: 20px; z-index: 999; display: flex; flex-direction: column; gap: 8px; }
 .toast { background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 10px; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 8px; max-width: 300px; box-shadow: var(--shadow-lg); animation: ti .22s ease, to .28s ease 2.8s forwards; }
@@ -719,6 +844,12 @@ tr:hover td { background: #fafbfc; }
     <div class="ni" data-action="nav" data-page="projreport"><span class="ni-ic">📋</span>Project Report<span class="nbadge" id="b-preport" style="background:var(--g3)">0</span></div>
     <div class="pipe"></div>
     <div class="ni" data-action="nav" data-page="resdoc"><span class="ni-ic">📂</span>Research Docs<span class="nbadge" id="b-resdoc" style="background:var(--b3)">0</span></div>
+  </div>
+  <div class="nsec"><div class="nlbl">Phase 4 — Compliance</div>
+    <div class="ni" data-action="nav" data-page="cp-dashboard"><span class="ni-ic">📊</span>Dashboard Compliance</div>
+    <div class="ni" data-action="nav" data-page="cp-tracker"><span class="ni-ic">📋</span>Compliance Tracker</div>
+    <div class="ni" data-action="nav" data-page="cp-termin"><span class="ni-ic">💳</span>Termin Pembayaran</div>
+    <div class="ni" data-action="nav" data-page="cp-input"><span class="ni-ic">➕</span>Input Project</div>
   </div>
   <div class="sfooter">v4.0 · Data tersimpan lokal</div>
 </aside>
@@ -1070,6 +1201,202 @@ tr:hover td { background: #fafbfc; }
       <button class="btn b-pr" id="m-save">Simpan</button>
     </div>
   </div>
+
+  <!-- ════════════ PHASE 4 — PROJECT COMPLIANCE ════════════ -->
+
+  <!-- CP: DASHBOARD -->
+  <div class="page" id="pg-cp-dashboard">
+    <div class="ph">
+      <div class="ph-l"><h1>📊 Dashboard Compliance</h1><p>Ringkasan status compliance dan pembayaran seluruh project.</p></div>
+      <div class="ph-r"><button class="btn b-bl" onclick="navTo('cp-input')">➕ Tambah Project</button></div>
+    </div>
+    <div class="cp-kpi-grid" id="cp-kpi-grid"></div>
+    <div class="cp-chart-row">
+      <div class="cp-card">
+        <div class="cp-card-title"><span style="width:8px;height:8px;border-radius:50%;background:#2e75b6;display:inline-block"></span>Distribusi Status Project</div>
+        <div class="cp-donut-wrap">
+          <div id="cp-donut" class="cp-donut"><div class="cp-donut-inner"><div class="cp-donut-total" id="cp-donut-total">0</div><div class="cp-donut-lbl">Total</div></div></div>
+          <div class="cp-legend" id="cp-status-legend"></div>
+        </div>
+      </div>
+      <div class="cp-card">
+        <div class="cp-card-title"><span style="width:8px;height:8px;border-radius:50%;background:#2a9aa8;display:inline-block"></span>Progress Termin Pembayaran</div>
+        <div class="cp-pay-list" id="cp-payment-list"></div>
+      </div>
+    </div>
+    <div class="tc">
+      <div class="th"><h3>Project Terbaru</h3><button class="btn b-se bsm" onclick="navTo('cp-tracker')">Lihat Semua →</button></div>
+      <table><thead><tr><th>ID</th><th>Klien/User</th><th>Nama Project</th><th>Status</th><th>Nilai Kontrak</th><th>Term I</th><th>Term II</th><th>Term III</th></tr></thead>
+      <tbody id="cp-dash-tbody"></tbody></table>
+    </div>
+  </div>
+
+  <!-- CP: TRACKER -->
+  <div class="page" id="pg-cp-tracker">
+    <div class="ph"><div class="ph-l"><h1>📋 Compliance Tracker</h1><p>Daftar lengkap project dengan status termin dan korespondensi.</p></div></div>
+    <div class="cp-table-wrap">
+      <div class="cp-table-toolbar">
+        <div class="cp-search-box">
+          <span>🔍</span>
+          <input type="text" placeholder="Cari project atau klien..." oninput="cpFilterTable(this.value)">
+        </div>
+        <div class="cp-filter-row">
+          <button class="cp-fbtn on" onclick="cpFilterStatus('all',this)">Semua</button>
+          <button class="cp-fbtn" onclick="cpFilterStatus('On Track',this)">On Track</button>
+          <button class="cp-fbtn" onclick="cpFilterStatus('In Progress',this)">In Progress</button>
+          <button class="cp-fbtn" onclick="cpFilterStatus('Completed',this)">Completed</button>
+          <button class="cp-fbtn" onclick="cpFilterStatus('On Hold',this)">On Hold</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>ID</th><th>Klien/User</th><th>Nama Project</th><th>Status</th><th>Tgl Mulai</th><th>Tgl Akhir</th><th>Korespondensi</th><th>Termin</th><th>Aksi</th></tr></thead>
+          <tbody id="cp-tracker-tbody"></tbody>
+        </table>
+      </div>
+      <div class="cp-pagination">
+        <span id="cp-tracker-count">0 data</span>
+        <div class="cp-page-btns" id="cp-tracker-pages"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CP: TERMIN -->
+  <div class="page" id="pg-cp-termin">
+    <div class="ph"><div class="ph-l"><h1>💳 Termin Pembayaran</h1><p>Monitoring status pembayaran per termin seluruh project.</p></div></div>
+    <div class="cp-kpi-grid" style="grid-template-columns:repeat(3,1fr)" id="cp-termin-kpi"></div>
+    <div class="cp-termin-grid" id="cp-termin-grid"></div>
+  </div>
+
+  <!-- CP: INPUT -->
+  <div class="page" id="pg-cp-input">
+    <div class="ph"><div class="ph-l"><h1>➕ Input Project</h1><p>Tambah atau update data project compliance.</p></div></div>
+    <!-- Tabs -->
+    <div class="cp-form-card" style="margin-bottom:16px">
+      <div class="cp-tabs">
+        <button class="cp-tab-btn on" id="cp-tab-a" onclick="cpSwitchTab('a')">🏷️ A — Identitas & Detail Project</button>
+        <button class="cp-tab-btn" id="cp-tab-b" onclick="cpSwitchTab('b')">📬 B — Korespondensi & Kontrak <span style="font-size:10px;background:#fff3e0;color:#c2410c;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:6px">Setelah Invoice</span></button>
+      </div>
+      <div style="padding:10px 18px;background:var(--sur);font-size:12px;color:var(--ink3);display:flex;align-items:center;gap:6px" id="cp-tab-hint">
+        ℹ️ Isi Bagian A terlebih dahulu saat project baru dibuat.
+      </div>
+    </div>
+
+    <!-- TAB A -->
+    <div id="cp-tab-content-a">
+      <div class="cp-form-card">
+        <div class="cp-form-shdr blue">🏷️ Bagian A — Identitas & Detail Project</div>
+        <div class="cp-form-body">
+          <div class="cp-form-grid">
+            <div class="cp-fg"><label class="cp-fl">ID Project *</label><input class="cp-fi" type="text" id="cp-f-id" placeholder="PRJ-001"></div>
+            <div class="cp-fg"><label class="cp-fl">Nama Klien / User *</label><input class="cp-fi" type="text" id="cp-f-user" placeholder="Nama klien atau user"></div>
+            <div class="cp-fg full"><label class="cp-fl">Nama Project *</label><input class="cp-fi" type="text" id="cp-f-project" placeholder="Nama lengkap project"></div>
+            <div class="cp-fg"><label class="cp-fl">Nomor Invoicing</label><input class="cp-fi" type="text" id="cp-f-status" placeholder="Nomor invoice..."></div>
+            <div class="cp-fg"><label class="cp-fl">Nomor Kontrak / SPK</label><input class="cp-fi" type="text" id="cp-f-nospk" placeholder="No. SPK"></div>
+            <div class="cp-fg"><label class="cp-fl">Nilai Kontrak (Rp)</label><input class="cp-fi" type="text" id="cp-f-nilai" placeholder="0" oninput="cpFormatCurrency(this)"></div>
+            <div class="cp-fg"><label class="cp-fl">Status Project</label>
+              <select class="cp-fi" id="cp-f-ovstatus">
+                <option>On Track</option><option>In Progress</option><option>Completed</option><option>On Hold</option><option>Cancelled</option>
+              </select>
+            </div>
+            <div class="cp-fg"><label class="cp-fl">Tgl Mulai Kontrak</label><input class="cp-fi" type="date" id="cp-f-start"></div>
+            <div class="cp-fg"><label class="cp-fl">Tgl Akhir Kontrak</label><input class="cp-fi" type="date" id="cp-f-end"></div>
+          </div>
+        </div>
+      </div>
+      <div class="cp-form-card">
+        <div class="cp-form-shdr green">💳 Termin Pembayaran</div>
+        <div class="cp-form-body">
+          <div class="cp-termin-form-grid">
+            <div class="cp-tcol-hdr t1">TERM I</div><div class="cp-tcol-hdr t2">TERM II</div><div class="cp-tcol-hdr t3">TERM III</div>
+            <div class="cp-tig"><div class="cp-tig-lbl">Persentase (%)</div><input type="number" min="0" max="100" id="cp-t1-pct" placeholder="0"></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">Persentase (%)</div><input type="number" min="0" max="100" id="cp-t2-pct" placeholder="0"></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">Persentase (%)</div><input type="number" min="0" max="100" id="cp-t3-pct" placeholder="0"></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">Due Date</div><input type="date" id="cp-t1-due"></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">Due Date</div><input type="date" id="cp-t2-due"></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">Due Date</div><input type="date" id="cp-t3-due"></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">Invoice</div><select id="cp-t1-inv"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">Invoice</div><select id="cp-t2-inv"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">Invoice</div><select id="cp-t3-inv"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">Kuitansi</div><select id="cp-t1-kuitansi"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">Kuitansi</div><select id="cp-t2-kuitansi"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">Kuitansi</div><select id="cp-t3-kuitansi"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">PO/Contract</div><select id="cp-t1-po"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">PO/Contract</div><select id="cp-t2-po"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">PO/Contract</div><select id="cp-t3-po"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">E-Faktur</div><select id="cp-t1-efaktur"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">E-Faktur</div><select id="cp-t2-efaktur"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">E-Faktur</div><select id="cp-t3-efaktur"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">BAST/BAPP</div><select id="cp-t1-bast"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">BAST/BAPP</div><select id="cp-t2-bast"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">BAST/BAPP</div><select id="cp-t3-bast"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">Evidence</div><select id="cp-t1-evidence"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">Evidence</div><select id="cp-t2-evidence"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">Evidence</div><select id="cp-t3-evidence"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">Self-Acceptance</div><select id="cp-t1-selfacc"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">Self-Acceptance</div><select id="cp-t2-selfacc"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">Self-Acceptance</div><select id="cp-t3-selfacc"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">NPWP</div><select id="cp-t1-npwp"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">NPWP</div><select id="cp-t2-npwp"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">NPWP</div><select id="cp-t3-npwp"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">Payment Delivered</div><input type="date" id="cp-t1-pay"></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">Payment Delivered</div><input type="date" id="cp-t2-pay"></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">Payment Delivered</div><input type="date" id="cp-t3-pay"></div>
+          </div>
+        </div>
+        <div class="cp-form-actions">
+          <button class="btn b-se" type="button" onclick="cpResetFormA()">Reset</button>
+          <button class="btn b-bl" type="button" onclick="cpSubmitA()">💾 Simpan Project</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB B -->
+    <div id="cp-tab-content-b" style="display:none">
+      <div class="cp-form-card">
+        <div class="cp-form-shdr" style="background:var(--ink2)">🔍 Pilih Project yang Akan Diupdate</div>
+        <div class="cp-form-body">
+          <div class="cp-form-grid" style="grid-template-columns:1fr 1fr">
+            <div class="cp-fg"><label class="cp-fl">ID Project *</label>
+              <select class="cp-fi" id="cp-b-select" onchange="cpLoadForB(this.value)"><option value="">— Pilih Project —</option></select>
+            </div>
+            <div class="cp-fg"><label class="cp-fl">Nama Project</label>
+              <input class="cp-fi" type="text" id="cp-b-pname" readonly style="background:var(--sur);color:var(--ink3)">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="cp-form-card" id="cp-b-card" style="opacity:.45;pointer-events:none;transition:all .3s">
+        <div class="cp-form-shdr teal">📬 Bagian B — Korespondensi & Kontrak</div>
+        <div class="cp-form-body">
+          <div class="cp-form-grid">
+            <div class="cp-fg"><label class="cp-fl">Tgl Korespondensi Diterima</label><input class="cp-fi" type="date" id="cp-f-rec"></div>
+            <div class="cp-fg"><label class="cp-fl">Tgl Korespondensi Dikirim</label><input class="cp-fi" type="date" id="cp-f-del"></div>
+            <div class="cp-fg"><label class="cp-fl">Courier Receipt No.</label><input class="cp-fi" type="text" id="cp-f-courier" placeholder="No. resi"></div>
+            <div class="cp-fg"><label class="cp-fl">Payment Term</label><input class="cp-fi" type="text" id="cp-f-payterm" placeholder="Contoh: Net 30"></div>
+            <div class="cp-fg"><label class="cp-fl">Sign Requirement</label><input class="cp-fi" type="text" id="cp-f-ttd" placeholder="Sign requirement"></div>
+          </div>
+        </div>
+        <div class="cp-form-actions">
+          <button class="btn b-se" type="button" onclick="cpResetFormB()">Reset</button>
+          <button class="btn b-bl" type="button" onclick="cpSubmitB()">💾 Update Korespondensi</button>
+        </div>
+      </div>
+      <div id="cp-b-placeholder" style="text-align:center;padding:36px;color:var(--ink3);font-size:13px"><div style="font-size:36px;margin-bottom:10px">📬</div>Pilih project untuk mengisi Korespondensi & Kontrak</div>
+    </div>
+  </div>
+
+  <!-- CP: MODAL DETAIL -->
+  <div class="cp-modal-ov" id="cp-modal-ov">
+    <div class="cp-modal">
+      <div class="cp-modal-hd">
+        <div class="cp-modal-title" id="cp-modal-title">Detail Project</div>
+        <button class="cp-modal-close" onclick="cpCloseModal()">✕</button>
+      </div>
+      <div class="cp-modal-bd" id="cp-modal-bd"></div>
+    </div>
+  </div>
+
 </div>
 
 <div class="tct" id="tct"></div>
@@ -1093,6 +1420,10 @@ const PAGE_META = {
   rfp:{title:'Request Form',ph:'Phase 2 — Proposal',pc:'p2t'},
   status:{title:'Status Tracker',ph:'Phase 2 — Proposal',pc:'p2t'},
   banklayanan:{title:'Bank Referensi Layanan',ph:'Phase 2 — Proposal',pc:'p2t'},
+  'cp-dashboard':{title:'Dashboard Compliance',ph:'Phase 4 — Project Compliance',pc:'p4t'},
+  'cp-tracker'  :{title:'Compliance Tracker',ph:'Phase 4 — Project Compliance',pc:'p4t'},
+  'cp-termin'   :{title:'Termin Pembayaran',ph:'Phase 4 — Project Compliance',pc:'p4t'},
+  'cp-input'    :{title:'Input Project',ph:'Phase 4 — Project Compliance',pc:'p4t'},
   approved:{title:'Disetujui → Project',ph:'Bridge 2→3',pc:'brt'},
   projects:{title:'Data Project',ph:'Phase 3 — Project',pc:'p3t'},
   monev:{title:'MONEV 4-Gate',ph:'Phase 3 — Project',pc:'p3t'},
@@ -1170,7 +1501,11 @@ function renderPage(p) {
     rfp:renderRFP, status:renderStat, approved:renderAppr,
     projects:renderProj, monev:renderMonev, weekly:renderWeekly,
     projreport:renderProjReport, resdoc:renderResDoc,
-    banklayanan:renderBanklayanan
+    banklayanan:renderBanklayanan,
+    'cp-dashboard': cpRenderDashboard,
+    'cp-tracker':   cpRenderTracker,
+    'cp-termin':    cpRenderTermin,
+    'cp-input':     function(){}
   };
   if (fns[p]) fns[p]();
   updateBadges();
@@ -2250,6 +2585,305 @@ async function doLogout() {
   if (nameEl)  nameEl.textContent  = fullName || email;
   if (emailEl) emailEl.textContent = email;
 })();
+
+
+// ══════════════════════════════════════════════════
+//  PHASE 4 — PROJECT COMPLIANCE JS
+// ══════════════════════════════════════════════════
+
+// Data store (localStorage persisted)
+var cpProjects = [];
+
+function cpSave() {
+  try { localStorage.setItem('esi_cp_projects', JSON.stringify(cpProjects)); } catch(e){}
+}
+function cpLoad() {
+  try { cpProjects = JSON.parse(localStorage.getItem('esi_cp_projects')) || []; } catch(e){ cpProjects = []; }
+}
+
+// ── HELPERS ──
+function cpStatusTag(s) {
+  var map = {'Completed':'completed','In Progress':'in-progress','On Track':'on-track','On Hold':'on-hold','Cancelled':'cancelled'};
+  return '<span class="cp-stag '+(map[s]||'')+'">'+( s||'—')+'</span>';
+}
+function cpFormatCurrency(el) {
+  var raw = el.value.replace(/[^0-9]/g,'');
+  if (raw) el.value = Number(raw).toLocaleString('id-ID');
+}
+function cpParseCurrency(v) { return v ? v.replace(/[^0-9]/g,'') : ''; }
+
+// ── DASHBOARD ──
+function cpRenderDashboard() {
+  cpLoad();
+  var s = {total:0,completed:0,inprogress:0,ontrack:0,onhold:0,cancelled:0,t1pay:0,t2pay:0,t3pay:0};
+  s.total = cpProjects.length;
+  cpProjects.forEach(function(p){
+    if(p.ovstatus==='Completed') s.completed++;
+    else if(p.ovstatus==='In Progress') s.inprogress++;
+    else if(p.ovstatus==='On Track') s.ontrack++;
+    else if(p.ovstatus==='On Hold') s.onhold++;
+    else if(p.ovstatus==='Cancelled') s.cancelled++;
+    if(p.t1&&p.t1.pay) s.t1pay++;
+    if(p.t2&&p.t2.pay) s.t2pay++;
+    if(p.t3&&p.t3.pay&&p.t3.pct>0) s.t3pay++;
+  });
+  var kpis = [
+    {l:'Total Project',v:s.total,c:'blue',ic:'📋'},
+    {l:'Completed',v:s.completed,c:'green',ic:'✅'},
+    {l:'In Progress',v:s.inprogress,c:'sky',ic:'⚙️'},
+    {l:'On Track',v:s.ontrack,c:'teal',ic:'🎯'},
+    {l:'On Hold',v:s.onhold,c:'orange',ic:'⏸️'},
+    {l:'Termin I Lunas',v:s.t1pay,c:'blue',ic:'💰'},
+    {l:'Termin II Lunas',v:s.t2pay,c:'teal',ic:'💳'},
+    {l:'Termin III Lunas',v:s.t3pay,c:'green',ic:'🏆'},
+  ];
+  var grid = document.getElementById('cp-kpi-grid');
+  if (grid) grid.innerHTML = kpis.map(function(k){
+    return '<div class="cp-kpi-card '+k.c+'"><div class="cp-kpi-icon">'+k.ic+'</div><div class="cp-kpi-label">'+k.l+'</div><div class="cp-kpi-value">'+k.v+'</div><div class="cp-kpi-sub">'+(s.total?Math.round(k.v/s.total*100):0)+'% dari total</div></div>';
+  }).join('');
+
+  // Donut
+  var statData = [
+    {name:'Completed',val:s.completed,color:'#22c55e'},
+    {name:'In Progress',val:s.inprogress,color:'#3b82f6'},
+    {name:'On Track',val:s.ontrack,color:'#14b8a6'},
+    {name:'On Hold',val:s.onhold,color:'#f97316'},
+    {name:'Cancelled',val:s.cancelled,color:'#ef4444'},
+  ].filter(function(x){ return x.val>0; });
+  var conic='',acc=0;
+  statData.forEach(function(d){
+    var pct=d.val/Math.max(s.total,1)*100;
+    conic+=d.color+' '+acc+'% '+(acc+pct)+'%, ';
+    acc+=pct;
+  });
+  if(!conic) conic='#e5e7eb 0% 100%, ';
+  var donutEl = document.getElementById('cp-donut');
+  if (donutEl) donutEl.style.background='conic-gradient('+conic.slice(0,-2)+')';
+  var dtEl = document.getElementById('cp-donut-total');
+  if (dtEl) dtEl.textContent = s.total;
+  var legEl = document.getElementById('cp-status-legend');
+  if (legEl) legEl.innerHTML = statData.map(function(d){
+    return '<div class="cp-legend-item"><div class="cp-legend-name"><div class="cp-swatch" style="background:'+d.color+'"></div>'+d.name+'</div><div class="cp-legend-count">'+d.val+'</div></div>';
+  }).join('');
+
+  // Payment progress
+  var t3c = cpProjects.filter(function(p){ return p.t3&&p.t3.pct>0; }).length;
+  var payEl = document.getElementById('cp-payment-list');
+  if (payEl) payEl.innerHTML = [
+    {name:'Term I', paid:s.t1pay, total:s.total, color:'#2e75b6'},
+    {name:'Term II',paid:s.t2pay, total:s.total, color:'#2a9aa8'},
+    {name:'Term III',paid:s.t3pay,total:t3c||1,  color:'#22c55e'},
+  ].map(function(p){
+    var pct=Math.round(p.paid/Math.max(p.total,1)*100);
+    return '<div class="cp-pay-item"><div class="cp-pay-top"><div class="cp-pay-name">'+p.name+'</div><div class="cp-pay-nums">'+p.paid+'/'+p.total+' ('+pct+'%)</div></div><div class="cp-prog-bar"><div class="cp-prog-fill" style="width:'+pct+'%;background:'+p.color+'"></div></div></div>';
+  }).join('');
+
+  // Mini table
+  var tbody = document.getElementById('cp-dash-tbody');
+  if (!tbody) return;
+  if (!cpProjects.length) { tbody.innerHTML='<tr class="er"><td colspan="8">Belum ada data. Klik "+ Tambah Project".</td></tr>'; return; }
+  tbody.innerHTML = cpProjects.slice(0,6).map(function(p){
+    function tdot(t){ if(!t) return '<span class="cp-tdot pending"></span>'; return t.pay ? '<span class="cp-tdot done"></span>' : (t.inv ? '<span class="cp-tdot partial"></span>' : '<span class="cp-tdot pending"></span>'); }
+    var t3 = p.t3&&p.t3.pct>0 ? '<div class="cp-term-cell">'+tdot(p.t3)+'</div>' : '<span style="font-size:10px;color:var(--ink3)">N/A</span>';
+    return '<tr onclick="cpOpenDetail(''+p.id+'')" style="cursor:pointer">'+
+      '<td style="font-size:11px;color:var(--ink3);font-weight:600">'+p.id+'</td>'+
+      '<td>'+p.user+'</td>'+
+      '<td style="font-size:12px">'+p.project+'</td>'+
+      '<td>'+cpStatusTag(p.ovstatus)+'</td>'+
+      '<td style="font-size:12px">'+( p.nilai ? 'Rp '+Number(p.nilai).toLocaleString('id-ID') : '—')+'</td>'+
+      '<td><div class="cp-term-cell">'+tdot(p.t1)+'<span style="font-size:10px;color:var(--ink3)">'+(p.t1&&p.t1.pay||'—')+'</span></div></td>'+
+      '<td><div class="cp-term-cell">'+tdot(p.t2)+'<span style="font-size:10px;color:var(--ink3)">'+(p.t2&&p.t2.pay||'—')+'</span></div></td>'+
+      '<td>'+t3+'</td>'+
+    '</tr>';
+  }).join('');
+}
+
+// ── TRACKER ──
+var cpTrackerFilter='all', cpTrackerSearch='', cpTrackerPage=1;
+function cpFilterTable(q){ cpTrackerSearch=q.toLowerCase(); cpTrackerPage=1; cpRenderTracker(); }
+function cpFilterStatus(s,btn){
+  cpTrackerFilter=s; cpTrackerPage=1;
+  document.querySelectorAll('.cp-fbtn').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+  cpRenderTracker();
+}
+function cpRenderTracker() {
+  cpLoad();
+  var data = cpProjects.filter(function(p){
+    var ms = cpTrackerFilter==='all'||p.ovstatus===cpTrackerFilter;
+    var mq = !cpTrackerSearch || (p.project&&p.project.toLowerCase().includes(cpTrackerSearch)) || (p.user&&p.user.toLowerCase().includes(cpTrackerSearch)) || (p.id&&p.id.toLowerCase().includes(cpTrackerSearch));
+    return ms&&mq;
+  });
+  var ROWS=10, pages=Math.ceil(data.length/ROWS), slice=data.slice((cpTrackerPage-1)*ROWS,cpTrackerPage*ROWS);
+  var tbody = document.getElementById('cp-tracker-tbody');
+  if (!tbody) return;
+  if (!slice.length) { tbody.innerHTML='<tr class="er"><td colspan="9">Tidak ada data yang cocok.</td></tr>'; }
+  else tbody.innerHTML = slice.map(function(p){
+    function tdot(t){ if(!t||!t.pct) return ''; return '<span class="cp-tdot '+(t.pay?'done':t.inv?'partial':'pending')+'"></span>'; }
+    return '<tr onclick="cpOpenDetail(''+p.id+'')" style="cursor:pointer">'+
+      '<td style="font-size:11px;color:var(--ink3);font-weight:600">'+p.id+'</td>'+
+      '<td style="font-size:12px">'+p.user+'</td>'+
+      '<td style="font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+p.project+'</td>'+
+      '<td>'+cpStatusTag(p.ovstatus)+'</td>'+
+      '<td style="font-size:11px;color:var(--ink3)">'+(p.start||'—')+'</td>'+
+      '<td style="font-size:11px;color:var(--ink3)">'+(p.end||'—')+'</td>'+
+      '<td style="font-size:11px;color:var(--ink3)">'+(p.received||'—')+'</td>'+
+      '<td><div class="cp-term-cell">'+tdot(p.t1)+tdot(p.t2)+tdot(p.t3)+'</div></td>'+
+      '<td><button class="btn b-se bsm" onclick="event.stopPropagation();cpOpenDetail(''+p.id+'')">Detail</button><button class="btn bsm" style="background:#fee2e2;color:#b91c1c;border:none;border-radius:6px;cursor:pointer;padding:4px 8px;font-size:11px;margin-left:4px" onclick="event.stopPropagation();cpDeleteProject(''+p.id+'')">🗑</button></td>'+
+    '</tr>';
+  }).join('');
+  document.getElementById('cp-tracker-count').textContent = 'Menampilkan '+slice.length+' dari '+data.length+' data';
+  var pagDiv = document.getElementById('cp-tracker-pages');
+  var btns = '<button class="cp-pbtn" '+(cpTrackerPage<=1?'disabled':'')+' onclick="cpTrackerPage--;cpRenderTracker()">‹</button>';
+  for(var i=1;i<=pages;i++) btns+='<button class="cp-pbtn '+(i===cpTrackerPage?'on':'')+'" onclick="cpTrackerPage='+i+';cpRenderTracker()">'+i+'</button>';
+  btns+='<button class="cp-pbtn" '+(cpTrackerPage>=pages?'disabled':'')+' onclick="cpTrackerPage++;cpRenderTracker()">›</button>';
+  pagDiv.innerHTML=btns;
+}
+
+// ── TERMIN ──
+function cpRenderTermin() {
+  cpLoad();
+  var s={t1pay:0,t2pay:0,t3pay:0}; var t3c=0;
+  cpProjects.forEach(function(p){
+    if(p.t1&&p.t1.pay) s.t1pay++;
+    if(p.t2&&p.t2.pay) s.t2pay++;
+    if(p.t3&&p.t3.pct>0){ t3c++; if(p.t3.pay) s.t3pay++; }
+  });
+  var kpiEl = document.getElementById('cp-termin-kpi');
+  if (kpiEl) kpiEl.innerHTML = [
+    {l:'Term I Lunas',v:s.t1pay+'/'+cpProjects.length,c:'blue',ic:'💰'},
+    {l:'Term II Lunas',v:s.t2pay+'/'+cpProjects.length,c:'teal',ic:'💳'},
+    {l:'Term III Lunas',v:s.t3pay+'/'+(t3c||0),c:'green',ic:'🏆'},
+  ].map(function(k){ return '<div class="cp-kpi-card '+k.c+'"><div class="cp-kpi-icon">'+k.ic+'</div><div class="cp-kpi-label">'+k.l+'</div><div class="cp-kpi-value" style="font-size:30px">'+k.v+'</div></div>'; }).join('');
+
+  var grid = document.getElementById('cp-termin-grid');
+  if (!grid) return;
+  grid.innerHTML = [
+    {title:'TERM I',cls:'t1',key:'t1'},{title:'TERM II',cls:'t2',key:'t2'},{title:'TERM III',cls:'t3',key:'t3'}
+  ].map(function(term){
+    var active=cpProjects.filter(function(p){ return p[term.key]&&p[term.key].pct>0; });
+    var paid=active.filter(function(p){ return p[term.key].pay; }).length;
+    var rows=[
+      ['Invoice',active.filter(function(p){return p[term.key].inv==='✓ Ada';}).length,active.length],
+      ['Kuitansi',active.filter(function(p){return p[term.key].kuitansi==='✓ Ada';}).length,active.length],
+      ['PO/Contract',active.filter(function(p){return p[term.key].po==='✓ Ada';}).length,active.length],
+      ['E-Faktur',active.filter(function(p){return p[term.key].efaktur==='✓ Ada';}).length,active.length],
+      ['BAST/BAPP',active.filter(function(p){return p[term.key].bast==='✓ Ada';}).length,active.length],
+      ['Payment Delivered',paid,active.length],
+    ];
+    return '<div class="cp-termin-card">'+
+      '<div class="cp-termin-hd '+term.cls+'"><span>'+term.title+'</span><span>'+paid+'/'+active.length+' Paid</span></div>'+
+      '<div class="cp-termin-bd">'+
+      rows.map(function(r){ return '<div class="cp-doc-row"><div class="cp-doc-name">'+r[0]+'</div><div class="cp-doc-stat '+(r[1]>0?'ok':'miss')+'">'+r[1]+' / '+r[2]+'</div></div>'; }).join('')+
+      (active.length ? '<div style="margin-top:10px">'+active.map(function(p){ return '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--bor2);font-size:11px"><span style="color:var(--ink3)">'+p.id+'</span><span style="color:var(--ink2);max-width:120px;overflow:hidden;text-overflow:ellipsis">'+p.project.substring(0,18)+'…</span>'+(p[term.key].pay?'<span style="color:#15803d;font-weight:700">✓ PAID</span>':'<span style="color:#f97316">Belum</span>')+'</div>'; }).join('')+'</div>' : '')+
+      '</div></div>';
+  }).join('');
+}
+
+// ── TAB SWITCHER ──
+function cpSwitchTab(tab) {
+  var isA = tab==='a';
+  document.getElementById('cp-tab-content-a').style.display = isA?'block':'none';
+  document.getElementById('cp-tab-content-b').style.display = isA?'none':'block';
+  document.getElementById('cp-tab-a').classList.toggle('on',isA);
+  document.getElementById('cp-tab-b').classList.toggle('on',!isA);
+  document.getElementById('cp-tab-hint').textContent = isA ? 'ℹ️ Isi Bagian A terlebih dahulu saat project baru dibuat.' : '⏳ Bagian B diisi setelah invoice dikirim ke klien.';
+  if (!isA) cpPopulateBSelector();
+}
+function cpPopulateBSelector() {
+  cpLoad();
+  var sel = document.getElementById('cp-b-select');
+  sel.innerHTML = '<option value="">— Pilih Project —</option>' +
+    cpProjects.map(function(p){ return '<option value="'+p.id+'">'+p.id+' — '+p.project.substring(0,35)+'</option>'; }).join('');
+}
+function cpLoadForB(id) {
+  var card=document.getElementById('cp-b-card'), ph=document.getElementById('cp-b-placeholder'), nm=document.getElementById('cp-b-pname');
+  if (!id) { card.style.opacity='.45'; card.style.pointerEvents='none'; ph.style.display='block'; nm.value=''; return; }
+  cpLoad();
+  var p=cpProjects.find(function(x){return x.id===id;}); if(!p) return;
+  nm.value=p.project;
+  document.getElementById('cp-f-rec').value=p.received||'';
+  document.getElementById('cp-f-del').value=p.delivered||'';
+  document.getElementById('cp-f-courier').value=p.courier||'';
+  document.getElementById('cp-f-payterm').value=p.payterm||'';
+  document.getElementById('cp-f-ttd').value=p.ttd||'';
+  card.style.opacity='1'; card.style.pointerEvents='auto'; ph.style.display='none';
+}
+
+// ── FORM A SUBMIT ──
+function cpSubmitA() {
+  var id=document.getElementById('cp-f-id').value.trim();
+  var user=document.getElementById('cp-f-user').value.trim();
+  var proj=document.getElementById('cp-f-project').value.trim();
+  if (!id||!user||!proj) { toast('ID, Klien, dan Nama Project wajib diisi','er'); return; }
+  cpLoad();
+  function tGet(pfx){ return { pct:document.getElementById('cp-'+pfx+'-pct').value||0, due:document.getElementById('cp-'+pfx+'-due').value, inv:document.getElementById('cp-'+pfx+'-inv').value, kuitansi:document.getElementById('cp-'+pfx+'-kuitansi').value, po:document.getElementById('cp-'+pfx+'-po').value, efaktur:document.getElementById('cp-'+pfx+'-efaktur').value, bast:document.getElementById('cp-'+pfx+'-bast').value, evidence:document.getElementById('cp-'+pfx+'-evidence').value, selfacc:document.getElementById('cp-'+pfx+'-selfacc').value, npwp:document.getElementById('cp-'+pfx+'-npwp').value, pay:document.getElementById('cp-'+pfx+'-pay').value }; }
+  var p = { id:id, user:user, project:proj, nospk:document.getElementById('cp-f-nospk').value, nilai:cpParseCurrency(document.getElementById('cp-f-nilai').value), ovstatus:document.getElementById('cp-f-ovstatus').value, start:document.getElementById('cp-f-start').value, end:document.getElementById('cp-f-end').value, received:'', delivered:'', courier:'', payterm:'', ttd:'', t1:tGet('t1'), t2:tGet('t2'), t3:tGet('t3') };
+  var idx=cpProjects.findIndex(function(x){return x.id===id;});
+  if(idx>=0) cpProjects[idx]={...cpProjects[idx],...p}; else cpProjects.unshift(p);
+  cpSave(); cpRenderDashboard(); toast('Project berhasil disimpan ✓','ok');
+  cpResetFormA(); setTimeout(function(){ navTo('cp-tracker'); },600);
+}
+function cpResetFormA() {
+  ['cp-f-id','cp-f-user','cp-f-project','cp-f-status','cp-f-nospk','cp-f-nilai','cp-f-start','cp-f-end'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  ['t1','t2','t3'].forEach(function(t){ ['pct','due','inv','kuitansi','po','efaktur','bast','evidence','selfacc','npwp','pay'].forEach(function(f){ var el=document.getElementById('cp-'+t+'-'+f); if(el) el.value=''; }); });
+}
+
+// ── FORM B SUBMIT ──
+function cpSubmitB() {
+  var id=document.getElementById('cp-b-select').value; if(!id){toast('Pilih project terlebih dahulu','wn');return;}
+  cpLoad(); var idx=cpProjects.findIndex(function(x){return x.id===id;}); if(idx<0) return;
+  cpProjects[idx].received=document.getElementById('cp-f-rec').value;
+  cpProjects[idx].delivered=document.getElementById('cp-f-del').value;
+  cpProjects[idx].courier=document.getElementById('cp-f-courier').value;
+  cpProjects[idx].payterm=document.getElementById('cp-f-payterm').value;
+  cpProjects[idx].ttd=document.getElementById('cp-f-ttd').value;
+  cpSave(); toast('Korespondensi diperbarui ✓','ok');
+  setTimeout(function(){ navTo('cp-tracker'); },600);
+}
+function cpResetFormB() { ['cp-f-rec','cp-f-del','cp-f-courier','cp-f-payterm','cp-f-ttd'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';}); document.getElementById('cp-b-select').value=''; cpLoadForB(''); }
+
+// ── DETAIL MODAL ──
+function cpOpenDetail(id) {
+  cpLoad(); var p=cpProjects.find(function(x){return x.id===id;}); if(!p) return;
+  document.getElementById('cp-modal-title').textContent = p.id+' — '+p.project;
+  function drow(k,v){ return '<div class="cp-detail-row"><div class="cp-detail-key">'+k+'</div><div class="cp-detail-val">'+v+'</div></div>'; }
+  function termBlock(t,lbl){
+    if(!t||(!t.pct&&t.pct!==0)) return '';
+    if(t.pct==0) return '<div style="padding:8px 0;color:var(--ink3);font-size:12px">Tidak ada '+lbl+'</div>';
+    var docs=[['Invoice',t.inv],['Kuitansi',t.kuitansi],['PO/Contract',t.po],['E-Faktur',t.efaktur],['BAST/BAPP',t.bast],['Evidence',t.evidence],['Self-Acceptance',t.selfacc],['NPWP',t.npwp]];
+    return '<div style="margin-bottom:10px"><div style="font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:6px">'+lbl+' ('+t.pct+'%)</div>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px 16px">'+
+      docs.map(function(d){ return '<div style="display:flex;align-items:center;gap:5px;font-size:11.5px"><span>'+(d[1]==='✓ Ada'?'✅':d[1]==='✗ Tidak Ada'?'❌':'➖')+'</span><span>'+d[0]+': '+(d[1]||'—')+'</span></div>'; }).join('')+
+      '<div style="display:flex;align-items:center;gap:5px;font-size:11.5px"><span>'+(t.pay?'💰':'⏳')+'</span><span>Bayar: '+(t.pay||'Belum')+'</span></div>'+
+      '<div style="display:flex;align-items:center;gap:5px;font-size:11.5px"><span>📅</span><span>Due: '+(t.due||'—')+'</span></div>'+
+      '</div></div>';
+  }
+  document.getElementById('cp-modal-bd').innerHTML =
+    '<div style="margin-bottom:12px">'+cpStatusTag(p.ovstatus)+'</div>'+
+    '<div class="cp-detail-sec">📋 Identitas Project</div>'+
+    drow('Klien / User',p.user)+drow('Nama Project',p.project)+drow('Nomor SPK',p.nospk||'—')+
+    drow('Nilai Kontrak',p.nilai?'Rp '+Number(p.nilai).toLocaleString('id-ID'):'—')+
+    drow('Masa Kontrak',(p.start||'—')+' s/d '+(p.end||'—'))+
+    '<div class="cp-detail-div"></div>'+
+    '<div class="cp-detail-sec">📬 Korespondensi & Kontrak</div>'+
+    drow('Diterima',p.received||'—')+drow('Dikirim',p.delivered||'—')+
+    drow('Courier Receipt',p.courier||'—')+drow('Payment Term',p.payterm||'—')+drow('Sign Requirement',p.ttd||'—')+
+    '<div class="cp-detail-div"></div>'+
+    '<div class="cp-detail-sec">💳 Termin Pembayaran</div>'+
+    termBlock(p.t1,'Term I')+termBlock(p.t2,'Term II')+termBlock(p.t3,'Term III');
+  document.getElementById('cp-modal-ov').classList.add('open');
+}
+function cpCloseModal() { document.getElementById('cp-modal-ov').classList.remove('open'); }
+document.addEventListener('click', function(e){ var ov=document.getElementById('cp-modal-ov'); if(ov&&e.target===ov) cpCloseModal(); });
+
+function cpDeleteProject(id) {
+  if(!confirm('Hapus project '+id+'?')) return;
+  cpLoad(); cpProjects=cpProjects.filter(function(x){return x.id!==id;}); cpSave(); cpRenderTracker(); toast('Project dihapus.','');
+}
+
+// Init compliance on page load
+cpLoad();
 
 </script>
 
