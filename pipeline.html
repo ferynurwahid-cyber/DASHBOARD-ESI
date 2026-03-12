@@ -7,22 +7,16 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-// ── AUTH GUARD ── redirect to login if not logged in
-(async function() {
-  const _supa = supabase.createClient(
-    'https://fzplvluohnbuggvdqkkw.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6cGx2bHVvaG5idWdndmRxa2t3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5OTE4NTMsImV4cCI6MjA4ODU2Nzg1M30.Q3BDZRWJhai63P_yWAbt-TTNqqtnS45zjfevDHbIj1U'
-  );
-  const { data: { session } } = await _supa.auth.getSession();
-  if (!session) window.location.replace('login.html');
-})();
-</script>
-
-<script>
 // ── SUPABASE CONFIG ──────────────────────────────────
 const SUPA_URL = 'https://fzplvluohnbuggvdqkkw.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6cGx2bHVvaG5idWdndmRxa2t3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5OTE4NTMsImV4cCI6MjA4ODU2Nzg1M30.Q3BDZRWJhai63P_yWAbt-TTNqqtnS45zjfevDHbIj1U';
 const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+// ── AUTH GUARD ── redirect to login if not logged in
+(async function() {
+  const { data: { session } } = await supa.auth.getSession();
+  if (!session) window.location.replace('login.html');
+})();
 
 // Table name mapping: DB key → Supabase table
 const TABLE = {
@@ -2685,7 +2679,7 @@ function cpRenderDashboard() {
   tbody.innerHTML = cpProjects.slice(0,6).map(function(p){
     function tdot(t){ if(!t) return '<span class="cp-tdot pending"></span>'; return t.pay ? '<span class="cp-tdot done"></span>' : (t.inv ? '<span class="cp-tdot partial"></span>' : '<span class="cp-tdot pending"></span>'); }
     var t3 = p.t3&&p.t3.pct>0 ? '<div class="cp-term-cell">'+tdot(p.t3)+'</div>' : '<span style="font-size:10px;color:var(--ink3)">N/A</span>';
-    return '<tr onclick="cpOpenDetail(''+p.id+'')" style="cursor:pointer">'+
+    return '<tr onclick="cpOpenDetail('"+p.id+"')" style="cursor:pointer">'+
       '<td style="font-size:11px;color:var(--ink3);font-weight:600">'+p.id+'</td>'+
       '<td>'+p.user+'</td>'+
       '<td style="font-size:12px">'+p.project+'</td>'+
@@ -2720,7 +2714,7 @@ function cpRenderTracker() {
   if (!slice.length) { tbody.innerHTML='<tr class="er"><td colspan="9">Tidak ada data yang cocok.</td></tr>'; }
   else tbody.innerHTML = slice.map(function(p){
     function tdot(t){ if(!t||!t.pct) return ''; return '<span class="cp-tdot '+(t.pay?'done':t.inv?'partial':'pending')+'"></span>'; }
-    return '<tr onclick="cpOpenDetail(''+p.id+'')" style="cursor:pointer">'+
+    return '<tr onclick="cpOpenDetail('"+p.id+"')" style="cursor:pointer">'+
       '<td style="font-size:11px;color:var(--ink3);font-weight:600">'+p.id+'</td>'+
       '<td style="font-size:12px">'+p.user+'</td>'+
       '<td style="font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+p.project+'</td>'+
@@ -2729,7 +2723,7 @@ function cpRenderTracker() {
       '<td style="font-size:11px;color:var(--ink3)">'+(p.end||'—')+'</td>'+
       '<td style="font-size:11px;color:var(--ink3)">'+(p.received||'—')+'</td>'+
       '<td><div class="cp-term-cell">'+tdot(p.t1)+tdot(p.t2)+tdot(p.t3)+'</div></td>'+
-      '<td><button class="btn b-se bsm" onclick="event.stopPropagation();cpOpenDetail(''+p.id+'')">Detail</button><button class="btn bsm" style="background:#fee2e2;color:#b91c1c;border:none;border-radius:6px;cursor:pointer;padding:4px 8px;font-size:11px;margin-left:4px" onclick="event.stopPropagation();cpDeleteProject(''+p.id+'')">🗑</button></td>'+
+      '<td><button class="btn b-se bsm" onclick="event.stopPropagation();cpOpenDetail('"+p.id+"')">Detail</button><button class="btn bsm" style="background:#fee2e2;color:#b91c1c;border:none;border-radius:6px;cursor:pointer;padding:4px 8px;font-size:11px;margin-left:4px" onclick="event.stopPropagation();cpDeleteProject('"+p.id+"')">🗑</button></td>'+
     '</tr>';
   }).join('');
   document.getElementById('cp-tracker-count').textContent = 'Menampilkan '+slice.length+' dari '+data.length+' data';
