@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ESI Pipeline — Enviro Strategic Indonesia · Data Enviro</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 // ── AUTH GUARD ── redirect to login if not logged in
 (async function() {
@@ -532,6 +533,31 @@ tr:hover td { background: #fafbfc; }
 .fgp textarea { resize: vertical; min-height: 62px; }
 .mf { padding: 14px 24px 20px; border-top: 1px solid var(--bor); display: flex; justify-content: flex-end; gap: 8px; }
 
+
+/* ── CHARTS ── */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.chart-wide { grid-column: 1 / -1; }
+.chart-card {
+  background: var(--card);
+  border: 1px solid var(--bor);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+}
+.chart-hd {
+  display: flex; align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.chart-title { font-size: 13.5px; font-weight: 700; color: var(--ink); }
+.chart-sub   { font-size: 11px; color: var(--ink3); margin-top: 2px; }
+.chart-wrap  { position: relative; }
+
 /* ── TOAST ── */
 .tct { position: fixed; bottom: 20px; right: 20px; z-index: 999; display: flex; flex-direction: column; gap: 8px; }
 .toast { background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 10px; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 8px; max-width: 300px; box-shadow: var(--shadow-lg); animation: ti .22s ease, to .28s ease 2.8s forwards; }
@@ -674,6 +700,61 @@ tr:hover td { background: #fafbfc; }
     <div class="dg">
       <div class="cc"><div class="cc-t">📊 Funnel Konversi</div><div id="funnel"></div></div>
       <div class="cc"><div class="cc-t">🚀 Project Aktif</div><div id="projlist"></div></div>
+    </div>
+
+    <!-- CHARTS GRID -->
+    <div class="charts-grid">
+      <!-- Funnel Pipeline -->
+      <div class="chart-card">
+        <div class="chart-hd">
+          <div>
+            <div class="chart-title">⬇ Funnel Pipeline</div>
+            <div class="chart-sub">RFI → Converted → Disetujui</div>
+          </div>
+        </div>
+        <div class="chart-wrap" style="height:220px">
+          <canvas id="chart-funnel"></canvas>
+        </div>
+      </div>
+
+      <!-- Pie chart sebaran layanan -->
+      <div class="chart-card">
+        <div class="chart-hd">
+          <div>
+            <div class="chart-title">🍩 Sebaran Layanan</div>
+            <div class="chart-sub">Berdasarkan Request Form</div>
+          </div>
+        </div>
+        <div class="chart-wrap" style="height:220px;display:flex;align-items:center;justify-content:center">
+          <canvas id="chart-pie"></canvas>
+        </div>
+      </div>
+
+      <!-- Bar chart nilai proyek per bulan -->
+      <div class="chart-card chart-wide">
+        <div class="chart-hd">
+          <div>
+            <div class="chart-title">📈 Nilai Proyek per Bulan</div>
+            <div class="chart-sub">Berdasarkan tanggal mulai proyek (Rp)</div>
+          </div>
+        </div>
+        <div class="chart-wrap" style="height:220px">
+          <canvas id="chart-bar"></canvas>
+        </div>
+      </div>
+
+      <!-- Line chart progress proyek aktif -->
+      <div class="chart-card chart-wide">
+        <div class="chart-hd">
+          <div>
+            <div class="chart-title">📉 Progress Proyek Aktif</div>
+            <div class="chart-sub">Persentase penyelesaian per proyek</div>
+          </div>
+        </div>
+        <div class="chart-wrap" style="height:220px">
+          <canvas id="chart-line"></canvas>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1120,6 +1201,10 @@ function delBankLayanan(i) {
   toast('Layanan dihapus.','');
 }
 
+// Chart instances (destroy before redraw)
+var _charts = {};
+function destroyChart(id) { if (_charts[id]) { _charts[id].destroy(); delete _charts[id]; } }
+
 function renderDash() {
   const r=DB.rfi, pr=DB.projects;
   const cv=r.filter(x=>x.status==='Converted to Proposal').length;
@@ -1140,14 +1225,157 @@ function renderDash() {
   });
   const mx = Math.max(r.length,1);
   document.getElementById('funnel').innerHTML = [
-    {l:'Inquiry Masuk',v:r.length,c:'#2980b9'},{l:'Qualified',v:ql,c:'#2d9b7f'},
-    {l:'Converted',v:cv,c:'#e67e22'},{l:'Request Form',v:DB.rfp.length,c:'#117a65'},
-    {l:'Project Aktif',v:ak,c:'#6c3483'},{l:'Selesai',v:sl,c:'#1a6b5a'},
+    {l:'Inquiry Masuk',v:r.length,c:'#3b82f6'},{l:'Qualified',v:ql,c:'#22c55e'},
+    {l:'Converted',v:cv,c:'#f97316'},{l:'Request Form',v:DB.rfp.length,c:'#16a34a'},
+    {l:'Project Aktif',v:ak,c:'#8b5cf6'},{l:'Selesai',v:sl,c:'#14b8a6'},
   ].map(f => '<div class="fr"><span class="fl">'+f.l+'</span><div class="fbw"><div class="fb" style="width:'+Math.max(4,Math.round(f.v/mx*100))+'%;background:'+f.c+'"><span>'+f.v+'</span></div></div></div>').join('');
-  const cm = {'🟢 On Track':'#2d9b7f','🟡 Perhatian':'#f0a500','🔴 Terlambat':'#e74c3c','⏸ Ditunda':'#a0aec0'};
+  const cm = {'🟢 On Track':'#22c55e','🟡 Perhatian':'#f59e0b','🔴 Terlambat':'#ef4444','⏸ Ditunda':'#a0aec0'};
   document.getElementById('projlist').innerHTML = pr.filter(x=>x.status!=='✅ Selesai').slice(0,6).map(p =>
     '<div class="pi"><div class="pd" style="background:'+(cm[p.status]||'#aaa')+'"></div><div style="flex:1"><div style="font-weight:600">'+p.nama+'</div><div style="font-size:11px;color:#718096">'+(p.klien||'—')+' · '+(p.pm||'—')+'</div></div><span style="font-size:11px;font-weight:700;color:'+(cm[p.status]||'#aaa')+'">'+(p.progress||0)+'%</span></div>'
   ).join('') || '<div style="color:#a0aec0;font-size:12px;text-align:center;padding:18px">Belum ada proyek aktif</div>';
+
+  // ── CHART 1: Funnel Pipeline (Horizontal Bar) ──────────────
+  setTimeout(function() {
+    destroyChart('funnel');
+    const c1 = document.getElementById('chart-funnel');
+    if (!c1) return;
+    _charts['funnel'] = new Chart(c1, {
+      type: 'bar',
+      data: {
+        labels: ['Inquiry','Qualified','Converted','Request Form','Disetujui','Proyek Aktif','Selesai'],
+        datasets: [{
+          label: 'Jumlah',
+          data: [r.length, ql, cv, DB.rfp.length, DB.approved.length, ak, sl],
+          backgroundColor: ['#3b82f6','#22c55e','#f97316','#16a34a','#8b5cf6','#14b8a6','#6366f1'],
+          borderRadius: 6,
+          borderSkipped: false,
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ' '+ctx.parsed.x+' item' } } },
+        scales: {
+          x: { grid: { color: '#f3f4f6' }, ticks: { font: { size: 11 }, color: '#6b7280', stepSize: 1 } },
+          y: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#374151' } }
+        }
+      }
+    });
+
+    // ── CHART 2: Pie Sebaran Layanan ──────────────────────────
+    destroyChart('pie');
+    const c2 = document.getElementById('chart-pie');
+    if (c2) {
+      const layananCount = {};
+      DB.rfp.forEach(function(x) {
+        const k = x.layanan || 'Lainnya';
+        layananCount[k] = (layananCount[k]||0) + 1;
+      });
+      DB.projects.forEach(function(x) {
+        const k = x.jenisRiset || 'Lainnya';
+        if (!layananCount[k]) layananCount[k] = 0;
+        layananCount[k]++;
+      });
+      const pieLabels = Object.keys(layananCount);
+      const pieData   = Object.values(layananCount);
+      const pieColors = ['#3b82f6','#22c55e','#f97316','#8b5cf6','#ef4444','#14b8a6','#f59e0b','#6366f1','#ec4899','#10b981'];
+      _charts['pie'] = new Chart(c2, {
+        type: 'doughnut',
+        data: {
+          labels: pieLabels.length ? pieLabels : ['Belum ada data'],
+          datasets: [{ data: pieData.length ? pieData : [1], backgroundColor: pieColors, borderWidth: 2, borderColor: '#fff', hoverOffset: 6 }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          cutout: '60%',
+          plugins: {
+            legend: { position: 'bottom', labels: { font: { size: 10 }, padding: 10, boxWidth: 10, color: '#374151' } },
+            tooltip: { callbacks: { label: ctx => ' '+ctx.label+': '+ctx.parsed+' proyek' } }
+          }
+        }
+      });
+    }
+
+    // ── CHART 3: Bar Nilai Proyek per Bulan ──────────────────
+    destroyChart('bar');
+    const c3 = document.getElementById('chart-bar');
+    if (c3) {
+      const bulanMap = {};
+      const bulanNames = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+      DB.projects.forEach(function(p) {
+        if (!p.tglMulai) return;
+        const d = new Date(p.tglMulai);
+        if (isNaN(d)) return;
+        const key = d.getFullYear()+'-'+(d.getMonth()+1);
+        const label = bulanNames[d.getMonth()]+' '+d.getFullYear();
+        if (!bulanMap[key]) bulanMap[key] = { label: label, total: 0 };
+        bulanMap[key].total += parseFloat(p.nilai||0) || 0;
+      });
+      const sortedKeys = Object.keys(bulanMap).sort();
+      const barLabels = sortedKeys.map(k => bulanMap[k].label);
+      const barData   = sortedKeys.map(k => bulanMap[k].total);
+      _charts['bar'] = new Chart(c3, {
+        type: 'bar',
+        data: {
+          labels: barLabels.length ? barLabels : ['Belum ada data'],
+          datasets: [{
+            label: 'Nilai (Rp)',
+            data: barData.length ? barData : [0],
+            backgroundColor: 'rgba(34,197,94,.75)',
+            borderColor: '#16a34a',
+            borderWidth: 1.5,
+            borderRadius: 6,
+            borderSkipped: false,
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: ctx => ' Rp '+Number(ctx.parsed.y).toLocaleString('id') } }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#6b7280' } },
+            y: { grid: { color: '#f3f4f6' }, ticks: { font: { size: 10 }, color: '#9ca3af', callback: v => 'Rp '+( v>=1000000 ? (v/1000000).toFixed(0)+'jt' : v>=1000 ? (v/1000).toFixed(0)+'rb' : v ) } }
+          }
+        }
+      });
+    }
+
+    // ── CHART 4: Line Progress Proyek Aktif ──────────────────
+    destroyChart('line');
+    const c4 = document.getElementById('chart-line');
+    if (c4) {
+      const aktif = DB.projects.filter(function(x){ return x.status!=='✅ Selesai' && x.status!=='⏸ Ditunda'; });
+      const lineLabels = aktif.map(function(p){ return p.nama ? (p.nama.length>18 ? p.nama.slice(0,18)+'…' : p.nama) : '—'; });
+      const lineData   = aktif.map(function(p){ return parseFloat(p.progress||0)||0; });
+      const lineColors = lineData.map(function(v){ return v>=75 ? '#22c55e' : v>=40 ? '#f59e0b' : '#ef4444'; });
+      _charts['line'] = new Chart(c4, {
+        type: 'bar',
+        data: {
+          labels: lineLabels.length ? lineLabels : ['Belum ada proyek aktif'],
+          datasets: [{
+            label: 'Progress (%)',
+            data: lineData.length ? lineData : [0],
+            backgroundColor: lineColors,
+            borderRadius: 6,
+            borderSkipped: false,
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: ctx => ' Progress: '+ctx.parsed.y+'%' } }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#6b7280', maxRotation: 30 } },
+            y: { min: 0, max: 100, grid: { color: '#f3f4f6' }, ticks: { font: { size: 10 }, color: '#9ca3af', callback: v => v+'%' } }
+          }
+        }
+      });
+    }
+  }, 80);
 }
 
 function renderRFI() {
