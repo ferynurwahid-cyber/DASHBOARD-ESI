@@ -11,6 +11,175 @@
 const SUPA_URL = 'https://fzplvluohnbuggvdqkkw.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6cGx2bHVvaG5idWdndmRxa2t3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5OTE4NTMsImV4cCI6MjA4ODU2Nzg1M30.Q3BDZRWJhai63P_yWAbt-TTNqqtnS45zjfevDHbIj1U';
 const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+  // =====================================================
+// DATABASE TABLE MAP
+// =====================================================
+
+const TABLE = {
+
+rfi:'rfi',
+converted:'converted',
+rfp:'rfp',
+status:'status_tracker',
+approved:'approved',
+
+projects:'projects',
+monev:'monev',
+weekly:'weekly',
+
+projreport:'project_report',
+resdoc:'research_doc',
+
+cp_project:'compliance_project',
+cp_termin:'compliance_termin'
+
+}
+
+
+// =====================================================
+// MEMORY DATABASE
+// =====================================================
+
+let DB = {
+rfi:[],
+converted:[],
+rfp:[],
+status:[],
+approved:[],
+projects:[],
+monev:[],
+weekly:[],
+projreport:[],
+resdoc:[],
+cp_project:[],
+cp_termin:[]
+}
+
+
+// =====================================================
+// LOAD DATA FROM SUPABASE
+// =====================================================
+
+async function dbLoad(){
+
+for(const key in TABLE){
+
+try{
+
+const { data, error } = await supa
+.from(TABLE[key])
+.select("*")
+
+if(error){
+console.error("DB LOAD ERROR:",TABLE[key],error)
+DB[key] = []
+}else{
+DB[key] = data || []
+}
+
+}catch(err){
+
+console.error(err)
+DB[key] = []
+
+}
+
+}
+
+console.log("DATABASE LOADED",DB)
+
+if(typeof renderAll === "function"){
+renderAll()
+}
+
+}
+
+
+// =====================================================
+// INSERT DATA TO SUPABASE
+// =====================================================
+
+async function dbInsert(key,obj){
+
+try{
+
+const { error } = await supa
+.from(TABLE[key])
+.insert([obj])
+
+if(error){
+console.error("INSERT ERROR:",error)
+return
+}
+
+await dbLoad()
+
+}catch(err){
+console.error(err)
+}
+
+}
+
+
+// =====================================================
+// UPDATE DATA
+// =====================================================
+
+async function dbUpdate(key,id,obj){
+
+try{
+
+const { error } = await supa
+.from(TABLE[key])
+.update(obj)
+.eq("id",id)
+
+if(error){
+console.error("UPDATE ERROR:",error)
+return
+}
+
+await dbLoad()
+
+}catch(err){
+console.error(err)
+}
+
+}
+
+
+// =====================================================
+// DELETE DATA
+// =====================================================
+
+async function dbDelete(key,id){
+
+try{
+
+const { error } = await supa
+.from(TABLE[key])
+.delete()
+.eq("id",id)
+
+if(error){
+console.error("DELETE ERROR:",error)
+return
+}
+
+await dbLoad()
+
+}catch(err){
+console.error(err)
+}
+
+}
+
+
+// =====================================================
+// AUTO LOAD DATABASE
+// =====================================================
+
+window.addEventListener("load",dbLoad)
 
 // ── AUTH GUARD ── redirect to login if not logged in
 (async function() {
