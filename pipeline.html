@@ -2585,7 +2585,6 @@ async function doLogout() {
 //  PHASE 4 — PROJECT COMPLIANCE JS
 // ══════════════════════════════════════════════════
 
-// Data store (localStorage persisted)
 var cpProjects = [];
 
 function cpSave() {
@@ -2595,10 +2594,9 @@ function cpLoad() {
   try { cpProjects = JSON.parse(localStorage.getItem('esi_cp_projects')) || []; } catch(e){ cpProjects = []; }
 }
 
-// ── HELPERS ──
 function cpStatusTag(s) {
-  var map = {'Completed':'completed','In Progress':'in-progress','On Track':'on-track','On Hold':'on-hold','Cancelled':'cancelled'};
-  return '<span class="cp-stag '+(map[s]||'')+'">'+( s||'—')+'</span>';
+  var cls = {Completed:'completed','In Progress':'in-progress','On Track':'on-track','On Hold':'on-hold',Cancelled:'cancelled'};
+  return '<span class="cp-stag ' + (cls[s]||'') + '">' + (s||'—') + '</span>';
 }
 function cpFormatCurrency(el) {
   var raw = el.value.replace(/[^0-9]/g,'');
@@ -2611,15 +2609,15 @@ function cpRenderDashboard() {
   cpLoad();
   var s = {total:0,completed:0,inprogress:0,ontrack:0,onhold:0,cancelled:0,t1pay:0,t2pay:0,t3pay:0};
   s.total = cpProjects.length;
-  cpProjects.forEach(function(p){
+  cpProjects.forEach(function(p) {
     if(p.ovstatus==='Completed') s.completed++;
     else if(p.ovstatus==='In Progress') s.inprogress++;
     else if(p.ovstatus==='On Track') s.ontrack++;
     else if(p.ovstatus==='On Hold') s.onhold++;
     else if(p.ovstatus==='Cancelled') s.cancelled++;
-    if(p.t1&&p.t1.pay) s.t1pay++;
-    if(p.t2&&p.t2.pay) s.t2pay++;
-    if(p.t3&&p.t3.pay&&p.t3.pct>0) s.t3pay++;
+    if(p.t1 && p.t1.pay) s.t1pay++;
+    if(p.t2 && p.t2.pay) s.t2pay++;
+    if(p.t3 && p.t3.pay && p.t3.pct > 0) s.t3pay++;
   });
   var kpis = [
     {l:'Total Project',v:s.total,c:'blue',ic:'📋'},
@@ -2632,252 +2630,408 @@ function cpRenderDashboard() {
     {l:'Termin III Lunas',v:s.t3pay,c:'green',ic:'🏆'},
   ];
   var grid = document.getElementById('cp-kpi-grid');
-  if (grid) grid.innerHTML = kpis.map(function(k){
-    return '<div class="cp-kpi-card '+k.c+'"><div class="cp-kpi-icon">'+k.ic+'</div><div class="cp-kpi-label">'+k.l+'</div><div class="cp-kpi-value">'+k.v+'</div><div class="cp-kpi-sub">'+(s.total?Math.round(k.v/s.total*100):0)+'% dari total</div></div>';
+  if (grid) grid.innerHTML = kpis.map(function(k) {
+    return '<div class="cp-kpi-card ' + k.c + '">'
+      + '<div class="cp-kpi-icon">' + k.ic + '</div>'
+      + '<div class="cp-kpi-label">' + k.l + '</div>'
+      + '<div class="cp-kpi-value">' + k.v + '</div>'
+      + '<div class="cp-kpi-sub">' + (s.total ? Math.round(k.v/s.total*100) : 0) + '% dari total</div>'
+      + '</div>';
   }).join('');
 
-  // Donut
   var statData = [
-    {name:'Completed',val:s.completed,color:'#22c55e'},
-    {name:'In Progress',val:s.inprogress,color:'#3b82f6'},
-    {name:'On Track',val:s.ontrack,color:'#14b8a6'},
-    {name:'On Hold',val:s.onhold,color:'#f97316'},
-    {name:'Cancelled',val:s.cancelled,color:'#ef4444'},
-  ].filter(function(x){ return x.val>0; });
-  var conic='',acc=0;
-  statData.forEach(function(d){
-    var pct=d.val/Math.max(s.total,1)*100;
-    conic+=d.color+' '+acc+'% '+(acc+pct)+'%, ';
-    acc+=pct;
+    {name:'Completed',    val:s.completed,  color:'#22c55e'},
+    {name:'In Progress',  val:s.inprogress, color:'#3b82f6'},
+    {name:'On Track',     val:s.ontrack,    color:'#14b8a6'},
+    {name:'On Hold',      val:s.onhold,     color:'#f97316'},
+    {name:'Cancelled',    val:s.cancelled,  color:'#ef4444'},
+  ].filter(function(x) { return x.val > 0; });
+  var conic = '', acc = 0;
+  statData.forEach(function(d) {
+    var pct = d.val / Math.max(s.total,1) * 100;
+    conic += d.color + ' ' + acc + '% ' + (acc+pct) + '%, ';
+    acc += pct;
   });
-  if(!conic) conic='#e5e7eb 0% 100%, ';
+  if (!conic) conic = '#e5e7eb 0% 100%, ';
   var donutEl = document.getElementById('cp-donut');
-  if (donutEl) donutEl.style.background='conic-gradient('+conic.slice(0,-2)+')';
+  if (donutEl) donutEl.style.background = 'conic-gradient(' + conic.slice(0,-2) + ')';
   var dtEl = document.getElementById('cp-donut-total');
   if (dtEl) dtEl.textContent = s.total;
   var legEl = document.getElementById('cp-status-legend');
-  if (legEl) legEl.innerHTML = statData.map(function(d){
-    return '<div class="cp-legend-item"><div class="cp-legend-name"><div class="cp-swatch" style="background:'+d.color+'"></div>'+d.name+'</div><div class="cp-legend-count">'+d.val+'</div></div>';
+  if (legEl) legEl.innerHTML = statData.map(function(d) {
+    return '<div class="cp-legend-item">'
+      + '<div class="cp-legend-name"><div class="cp-swatch" style="background:' + d.color + '"></div>' + d.name + '</div>'
+      + '<div class="cp-legend-count">' + d.val + '</div>'
+      + '</div>';
   }).join('');
 
-  // Payment progress
-  var t3c = cpProjects.filter(function(p){ return p.t3&&p.t3.pct>0; }).length;
+  var t3c = cpProjects.filter(function(p) { return p.t3 && p.t3.pct > 0; }).length;
   var payEl = document.getElementById('cp-payment-list');
   if (payEl) payEl.innerHTML = [
-    {name:'Term I', paid:s.t1pay, total:s.total, color:'#2e75b6'},
-    {name:'Term II',paid:s.t2pay, total:s.total, color:'#2a9aa8'},
-    {name:'Term III',paid:s.t3pay,total:t3c||1,  color:'#22c55e'},
-  ].map(function(p){
-    var pct=Math.round(p.paid/Math.max(p.total,1)*100);
-    return '<div class="cp-pay-item"><div class="cp-pay-top"><div class="cp-pay-name">'+p.name+'</div><div class="cp-pay-nums">'+p.paid+'/'+p.total+' ('+pct+'%)</div></div><div class="cp-prog-bar"><div class="cp-prog-fill" style="width:'+pct+'%;background:'+p.color+'"></div></div></div>';
+    {name:'Term I',   paid:s.t1pay, total:s.total, color:'#2e75b6'},
+    {name:'Term II',  paid:s.t2pay, total:s.total, color:'#2a9aa8'},
+    {name:'Term III', paid:s.t3pay, total:t3c||1,  color:'#22c55e'},
+  ].map(function(p) {
+    var pct = Math.round(p.paid / Math.max(p.total,1) * 100);
+    return '<div class="cp-pay-item">'
+      + '<div class="cp-pay-top">'
+      +   '<div class="cp-pay-name">' + p.name + '</div>'
+      +   '<div class="cp-pay-nums">' + p.paid + '/' + p.total + ' (' + pct + '%)</div>'
+      + '</div>'
+      + '<div class="cp-prog-bar"><div class="cp-prog-fill" style="width:' + pct + '%;background:' + p.color + '"></div></div>'
+      + '</div>';
   }).join('');
 
-  // Mini table
+  // Mini table - use data-cpid attribute instead of inline onclick to avoid quote issues
   var tbody = document.getElementById('cp-dash-tbody');
   if (!tbody) return;
-  if (!cpProjects.length) { tbody.innerHTML='<tr class="er"><td colspan="8">Belum ada data. Klik "+ Tambah Project".</td></tr>'; return; }
-  tbody.innerHTML = cpProjects.slice(0,6).map(function(p){
-    function tdot(t){ if(!t) return '<span class="cp-tdot pending"></span>'; return t.pay ? '<span class="cp-tdot done"></span>' : (t.inv ? '<span class="cp-tdot partial"></span>' : '<span class="cp-tdot pending"></span>'); }
-    var t3 = p.t3&&p.t3.pct>0 ? '<div class="cp-term-cell">'+tdot(p.t3)+'</div>' : '<span style="font-size:10px;color:var(--ink3)">N/A</span>';
-    return '<tr onclick="cpOpenDetail('"+p.id+"')" style="cursor:pointer">'+
-      '<td style="font-size:11px;color:var(--ink3);font-weight:600">'+p.id+'</td>'+
-      '<td>'+p.user+'</td>'+
-      '<td style="font-size:12px">'+p.project+'</td>'+
-      '<td>'+cpStatusTag(p.ovstatus)+'</td>'+
-      '<td style="font-size:12px">'+( p.nilai ? 'Rp '+Number(p.nilai).toLocaleString('id-ID') : '—')+'</td>'+
-      '<td><div class="cp-term-cell">'+tdot(p.t1)+'<span style="font-size:10px;color:var(--ink3)">'+(p.t1&&p.t1.pay||'—')+'</span></div></td>'+
-      '<td><div class="cp-term-cell">'+tdot(p.t2)+'<span style="font-size:10px;color:var(--ink3)">'+(p.t2&&p.t2.pay||'—')+'</span></div></td>'+
-      '<td>'+t3+'</td>'+
-    '</tr>';
+  if (!cpProjects.length) {
+    tbody.innerHTML = '<tr class="er"><td colspan="8">Belum ada data. Klik "+ Tambah Project".</td></tr>';
+    return;
+  }
+  function cpTdot(t) {
+    if (!t) return '<span class="cp-tdot pending"></span>';
+    return t.pay
+      ? '<span class="cp-tdot done"></span>'
+      : (t.inv ? '<span class="cp-tdot partial"></span>' : '<span class="cp-tdot pending"></span>');
+  }
+  tbody.innerHTML = cpProjects.slice(0,6).map(function(p) {
+    var t3html = (p.t3 && p.t3.pct > 0)
+      ? '<div class="cp-term-cell">' + cpTdot(p.t3) + '</div>'
+      : '<span style="font-size:10px;color:var(--ink3)">N/A</span>';
+    return '<tr class="cp-row" data-cpid="' + p.id + '" style="cursor:pointer">'
+      + '<td style="font-size:11px;color:var(--ink3);font-weight:600">' + p.id + '</td>'
+      + '<td>' + p.user + '</td>'
+      + '<td style="font-size:12px">' + p.project + '</td>'
+      + '<td>' + cpStatusTag(p.ovstatus) + '</td>'
+      + '<td style="font-size:12px">' + (p.nilai ? 'Rp ' + Number(p.nilai).toLocaleString('id-ID') : '—') + '</td>'
+      + '<td><div class="cp-term-cell">' + cpTdot(p.t1) + '<span style="font-size:10px;color:var(--ink3)">' + (p.t1 && p.t1.pay || '—') + '</span></div></td>'
+      + '<td><div class="cp-term-cell">' + cpTdot(p.t2) + '<span style="font-size:10px;color:var(--ink3)">' + (p.t2 && p.t2.pay || '—') + '</span></div></td>'
+      + '<td>' + t3html + '</td>'
+      + '</tr>';
   }).join('');
+  // Attach click via event delegation
+  tbody.querySelectorAll('tr.cp-row').forEach(function(row) {
+    row.addEventListener('click', function() { cpOpenDetail(this.dataset.cpid); });
+  });
 }
 
 // ── TRACKER ──
-var cpTrackerFilter='all', cpTrackerSearch='', cpTrackerPage=1;
-function cpFilterTable(q){ cpTrackerSearch=q.toLowerCase(); cpTrackerPage=1; cpRenderTracker(); }
-function cpFilterStatus(s,btn){
-  cpTrackerFilter=s; cpTrackerPage=1;
-  document.querySelectorAll('.cp-fbtn').forEach(function(b){ b.classList.remove('on'); });
+var cpTrackerFilter = 'all', cpTrackerSearch = '', cpTrackerPage = 1;
+function cpFilterTable(q) { cpTrackerSearch = q.toLowerCase(); cpTrackerPage = 1; cpRenderTracker(); }
+function cpFilterStatus(s, btn) {
+  cpTrackerFilter = s; cpTrackerPage = 1;
+  document.querySelectorAll('.cp-fbtn').forEach(function(b) { b.classList.remove('on'); });
   btn.classList.add('on');
   cpRenderTracker();
 }
 function cpRenderTracker() {
   cpLoad();
-  var data = cpProjects.filter(function(p){
-    var ms = cpTrackerFilter==='all'||p.ovstatus===cpTrackerFilter;
-    var mq = !cpTrackerSearch || (p.project&&p.project.toLowerCase().includes(cpTrackerSearch)) || (p.user&&p.user.toLowerCase().includes(cpTrackerSearch)) || (p.id&&p.id.toLowerCase().includes(cpTrackerSearch));
-    return ms&&mq;
+  var data = cpProjects.filter(function(p) {
+    var ms = cpTrackerFilter === 'all' || p.ovstatus === cpTrackerFilter;
+    var q  = cpTrackerSearch;
+    var mq = !q || (p.project && p.project.toLowerCase().includes(q))
+               || (p.user && p.user.toLowerCase().includes(q))
+               || (p.id && p.id.toLowerCase().includes(q));
+    return ms && mq;
   });
-  var ROWS=10, pages=Math.ceil(data.length/ROWS), slice=data.slice((cpTrackerPage-1)*ROWS,cpTrackerPage*ROWS);
+  var ROWS = 10, pages = Math.ceil(data.length / ROWS);
+  var slice = data.slice((cpTrackerPage-1)*ROWS, cpTrackerPage*ROWS);
   var tbody = document.getElementById('cp-tracker-tbody');
   if (!tbody) return;
-  if (!slice.length) { tbody.innerHTML='<tr class="er"><td colspan="9">Tidak ada data yang cocok.</td></tr>'; }
-  else tbody.innerHTML = slice.map(function(p){
-    function tdot(t){ if(!t||!t.pct) return ''; return '<span class="cp-tdot '+(t.pay?'done':t.inv?'partial':'pending')+'"></span>'; }
-    return '<tr onclick="cpOpenDetail('"+p.id+"')" style="cursor:pointer">'+
-      '<td style="font-size:11px;color:var(--ink3);font-weight:600">'+p.id+'</td>'+
-      '<td style="font-size:12px">'+p.user+'</td>'+
-      '<td style="font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+p.project+'</td>'+
-      '<td>'+cpStatusTag(p.ovstatus)+'</td>'+
-      '<td style="font-size:11px;color:var(--ink3)">'+(p.start||'—')+'</td>'+
-      '<td style="font-size:11px;color:var(--ink3)">'+(p.end||'—')+'</td>'+
-      '<td style="font-size:11px;color:var(--ink3)">'+(p.received||'—')+'</td>'+
-      '<td><div class="cp-term-cell">'+tdot(p.t1)+tdot(p.t2)+tdot(p.t3)+'</div></td>'+
-      '<td><button class="btn b-se bsm" onclick="event.stopPropagation();cpOpenDetail('"+p.id+"')">Detail</button><button class="btn bsm" style="background:#fee2e2;color:#b91c1c;border:none;border-radius:6px;cursor:pointer;padding:4px 8px;font-size:11px;margin-left:4px" onclick="event.stopPropagation();cpDeleteProject('"+p.id+"')">🗑</button></td>'+
-    '</tr>';
-  }).join('');
-  document.getElementById('cp-tracker-count').textContent = 'Menampilkan '+slice.length+' dari '+data.length+' data';
+  function cpTdot2(t) {
+    if (!t || !t.pct) return '';
+    return '<span class="cp-tdot ' + (t.pay ? 'done' : t.inv ? 'partial' : 'pending') + '"></span>';
+  }
+  if (!slice.length) {
+    tbody.innerHTML = '<tr class="er"><td colspan="9">Tidak ada data yang cocok.</td></tr>';
+  } else {
+    tbody.innerHTML = slice.map(function(p) {
+      return '<tr class="cp-row" data-cpid="' + p.id + '" style="cursor:pointer">'
+        + '<td style="font-size:11px;color:var(--ink3);font-weight:600">' + p.id + '</td>'
+        + '<td style="font-size:12px">' + p.user + '</td>'
+        + '<td style="font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + p.project + '</td>'
+        + '<td>' + cpStatusTag(p.ovstatus) + '</td>'
+        + '<td style="font-size:11px;color:var(--ink3)">' + (p.start||'—') + '</td>'
+        + '<td style="font-size:11px;color:var(--ink3)">' + (p.end||'—') + '</td>'
+        + '<td style="font-size:11px;color:var(--ink3)">' + (p.received||'—') + '</td>'
+        + '<td><div class="cp-term-cell">' + cpTdot2(p.t1) + cpTdot2(p.t2) + cpTdot2(p.t3) + '</div></td>'
+        + '<td>'
+        +   '<button class="btn b-se bsm cp-det-btn" data-cpid="' + p.id + '">Detail</button> '
+        +   '<button class="btn bsm cp-del-btn" data-cpid="' + p.id + '" style="background:#fee2e2;color:#b91c1c;border:none;border-radius:6px;cursor:pointer;padding:4px 8px;font-size:11px">🗑</button>'
+        + '</td>'
+        + '</tr>';
+    }).join('');
+    // Attach events
+    tbody.querySelectorAll('tr.cp-row').forEach(function(row) {
+      row.addEventListener('click', function() { cpOpenDetail(this.dataset.cpid); });
+    });
+    tbody.querySelectorAll('.cp-det-btn').forEach(function(btn) {
+      btn.addEventListener('click', function(e) { e.stopPropagation(); cpOpenDetail(this.dataset.cpid); });
+    });
+    tbody.querySelectorAll('.cp-del-btn').forEach(function(btn) {
+      btn.addEventListener('click', function(e) { e.stopPropagation(); cpDeleteProject(this.dataset.cpid); });
+    });
+  }
+  var countEl = document.getElementById('cp-tracker-count');
+  if (countEl) countEl.textContent = 'Menampilkan ' + slice.length + ' dari ' + data.length + ' data';
   var pagDiv = document.getElementById('cp-tracker-pages');
-  var btns = '<button class="cp-pbtn" '+(cpTrackerPage<=1?'disabled':'')+' onclick="cpTrackerPage--;cpRenderTracker()">‹</button>';
-  for(var i=1;i<=pages;i++) btns+='<button class="cp-pbtn '+(i===cpTrackerPage?'on':'')+'" onclick="cpTrackerPage='+i+';cpRenderTracker()">'+i+'</button>';
-  btns+='<button class="cp-pbtn" '+(cpTrackerPage>=pages?'disabled':'')+' onclick="cpTrackerPage++;cpRenderTracker()">›</button>';
-  pagDiv.innerHTML=btns;
+  if (!pagDiv) return;
+  var btns = '<button class="cp-pbtn" ' + (cpTrackerPage<=1 ? 'disabled' : '') + ' onclick="cpTrackerPage--;cpRenderTracker()">‹</button>';
+  for (var i = 1; i <= pages; i++) {
+    btns += '<button class="cp-pbtn ' + (i===cpTrackerPage ? 'on' : '') + '" onclick="cpTrackerPage=' + i + ';cpRenderTracker()">' + i + '</button>';
+  }
+  btns += '<button class="cp-pbtn" ' + (cpTrackerPage>=pages ? 'disabled' : '') + ' onclick="cpTrackerPage++;cpRenderTracker()">›</button>';
+  pagDiv.innerHTML = btns;
 }
 
 // ── TERMIN ──
 function cpRenderTermin() {
   cpLoad();
-  var s={t1pay:0,t2pay:0,t3pay:0}; var t3c=0;
-  cpProjects.forEach(function(p){
-    if(p.t1&&p.t1.pay) s.t1pay++;
-    if(p.t2&&p.t2.pay) s.t2pay++;
-    if(p.t3&&p.t3.pct>0){ t3c++; if(p.t3.pay) s.t3pay++; }
+  var s = {t1pay:0, t2pay:0, t3pay:0};
+  var t3c = 0;
+  cpProjects.forEach(function(p) {
+    if (p.t1 && p.t1.pay) s.t1pay++;
+    if (p.t2 && p.t2.pay) s.t2pay++;
+    if (p.t3 && p.t3.pct > 0) { t3c++; if (p.t3.pay) s.t3pay++; }
   });
   var kpiEl = document.getElementById('cp-termin-kpi');
   if (kpiEl) kpiEl.innerHTML = [
-    {l:'Term I Lunas',v:s.t1pay+'/'+cpProjects.length,c:'blue',ic:'💰'},
-    {l:'Term II Lunas',v:s.t2pay+'/'+cpProjects.length,c:'teal',ic:'💳'},
-    {l:'Term III Lunas',v:s.t3pay+'/'+(t3c||0),c:'green',ic:'🏆'},
-  ].map(function(k){ return '<div class="cp-kpi-card '+k.c+'"><div class="cp-kpi-icon">'+k.ic+'</div><div class="cp-kpi-label">'+k.l+'</div><div class="cp-kpi-value" style="font-size:30px">'+k.v+'</div></div>'; }).join('');
+    {l:'Term I Lunas',   v:s.t1pay+'/'+cpProjects.length, c:'blue',  ic:'💰'},
+    {l:'Term II Lunas',  v:s.t2pay+'/'+cpProjects.length, c:'teal',  ic:'💳'},
+    {l:'Term III Lunas', v:s.t3pay+'/'+(t3c||0),           c:'green', ic:'🏆'},
+  ].map(function(k) {
+    return '<div class="cp-kpi-card ' + k.c + '">'
+      + '<div class="cp-kpi-icon">' + k.ic + '</div>'
+      + '<div class="cp-kpi-label">' + k.l + '</div>'
+      + '<div class="cp-kpi-value" style="font-size:30px">' + k.v + '</div>'
+      + '</div>';
+  }).join('');
 
   var grid = document.getElementById('cp-termin-grid');
   if (!grid) return;
   grid.innerHTML = [
-    {title:'TERM I',cls:'t1',key:'t1'},{title:'TERM II',cls:'t2',key:'t2'},{title:'TERM III',cls:'t3',key:'t3'}
-  ].map(function(term){
-    var active=cpProjects.filter(function(p){ return p[term.key]&&p[term.key].pct>0; });
-    var paid=active.filter(function(p){ return p[term.key].pay; }).length;
-    var rows=[
-      ['Invoice',active.filter(function(p){return p[term.key].inv==='✓ Ada';}).length,active.length],
-      ['Kuitansi',active.filter(function(p){return p[term.key].kuitansi==='✓ Ada';}).length,active.length],
-      ['PO/Contract',active.filter(function(p){return p[term.key].po==='✓ Ada';}).length,active.length],
-      ['E-Faktur',active.filter(function(p){return p[term.key].efaktur==='✓ Ada';}).length,active.length],
-      ['BAST/BAPP',active.filter(function(p){return p[term.key].bast==='✓ Ada';}).length,active.length],
-      ['Payment Delivered',paid,active.length],
+    {title:'TERM I',   cls:'t1', key:'t1'},
+    {title:'TERM II',  cls:'t2', key:'t2'},
+    {title:'TERM III', cls:'t3', key:'t3'},
+  ].map(function(term) {
+    var active = cpProjects.filter(function(p) { return p[term.key] && p[term.key].pct > 0; });
+    var paid   = active.filter(function(p) { return p[term.key].pay; }).length;
+    var rows   = [
+      ['Invoice',           active.filter(function(p){return p[term.key].inv==='✓ Ada';}).length],
+      ['Kuitansi',          active.filter(function(p){return p[term.key].kuitansi==='✓ Ada';}).length],
+      ['PO/Contract',       active.filter(function(p){return p[term.key].po==='✓ Ada';}).length],
+      ['E-Faktur',          active.filter(function(p){return p[term.key].efaktur==='✓ Ada';}).length],
+      ['BAST/BAPP',         active.filter(function(p){return p[term.key].bast==='✓ Ada';}).length],
+      ['Payment Delivered', paid],
     ];
-    return '<div class="cp-termin-card">'+
-      '<div class="cp-termin-hd '+term.cls+'"><span>'+term.title+'</span><span>'+paid+'/'+active.length+' Paid</span></div>'+
-      '<div class="cp-termin-bd">'+
-      rows.map(function(r){ return '<div class="cp-doc-row"><div class="cp-doc-name">'+r[0]+'</div><div class="cp-doc-stat '+(r[1]>0?'ok':'miss')+'">'+r[1]+' / '+r[2]+'</div></div>'; }).join('')+
-      (active.length ? '<div style="margin-top:10px">'+active.map(function(p){ return '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--bor2);font-size:11px"><span style="color:var(--ink3)">'+p.id+'</span><span style="color:var(--ink2);max-width:120px;overflow:hidden;text-overflow:ellipsis">'+p.project.substring(0,18)+'…</span>'+(p[term.key].pay?'<span style="color:#15803d;font-weight:700">✓ PAID</span>':'<span style="color:#f97316">Belum</span>')+'</div>'; }).join('')+'</div>' : '')+
-      '</div></div>';
+    return '<div class="cp-termin-card">'
+      + '<div class="cp-termin-hd ' + term.cls + '"><span>' + term.title + '</span><span>' + paid + '/' + active.length + ' Paid</span></div>'
+      + '<div class="cp-termin-bd">'
+      + rows.map(function(r) {
+          return '<div class="cp-doc-row">'
+            + '<div class="cp-doc-name">' + r[0] + '</div>'
+            + '<div class="cp-doc-stat ' + (r[1]>0 ? 'ok' : 'miss') + '">' + r[1] + ' / ' + active.length + '</div>'
+            + '</div>';
+        }).join('')
+      + (active.length ? '<div style="margin-top:10px">' + active.map(function(p) {
+          return '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--bor2);font-size:11px">'
+            + '<span style="color:var(--ink3)">' + p.id + '</span>'
+            + '<span style="color:var(--ink2);max-width:120px;overflow:hidden;text-overflow:ellipsis">' + p.project.substring(0,18) + '…</span>'
+            + (p[term.key].pay ? '<span style="color:#15803d;font-weight:700">✓ PAID</span>' : '<span style="color:#f97316">Belum</span>')
+            + '</div>';
+        }).join('') + '</div>' : '')
+      + '</div></div>';
   }).join('');
 }
 
 // ── TAB SWITCHER ──
 function cpSwitchTab(tab) {
-  var isA = tab==='a';
-  document.getElementById('cp-tab-content-a').style.display = isA?'block':'none';
-  document.getElementById('cp-tab-content-b').style.display = isA?'none':'block';
-  document.getElementById('cp-tab-a').classList.toggle('on',isA);
-  document.getElementById('cp-tab-b').classList.toggle('on',!isA);
-  document.getElementById('cp-tab-hint').textContent = isA ? 'ℹ️ Isi Bagian A terlebih dahulu saat project baru dibuat.' : '⏳ Bagian B diisi setelah invoice dikirim ke klien.';
+  var isA = tab === 'a';
+  document.getElementById('cp-tab-content-a').style.display = isA ? 'block' : 'none';
+  document.getElementById('cp-tab-content-b').style.display = isA ? 'none' : 'block';
+  document.getElementById('cp-tab-a').classList.toggle('on', isA);
+  document.getElementById('cp-tab-b').classList.toggle('on', !isA);
+  document.getElementById('cp-tab-hint').textContent = isA
+    ? 'ℹ️ Isi Bagian A terlebih dahulu saat project baru dibuat.'
+    : '⏳ Bagian B diisi setelah invoice dikirim ke klien.';
   if (!isA) cpPopulateBSelector();
 }
 function cpPopulateBSelector() {
   cpLoad();
   var sel = document.getElementById('cp-b-select');
-  sel.innerHTML = '<option value="">— Pilih Project —</option>' +
-    cpProjects.map(function(p){ return '<option value="'+p.id+'">'+p.id+' — '+p.project.substring(0,35)+'</option>'; }).join('');
+  sel.innerHTML = '<option value="">— Pilih Project —</option>'
+    + cpProjects.map(function(p) {
+        return '<option value="' + p.id + '">' + p.id + ' — ' + p.project.substring(0,35) + '</option>';
+      }).join('');
 }
 function cpLoadForB(id) {
-  var card=document.getElementById('cp-b-card'), ph=document.getElementById('cp-b-placeholder'), nm=document.getElementById('cp-b-pname');
+  var card = document.getElementById('cp-b-card');
+  var ph   = document.getElementById('cp-b-placeholder');
+  var nm   = document.getElementById('cp-b-pname');
   if (!id) { card.style.opacity='.45'; card.style.pointerEvents='none'; ph.style.display='block'; nm.value=''; return; }
   cpLoad();
-  var p=cpProjects.find(function(x){return x.id===id;}); if(!p) return;
-  nm.value=p.project;
-  document.getElementById('cp-f-rec').value=p.received||'';
-  document.getElementById('cp-f-del').value=p.delivered||'';
-  document.getElementById('cp-f-courier').value=p.courier||'';
-  document.getElementById('cp-f-payterm').value=p.payterm||'';
-  document.getElementById('cp-f-ttd').value=p.ttd||'';
-  card.style.opacity='1'; card.style.pointerEvents='auto'; ph.style.display='none';
+  var p = cpProjects.find(function(x) { return x.id === id; });
+  if (!p) return;
+  nm.value = p.project;
+  document.getElementById('cp-f-rec').value     = p.received  || '';
+  document.getElementById('cp-f-del').value     = p.delivered || '';
+  document.getElementById('cp-f-courier').value = p.courier   || '';
+  document.getElementById('cp-f-payterm').value = p.payterm   || '';
+  document.getElementById('cp-f-ttd').value     = p.ttd       || '';
+  card.style.opacity = '1'; card.style.pointerEvents = 'auto'; ph.style.display = 'none';
 }
 
-// ── FORM A SUBMIT ──
+// ── FORM A ──
 function cpSubmitA() {
-  var id=document.getElementById('cp-f-id').value.trim();
-  var user=document.getElementById('cp-f-user').value.trim();
-  var proj=document.getElementById('cp-f-project').value.trim();
-  if (!id||!user||!proj) { toast('ID, Klien, dan Nama Project wajib diisi','er'); return; }
+  var id   = document.getElementById('cp-f-id').value.trim();
+  var user = document.getElementById('cp-f-user').value.trim();
+  var proj = document.getElementById('cp-f-project').value.trim();
+  if (!id || !user || !proj) { toast('ID, Klien, dan Nama Project wajib diisi', 'er'); return; }
   cpLoad();
-  function tGet(pfx){ return { pct:document.getElementById('cp-'+pfx+'-pct').value||0, due:document.getElementById('cp-'+pfx+'-due').value, inv:document.getElementById('cp-'+pfx+'-inv').value, kuitansi:document.getElementById('cp-'+pfx+'-kuitansi').value, po:document.getElementById('cp-'+pfx+'-po').value, efaktur:document.getElementById('cp-'+pfx+'-efaktur').value, bast:document.getElementById('cp-'+pfx+'-bast').value, evidence:document.getElementById('cp-'+pfx+'-evidence').value, selfacc:document.getElementById('cp-'+pfx+'-selfacc').value, npwp:document.getElementById('cp-'+pfx+'-npwp').value, pay:document.getElementById('cp-'+pfx+'-pay').value }; }
-  var p = { id:id, user:user, project:proj, nospk:document.getElementById('cp-f-nospk').value, nilai:cpParseCurrency(document.getElementById('cp-f-nilai').value), ovstatus:document.getElementById('cp-f-ovstatus').value, start:document.getElementById('cp-f-start').value, end:document.getElementById('cp-f-end').value, received:'', delivered:'', courier:'', payterm:'', ttd:'', t1:tGet('t1'), t2:tGet('t2'), t3:tGet('t3') };
-  var idx=cpProjects.findIndex(function(x){return x.id===id;});
-  if(idx>=0) cpProjects[idx]={...cpProjects[idx],...p}; else cpProjects.unshift(p);
-  cpSave(); cpRenderDashboard(); toast('Project berhasil disimpan ✓','ok');
-  cpResetFormA(); setTimeout(function(){ navTo('cp-tracker'); },600);
+  function tGet(pfx) {
+    return {
+      pct:      document.getElementById('cp-' + pfx + '-pct').value      || 0,
+      due:      document.getElementById('cp-' + pfx + '-due').value,
+      inv:      document.getElementById('cp-' + pfx + '-inv').value,
+      kuitansi: document.getElementById('cp-' + pfx + '-kuitansi').value,
+      po:       document.getElementById('cp-' + pfx + '-po').value,
+      efaktur:  document.getElementById('cp-' + pfx + '-efaktur').value,
+      bast:     document.getElementById('cp-' + pfx + '-bast').value,
+      evidence: document.getElementById('cp-' + pfx + '-evidence').value,
+      selfacc:  document.getElementById('cp-' + pfx + '-selfacc').value,
+      npwp:     document.getElementById('cp-' + pfx + '-npwp').value,
+      pay:      document.getElementById('cp-' + pfx + '-pay').value,
+    };
+  }
+  var p = {
+    id: id, user: user, project: proj,
+    nospk:    document.getElementById('cp-f-nospk').value,
+    nilai:    cpParseCurrency(document.getElementById('cp-f-nilai').value),
+    ovstatus: document.getElementById('cp-f-ovstatus').value,
+    start:    document.getElementById('cp-f-start').value,
+    end:      document.getElementById('cp-f-end').value,
+    received: '', delivered: '', courier: '', payterm: '', ttd: '',
+    t1: tGet('t1'), t2: tGet('t2'), t3: tGet('t3'),
+  };
+  var idx = cpProjects.findIndex(function(x) { return x.id === id; });
+  if (idx >= 0) cpProjects[idx] = Object.assign(cpProjects[idx], p);
+  else cpProjects.unshift(p);
+  cpSave();
+  cpRenderDashboard();
+  toast('Project compliance berhasil disimpan ✓', 'ok');
+  cpResetFormA();
+  setTimeout(function() { navTo('cp-tracker'); }, 600);
 }
 function cpResetFormA() {
-  ['cp-f-id','cp-f-user','cp-f-project','cp-f-status','cp-f-nospk','cp-f-nilai','cp-f-start','cp-f-end'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
-  ['t1','t2','t3'].forEach(function(t){ ['pct','due','inv','kuitansi','po','efaktur','bast','evidence','selfacc','npwp','pay'].forEach(function(f){ var el=document.getElementById('cp-'+t+'-'+f); if(el) el.value=''; }); });
+  ['cp-f-id','cp-f-user','cp-f-project','cp-f-status','cp-f-nospk','cp-f-nilai','cp-f-start','cp-f-end'].forEach(function(id) {
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
+  ['t1','t2','t3'].forEach(function(t) {
+    ['pct','due','inv','kuitansi','po','efaktur','bast','evidence','selfacc','npwp','pay'].forEach(function(f) {
+      var el = document.getElementById('cp-' + t + '-' + f); if (el) el.value = '';
+    });
+  });
 }
 
-// ── FORM B SUBMIT ──
+// ── FORM B ──
 function cpSubmitB() {
-  var id=document.getElementById('cp-b-select').value; if(!id){toast('Pilih project terlebih dahulu','wn');return;}
-  cpLoad(); var idx=cpProjects.findIndex(function(x){return x.id===id;}); if(idx<0) return;
-  cpProjects[idx].received=document.getElementById('cp-f-rec').value;
-  cpProjects[idx].delivered=document.getElementById('cp-f-del').value;
-  cpProjects[idx].courier=document.getElementById('cp-f-courier').value;
-  cpProjects[idx].payterm=document.getElementById('cp-f-payterm').value;
-  cpProjects[idx].ttd=document.getElementById('cp-f-ttd').value;
-  cpSave(); toast('Korespondensi diperbarui ✓','ok');
-  setTimeout(function(){ navTo('cp-tracker'); },600);
+  var id = document.getElementById('cp-b-select').value;
+  if (!id) { toast('Pilih project terlebih dahulu', 'wn'); return; }
+  cpLoad();
+  var idx = cpProjects.findIndex(function(x) { return x.id === id; });
+  if (idx < 0) return;
+  cpProjects[idx].received  = document.getElementById('cp-f-rec').value;
+  cpProjects[idx].delivered = document.getElementById('cp-f-del').value;
+  cpProjects[idx].courier   = document.getElementById('cp-f-courier').value;
+  cpProjects[idx].payterm   = document.getElementById('cp-f-payterm').value;
+  cpProjects[idx].ttd       = document.getElementById('cp-f-ttd').value;
+  cpSave();
+  toast('Korespondensi diperbarui ✓', 'ok');
+  setTimeout(function() { navTo('cp-tracker'); }, 600);
 }
-function cpResetFormB() { ['cp-f-rec','cp-f-del','cp-f-courier','cp-f-payterm','cp-f-ttd'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';}); document.getElementById('cp-b-select').value=''; cpLoadForB(''); }
+function cpResetFormB() {
+  ['cp-f-rec','cp-f-del','cp-f-courier','cp-f-payterm','cp-f-ttd'].forEach(function(id) {
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
+  var sel = document.getElementById('cp-b-select');
+  if (sel) sel.value = '';
+  cpLoadForB('');
+}
 
 // ── DETAIL MODAL ──
 function cpOpenDetail(id) {
-  cpLoad(); var p=cpProjects.find(function(x){return x.id===id;}); if(!p) return;
-  document.getElementById('cp-modal-title').textContent = p.id+' — '+p.project;
-  function drow(k,v){ return '<div class="cp-detail-row"><div class="cp-detail-key">'+k+'</div><div class="cp-detail-val">'+v+'</div></div>'; }
-  function termBlock(t,lbl){
-    if(!t||(!t.pct&&t.pct!==0)) return '';
-    if(t.pct==0) return '<div style="padding:8px 0;color:var(--ink3);font-size:12px">Tidak ada '+lbl+'</div>';
-    var docs=[['Invoice',t.inv],['Kuitansi',t.kuitansi],['PO/Contract',t.po],['E-Faktur',t.efaktur],['BAST/BAPP',t.bast],['Evidence',t.evidence],['Self-Acceptance',t.selfacc],['NPWP',t.npwp]];
-    return '<div style="margin-bottom:10px"><div style="font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:6px">'+lbl+' ('+t.pct+'%)</div>'+
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px 16px">'+
-      docs.map(function(d){ return '<div style="display:flex;align-items:center;gap:5px;font-size:11.5px"><span>'+(d[1]==='✓ Ada'?'✅':d[1]==='✗ Tidak Ada'?'❌':'➖')+'</span><span>'+d[0]+': '+(d[1]||'—')+'</span></div>'; }).join('')+
-      '<div style="display:flex;align-items:center;gap:5px;font-size:11.5px"><span>'+(t.pay?'💰':'⏳')+'</span><span>Bayar: '+(t.pay||'Belum')+'</span></div>'+
-      '<div style="display:flex;align-items:center;gap:5px;font-size:11.5px"><span>📅</span><span>Due: '+(t.due||'—')+'</span></div>'+
-      '</div></div>';
+  cpLoad();
+  var p = cpProjects.find(function(x) { return x.id === id; });
+  if (!p) return;
+  document.getElementById('cp-modal-title').textContent = p.id + ' — ' + p.project;
+  function drow(k, v) {
+    return '<div class="cp-detail-row">'
+      + '<div class="cp-detail-key">' + k + '</div>'
+      + '<div class="cp-detail-val">' + v + '</div>'
+      + '</div>';
+  }
+  function termBlock(t, lbl) {
+    if (!t || (!t.pct && t.pct !== 0)) return '';
+    if (t.pct == 0) return '<div style="padding:8px 0;color:var(--ink3);font-size:12px">Tidak ada ' + lbl + '</div>';
+    var docs = [
+      ['Invoice',t.inv],['Kuitansi',t.kuitansi],['PO/Contract',t.po],
+      ['E-Faktur',t.efaktur],['BAST/BAPP',t.bast],['Evidence',t.evidence],
+      ['Self-Acceptance',t.selfacc],['NPWP',t.npwp],
+    ];
+    return '<div style="margin-bottom:10px">'
+      + '<div style="font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:6px">' + lbl + ' (' + t.pct + '%)</div>'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px 16px">'
+      + docs.map(function(d) {
+          var ico = d[1]==='✓ Ada' ? '✅' : d[1]==='✗ Tidak Ada' ? '❌' : '➖';
+          return '<div style="display:flex;align-items:center;gap:5px;font-size:11.5px"><span>' + ico + '</span><span>' + d[0] + ': ' + (d[1]||'—') + '</span></div>';
+        }).join('')
+      + '<div style="display:flex;align-items:center;gap:5px;font-size:11.5px"><span>' + (t.pay ? '💰' : '⏳') + '</span><span>Bayar: ' + (t.pay||'Belum') + '</span></div>'
+      + '<div style="display:flex;align-items:center;gap:5px;font-size:11.5px"><span>📅</span><span>Due: ' + (t.due||'—') + '</span></div>'
+      + '</div></div>';
   }
   document.getElementById('cp-modal-bd').innerHTML =
-    '<div style="margin-bottom:12px">'+cpStatusTag(p.ovstatus)+'</div>'+
-    '<div class="cp-detail-sec">📋 Identitas Project</div>'+
-    drow('Klien / User',p.user)+drow('Nama Project',p.project)+drow('Nomor SPK',p.nospk||'—')+
-    drow('Nilai Kontrak',p.nilai?'Rp '+Number(p.nilai).toLocaleString('id-ID'):'—')+
-    drow('Masa Kontrak',(p.start||'—')+' s/d '+(p.end||'—'))+
-    '<div class="cp-detail-div"></div>'+
-    '<div class="cp-detail-sec">📬 Korespondensi & Kontrak</div>'+
-    drow('Diterima',p.received||'—')+drow('Dikirim',p.delivered||'—')+
-    drow('Courier Receipt',p.courier||'—')+drow('Payment Term',p.payterm||'—')+drow('Sign Requirement',p.ttd||'—')+
-    '<div class="cp-detail-div"></div>'+
-    '<div class="cp-detail-sec">💳 Termin Pembayaran</div>'+
-    termBlock(p.t1,'Term I')+termBlock(p.t2,'Term II')+termBlock(p.t3,'Term III');
+    '<div style="margin-bottom:12px">' + cpStatusTag(p.ovstatus) + '</div>'
+    + '<div class="cp-detail-sec">📋 Identitas Project</div>'
+    + drow('Klien / User', p.user)
+    + drow('Nama Project', p.project)
+    + drow('Nomor SPK', p.nospk||'—')
+    + drow('Nilai Kontrak', p.nilai ? 'Rp ' + Number(p.nilai).toLocaleString('id-ID') : '—')
+    + drow('Masa Kontrak', (p.start||'—') + ' s/d ' + (p.end||'—'))
+    + '<div class="cp-detail-div"></div>'
+    + '<div class="cp-detail-sec">📬 Korespondensi & Kontrak</div>'
+    + drow('Diterima', p.received||'—')
+    + drow('Dikirim', p.delivered||'—')
+    + drow('Courier Receipt', p.courier||'—')
+    + drow('Payment Term', p.payterm||'—')
+    + drow('Sign Requirement', p.ttd||'—')
+    + '<div class="cp-detail-div"></div>'
+    + '<div class="cp-detail-sec">💳 Termin Pembayaran</div>'
+    + termBlock(p.t1, 'Term I')
+    + termBlock(p.t2, 'Term II')
+    + termBlock(p.t3, 'Term III');
   document.getElementById('cp-modal-ov').classList.add('open');
 }
-function cpCloseModal() { document.getElementById('cp-modal-ov').classList.remove('open'); }
-document.addEventListener('click', function(e){ var ov=document.getElementById('cp-modal-ov'); if(ov&&e.target===ov) cpCloseModal(); });
+function cpCloseModal() {
+  document.getElementById('cp-modal-ov').classList.remove('open');
+}
+document.addEventListener('click', function(e) {
+  var ov = document.getElementById('cp-modal-ov');
+  if (ov && e.target === ov) cpCloseModal();
+});
 
 function cpDeleteProject(id) {
-  if(!confirm('Hapus project '+id+'?')) return;
-  cpLoad(); cpProjects=cpProjects.filter(function(x){return x.id!==id;}); cpSave(); cpRenderTracker(); toast('Project dihapus.','');
+  if (!confirm('Hapus project ' + id + '?')) return;
+  cpLoad();
+  cpProjects = cpProjects.filter(function(x) { return x.id !== id; });
+  cpSave();
+  cpRenderTracker();
+  toast('Project dihapus.', '');
 }
 
 // Init compliance on page load
 cpLoad();
+
 
 </script>
 
