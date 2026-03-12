@@ -959,7 +959,7 @@ tr:hover td { background: #fafbfc; }
   <div class="page" id="pg-cp-dashboard">
     <div class="ph">
       <div class="ph-l"><h1>📊 Dashboard Compliance</h1><p>Ringkasan status compliance dan pembayaran seluruh project.</p></div>
-      <div class="ph-r"><button class="btn b-bl" onclick="navTo('cp-input')">➕ Tambah Project</button></div>
+      <div class="ph-r"></div>
     </div>
     <div class="cp-kpi-grid" id="cp-kpi-grid"></div>
     <div class="cp-chart-row">
@@ -1052,6 +1052,13 @@ tr:hover td { background: #fafbfc; }
             </div>
             <div class="cp-fg"><label class="cp-fl">Tgl Mulai Kontrak</label><input class="cp-fi" type="date" id="cp-f-start"></div>
             <div class="cp-fg"><label class="cp-fl">Tgl Akhir Kontrak</label><input class="cp-fi" type="date" id="cp-f-end"></div>
+            <div class="cp-fg"><label class="cp-fl">Sign Requirement</label>
+              <select class="cp-fi" id="cp-f-ttd">
+                <option value="">— Pilih —</option>
+                <option>Digital</option>
+                <option>Manual</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
@@ -1060,12 +1067,12 @@ tr:hover td { background: #fafbfc; }
         <div class="cp-form-body">
           <div class="cp-termin-form-grid">
             <div class="cp-tcol-hdr t1">TERM I</div><div class="cp-tcol-hdr t2">TERM II</div><div class="cp-tcol-hdr t3">TERM III</div>
-            <div class="cp-tig"><div class="cp-tig-lbl">Persentase (%)</div><input type="number" min="0" max="100" id="cp-t1-pct" placeholder="0"></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">Persentase (%)</div><input type="number" min="0" max="100" id="cp-t2-pct" placeholder="0"></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">Persentase (%)</div><input type="number" min="0" max="100" id="cp-t3-pct" placeholder="0"></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">Due Date</div><input type="date" id="cp-t1-due"></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">Due Date</div><input type="date" id="cp-t2-due"></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">Due Date</div><input type="date" id="cp-t3-due"></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">Persentase (%)</div><select class="cp-fi" id="cp-t1-pct"><option value="0">—</option><option value="30">30%</option><option value="40">40%</option><option value="50">50%</option><option value="60">60%</option><option value="70">70%</option><option value="80">80%</option><option value="100">100%</option></select></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">Persentase (%)</div><select class="cp-fi" id="cp-t2-pct"><option value="0">—</option><option value="30">30%</option><option value="40">40%</option><option value="50">50%</option><option value="60">60%</option><option value="70">70%</option><option value="80">80%</option><option value="100">100%</option></select></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">Persentase (%)</div><select class="cp-fi" id="cp-t3-pct"><option value="0">—</option><option value="30">30%</option><option value="40">40%</option><option value="50">50%</option><option value="60">60%</option><option value="70">70%</option><option value="80">80%</option><option value="100">100%</option></select></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">Preparation Date</div><input type="date" id="cp-t1-due"></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">Preparation Date</div><input type="date" id="cp-t2-due"></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">Preparation Date</div><input type="date" id="cp-t3-due"></div>
             <div class="cp-tig"><div class="cp-tig-lbl">Invoice</div><select id="cp-t1-inv"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
             <div class="cp-tig"><div class="cp-tig-lbl">Invoice</div><select id="cp-t2-inv"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
             <div class="cp-tig"><div class="cp-tig-lbl">Invoice</div><select id="cp-t3-inv"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
@@ -1090,9 +1097,9 @@ tr:hover td { background: #fafbfc; }
             <div class="cp-tig"><div class="cp-tig-lbl">NPWP</div><select id="cp-t1-npwp"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
             <div class="cp-tig"><div class="cp-tig-lbl">NPWP</div><select id="cp-t2-npwp"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
             <div class="cp-tig"><div class="cp-tig-lbl">NPWP</div><select id="cp-t3-npwp"><option value="">—</option><option>✓ Ada</option><option>✗ Tidak Ada</option><option>N/A</option></select></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">Payment Delivered</div><input type="date" id="cp-t1-pay"></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">Payment Delivered</div><input type="date" id="cp-t2-pay"></div>
-            <div class="cp-tig"><div class="cp-tig-lbl">Payment Delivered</div><input type="date" id="cp-t3-pay"></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">Invoice Delivered</div><input type="date" id="cp-t1-pay"></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">Invoice Delivered</div><input type="date" id="cp-t2-pay"></div>
+            <div class="cp-tig"><div class="cp-tig-lbl">Invoice Delivered</div><input type="date" id="cp-t3-pay"></div>
           </div>
         </div>
         <div class="cp-form-actions">
@@ -1121,11 +1128,20 @@ tr:hover td { background: #fafbfc; }
         <div class="cp-form-shdr teal">📬 Bagian B — Korespondensi & Kontrak</div>
         <div class="cp-form-body">
           <div class="cp-form-grid">
-            <div class="cp-fg"><label class="cp-fl">Tgl Korespondensi Diterima</label><input class="cp-fi" type="date" id="cp-f-rec"></div>
-            <div class="cp-fg"><label class="cp-fl">Tgl Korespondensi Dikirim</label><input class="cp-fi" type="date" id="cp-f-del"></div>
             <div class="cp-fg"><label class="cp-fl">Courier Receipt No.</label><input class="cp-fi" type="text" id="cp-f-courier" placeholder="No. resi"></div>
-            <div class="cp-fg"><label class="cp-fl">Payment Term</label><input class="cp-fi" type="text" id="cp-f-payterm" placeholder="Contoh: Net 30"></div>
-            <div class="cp-fg"><label class="cp-fl">Sign Requirement</label><input class="cp-fi" type="text" id="cp-f-ttd" placeholder="Sign requirement"></div>
+            <div class="cp-fg"><label class="cp-fl">Payment Term</label>
+              <select class="cp-fi" id="cp-f-payterm">
+                <option value="">— Pilih —</option>
+                <option>Net 14</option>
+                <option>Net 30</option>
+                <option>Net 45</option>
+                <option>Net 60</option>
+                <option>Net 90</option>
+                <option>50% DP</option>
+                <option>30-70</option>
+                <option>Lainnya</option>
+              </select>
+            </div>
           </div>
         </div>
         <div class="cp-form-actions">
@@ -2782,9 +2798,9 @@ function _cpDrawDashboard() {
     {l:'In Progress',v:s.inprogress,c:'sky',ic:'⚙️'},
     {l:'On Track',v:s.ontrack,c:'teal',ic:'🎯'},
     {l:'On Hold',v:s.onhold,c:'orange',ic:'⏸️'},
-    {l:'Termin I Lunas',v:s.t1pay,c:'blue',ic:'💰'},
-    {l:'Termin II Lunas',v:s.t2pay,c:'teal',ic:'💳'},
-    {l:'Termin III Lunas',v:s.t3pay,c:'green',ic:'🏆'},
+    {l:'Termin I Paid',v:s.t1pay,c:'blue',ic:'💰'},
+    {l:'Termin II Paid',v:s.t2pay,c:'teal',ic:'💳'},
+    {l:'Termin III Paid',v:s.t3pay,c:'green',ic:'🏆'},
   ];
   var grid = document.getElementById('cp-kpi-grid');
   if (grid) grid.innerHTML = kpis.map(function(k) {
@@ -2951,9 +2967,9 @@ function _cpDrawTermin() {
   });
   var kpiEl = document.getElementById('cp-termin-kpi');
   if (kpiEl) kpiEl.innerHTML = [
-    {l:'Term I Lunas',   v:s.t1pay+'/'+cpProjects.length, c:'blue',  ic:'💰'},
-    {l:'Term II Lunas',  v:s.t2pay+'/'+cpProjects.length, c:'teal',  ic:'💳'},
-    {l:'Term III Lunas', v:s.t3pay+'/'+(t3c||0),           c:'green', ic:'🏆'},
+    {l:'Term I Paid',   v:s.t1pay+'/'+cpProjects.length, c:'blue',  ic:'💰'},
+    {l:'Term II Paid',  v:s.t2pay+'/'+cpProjects.length, c:'teal',  ic:'💳'},
+    {l:'Term III Paid', v:s.t3pay+'/'+(t3c||0),           c:'green', ic:'🏆'},
   ].map(function(k) {
     return '<div class="cp-kpi-card ' + k.c + '">'
       + '<div class="cp-kpi-icon">' + k.ic + '</div>'
@@ -2977,7 +2993,7 @@ function _cpDrawTermin() {
       ['PO/Contract',       active.filter(function(p){return p[term.key].po==='✓ Ada';}).length],
       ['E-Faktur',          active.filter(function(p){return p[term.key].efaktur==='✓ Ada';}).length],
       ['BAST/BAPP',         active.filter(function(p){return p[term.key].bast==='✓ Ada';}).length],
-      ['Payment Delivered', paid],
+      ['Invoice Delivered', paid],
     ];
     return '<div class="cp-termin-card">'
       + '<div class="cp-termin-hd ' + term.cls + '"><span>' + term.title + '</span><span>' + paid + '/' + active.length + ' Paid</span></div>'
@@ -3028,11 +3044,8 @@ function cpLoadForB(id) {
   var p = cpProjects.find(function(x) { return x.id === id; });
   if (!p) return;
   nm.value = p.project;
-  document.getElementById('cp-f-rec').value     = p.received  || '';
-  document.getElementById('cp-f-del').value     = p.delivered || '';
   document.getElementById('cp-f-courier').value = p.courier   || '';
   document.getElementById('cp-f-payterm').value = p.payterm   || '';
-  document.getElementById('cp-f-ttd').value     = p.ttd       || '';
   card.style.opacity = '1'; card.style.pointerEvents = 'auto'; ph.style.display = 'none';
 }
 
@@ -3064,7 +3077,8 @@ function cpSubmitA() {
     ovstatus: document.getElementById('cp-f-ovstatus').value,
     start:    document.getElementById('cp-f-start').value,
     end:      document.getElementById('cp-f-end').value,
-    received: '', delivered: '', courier: '', payterm: '', ttd: '',
+    ttd:      document.getElementById('cp-f-ttd').value,
+    received: '', delivered: '', courier: '', payterm: '',
     t1: tGet('t1'), t2: tGet('t2'), t3: tGet('t3'),
   };
   showLoading(true);
@@ -3077,7 +3091,7 @@ function cpSubmitA() {
   });
 }
 function cpResetFormA() {
-  ['cp-f-id','cp-f-user','cp-f-project','cp-f-status','cp-f-nospk','cp-f-nilai','cp-f-start','cp-f-end'].forEach(function(id) {
+  ['cp-f-id','cp-f-user','cp-f-project','cp-f-status','cp-f-nospk','cp-f-nilai','cp-f-start','cp-f-end','cp-f-ttd'].forEach(function(id) {
     var el = document.getElementById(id); if (el) el.value = '';
   });
   ['t1','t2','t3'].forEach(function(t) {
@@ -3093,11 +3107,8 @@ function cpSubmitB() {
   if (!id) { toast('Pilih project terlebih dahulu', 'wn'); return; }
   var p = cpProjects.find(function(x) { return x.id === id; });
   if (!p) return;
-  p.received  = document.getElementById('cp-f-rec').value;
-  p.delivered = document.getElementById('cp-f-del').value;
   p.courier   = document.getElementById('cp-f-courier').value;
   p.payterm   = document.getElementById('cp-f-payterm').value;
-  p.ttd       = document.getElementById('cp-f-ttd').value;
   showLoading(true);
   cpSaveToDB(p).then(function(pid) {
     showLoading(false);
@@ -3107,7 +3118,7 @@ function cpSubmitB() {
   });
 }
 function cpResetFormB() {
-  ['cp-f-rec','cp-f-del','cp-f-courier','cp-f-payterm','cp-f-ttd'].forEach(function(id) {
+  ['cp-f-courier','cp-f-payterm'].forEach(function(id) {
     var el = document.getElementById(id); if (el) el.value = '';
   });
   var sel = document.getElementById('cp-b-select');
@@ -3153,13 +3164,11 @@ function cpOpenDetail(id) {
     + drow('Nomor SPK', p.nospk||'—')
     + drow('Nilai Kontrak', p.nilai ? 'Rp ' + Number(p.nilai).toLocaleString('id-ID') : '—')
     + drow('Masa Kontrak', (p.start||'—') + ' s/d ' + (p.end||'—'))
+    + drow('Sign Requirement', p.ttd||'—')
     + '<div class="cp-detail-div"></div>'
     + '<div class="cp-detail-sec">📬 Korespondensi & Kontrak</div>'
-    + drow('Diterima', p.received||'—')
-    + drow('Dikirim', p.delivered||'—')
     + drow('Courier Receipt', p.courier||'—')
     + drow('Payment Term', p.payterm||'—')
-    + drow('Sign Requirement', p.ttd||'—')
     + '<div class="cp-detail-div"></div>'
     + '<div class="cp-detail-sec">💳 Termin Pembayaran</div>'
     + termBlock(p.t1, 'Term I')
