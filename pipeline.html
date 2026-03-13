@@ -2731,11 +2731,18 @@ async function cpSaveToDB(p) {
     return projectId;
   } catch(e) {
     console.error('cpSaveToDB error:', e);
-    var msg = (e.message||String(e));
-    if (msg.includes('does not exist') || (e.code === '42P01')) {
+    var msg = (e.message || String(e));
+    var code = e.code || '';
+    if (msg.includes('does not exist') || code === '42P01') {
       toast('⚠️ Tabel belum dibuat! Jalankan ESI_Pipeline_Compliance_v1.sql di Supabase dulu.', 'er');
+    } else if (msg.includes('row-level security') || msg.includes('violates row') || code === '42501') {
+      toast('⚠️ Akses ditolak (RLS). Pastikan Anda sudah login. Coba refresh halaman.', 'er');
+    } else if (msg.includes('JWT') || msg.includes('token') || msg.includes('auth')) {
+      toast('⚠️ Sesi login habis. Silakan refresh halaman dan login ulang.', 'er');
+    } else if (msg.includes('duplicate') || code === '23505') {
+      toast('⚠️ Project dengan ID ini sudah ada. Gunakan ID yang berbeda atau edit via Tracker.', 'er');
     } else {
-      toast('Gagal menyimpan: ' + msg, 'er');
+      toast('❌ Gagal menyimpan: ' + msg, 'er');
     }
     return null;
   }
@@ -3254,9 +3261,12 @@ function cpSubmitA() {
   cpSaveToDB(p).then(function(pid) {
     showLoading(false);
     if (!pid) return;
-    toast('Project compliance berhasil disimpan ✓', 'ok');
+    toast('✅ Project compliance berhasil disimpan!', 'ok');
     cpResetFormA();
-    setTimeout(function() { navTo('cp-tracker'); }, 600);
+    // Reload data then go to dashboard so it shows immediately
+    cpLoadFromDB().then(function() {
+      setTimeout(function() { navTo('cp-dashboard'); }, 400);
+    });
   });
 }
 function cpResetFormA() {
