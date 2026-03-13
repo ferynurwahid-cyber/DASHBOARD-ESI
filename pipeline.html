@@ -1038,6 +1038,7 @@ main { position: relative; z-index: 1; }
       </div>
       <div class="cp-pagination">
         <span id="cp-tracker-count">0 data</span>
+        <button class="btn b-se bsm" onclick="exportComplianceCSV()" style="font-size:12px;padding:5px 12px">⬇️ Export CSV</button>
         <div class="cp-page-btns" id="cp-tracker-pages"></div>
       </div>
     </div>
@@ -1687,7 +1688,7 @@ function saveBankLayanan() {
       closeBankModal();
       renderBanklayanan();
       toast(BANK_EDIT_IDX >= 0 ? 'Layanan diperbarui ✓' : 'Layanan ditambahkan ✓', 'ok');
-    });
+    }).catch(function(e) { showLoading(false); toast('❌ Gagal menyimpan: '+e.message, 'er'); });
   });
 }
 
@@ -1700,7 +1701,7 @@ function delBankLayanan(i, id) {
     showLoading(false);
     renderBanklayanan();
     toast('Layanan dihapus.','');
-  });
+  }).catch(function(e) { showLoading(false); toast('❌ Gagal menghapus: '+e.message, 'er'); });
 }
 
 // Chart instances (destroy before redraw)
@@ -2579,6 +2580,47 @@ async function delItem(key, i, renderName) {
 }
 
 // ── EXPORT ────────────────────────────────────────────
+function exportComplianceCSV() {
+  if (!cpProjects.length) { toast('Tidak ada data compliance.', 'er'); return; }
+  var termMax = 0;
+  cpProjects.forEach(function(p) { if (p.termins && p.termins.length > termMax) termMax = p.termins.length; });
+  var tLabels = ['I','II','III','IV','V','VI'];
+  // Build header
+  var header = ['ID Project','Nama Klien','Nama Project','No SPK','Nilai','Status','Tgl Mulai','Tgl Akhir','Sign Req','Payment Term','Courier'];
+  for (var ti = 0; ti < termMax; ti++) {
+    var l = tLabels[ti];
+    header = header.concat([
+      'T'+l+' %','T'+l+' Prep Date','T'+l+' Invoice','T'+l+' Kuitansi',
+      'T'+l+' PO','T'+l+' E-Faktur','T'+l+' BAST','T'+l+' Evidence',
+      'T'+l+' Self-Acc','T'+l+' NPWP','T'+l+' Inv Delivered'
+    ]);
+  }
+  var rows = cpProjects.map(function(p) {
+    var row = [
+      p.id, p.user, p.project, p.nospk||'',
+      p.nilai ? 'Rp '+Number(p.nilai).toLocaleString('id-ID') : '',
+      p.ovstatus||'', p.start||'', p.end||'', p.ttd||'', p.payterm||'', p.courier||''
+    ];
+    for (var ti2 = 0; ti2 < termMax; ti2++) {
+      var t = (p.termins && p.termins[ti2]) || {};
+      row = row.concat([
+        t.pct||0, t.due||'', t.inv||'', t.kuitansi||'',
+        t.po||'', t.efaktur||'', t.bast||'', t.evidence||'',
+        t.selfacc||'', t.npwp||'', t.pay||''
+      ]);
+    }
+    return row;
+  });
+  var csv = [header, ...rows].map(function(r) {
+    return r.map(function(v) { return '"' + String(v||'').replace(/"/g,'""') + '"'; }).join(',');
+  }).join('\n');
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'}));
+  a.download = 'ESI_Compliance_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+  toast('Export CSV compliance berhasil ✓', 'ok');
+}
+
 function exportCSV(key) {
   const d = DB[key];
   if (!d.length) { toast('Tidak ada data.','er'); return; }
@@ -3373,11 +3415,10 @@ function cpSubmitA() {
     if (!pid) return;
     toast('✅ Project compliance berhasil disimpan!', 'ok');
     cpResetFormA();
-    // Reload data then go to dashboard so it shows immediately
     cpLoadFromDB().then(function() {
       setTimeout(function() { navTo('cp-dashboard'); }, 400);
-    });
-  });
+    }).catch(function(e) { console.error('cpLoadFromDB', e); });
+  }).catch(function(e) { showLoading(false); console.error('cpSubmitA', e); toast('❌ Gagal menyimpan project', 'er'); });
 }
 function cpResetFormA() {
   ['cp-f-id','cp-f-user','cp-f-project','cp-f-status','cp-f-nospk','cp-f-nilai','cp-f-start','cp-f-end','cp-f-ttd'].forEach(function(id) {
@@ -3554,7 +3595,7 @@ function cpOpenEdit(id) {
 
   document.getElementById('cp-edit-bd').innerHTML =
     '<div class="cp-form-grid" style="margin-bottom:20px">'
-    + fg('ID Project', fi('ed-id', p.id, 'PRJ-001'))
+    + '<div class="cp-fg"><label class="cp-fl">ID Project</label><input class="cp-fi" type="text" id="ed-id" value="' + (p.id||'') + '" readonly style="background:#f1f5f9;color:var(--ink3);cursor:not-allowed" title="ID Project tidak bisa diubah"></div>'
     + fg('Nama Klien / User', fi('ed-user', p.user, ''))
     + '<div class="cp-fg full">' + '<label class="cp-fl">Nama Project</label>' + fi('ed-project', p.project, '') + '</div>'
     + fg('Nomor Invoicing', fi('ed-nospk', p.nospk, ''))
@@ -3608,7 +3649,7 @@ function cpSaveEdit() {
   }
 
   var updated = Object.assign({}, p, {
-    id:       gv('ed-id')       || p.id,
+    id:       p.id,  // always use original ID — prevents duplicate on upsert
     user:     gv('ed-user')     || p.user,
     project:  gv('ed-project')  || p.project,
     nospk:    gv('ed-nospk'),
@@ -3634,8 +3675,9 @@ function cpSaveEdit() {
           document.getElementById('pg-cp-dashboard').classList.contains('on')) {
         _cpDrawDashboard();
       }
-    });
-  });
+      checkDeadlines();
+    }).catch(function(e) { console.error('cpLoadFromDB after edit', e); });
+  }).catch(function(e) { showLoading(false); console.error('cpSaveEdit', e); toast('❌ Gagal menyimpan perubahan', 'er'); });
 }
 
 document.addEventListener('click', function(e) {
@@ -3754,7 +3796,7 @@ function _onRemoteChange() {
       renderPage(CUR_PAGE);
       checkDeadlines();
       if (dot) { setTimeout(function(){ dot.style.background='#22c55e'; dot.title='🟢 Realtime: Terhubung'; }, 1000); }
-    });
+    }).catch(function(e) { console.error('Realtime reload error', e); });
   }, 800);
 }
 
@@ -3772,8 +3814,8 @@ function _onComplianceChange() {
 }
 
 // Init — pre-load data
-cpLoadFromDB().then(function(){ checkDeadlines(); });
-dbLoad().then(function(){ checkDeadlines(); });
+cpLoadFromDB().then(function(){ checkDeadlines(); }).catch(function(e){ console.error("cpLoadFromDB init", e); });
+dbLoad().then(function(){ checkDeadlines(); }).catch(function(e){ console.error("dbLoad init", e); toast("❌ Gagal memuat data. Coba refresh halaman.", "er"); });
 supa.auth.getSession().then(function(s){ if(s.data&&s.data.session) setupRealtime(); });
 
 // ── Background Slideshow ──
