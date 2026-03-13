@@ -181,6 +181,8 @@ body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; background: var(
   width: 100%;
   line-height: 0;
   flex-shrink: 0;
+  position: relative;
+  z-index: 2;
 }
 .site-header img {
   width: 100%;
@@ -190,7 +192,7 @@ body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; background: var(
 }
 
 /* ── PAGE ── */
-.page { display: none; padding: 26px 28px 48px; animation: fi .2s ease; }
+.page { display: none; padding: 26px 28px 48px; animation: fi .2s ease; position: relative; z-index: 2; }
 .page.on { display: block; }
 @keyframes fi { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -558,11 +560,8 @@ tr:hover td { background: #fafbfc; }
 
 /* ── Slideshow Background ── */
 #bg-slideshow {
-  position: fixed;
-  left: 260px;
-  right: 0;
-  bottom: 0;
-  top: 0; /* will be overridden by JS after header loads */
+  position: absolute;
+  inset: 0;
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
@@ -573,13 +572,13 @@ tr:hover td { background: #fafbfc; }
   background-size: cover;
   background-position: center;
   opacity: 0;
-  transition: opacity 1.2s ease-in-out;
+  transition: opacity 1.5s ease-in-out;
 }
 #bg-slideshow .bg-slide.active { opacity: 1; }
 #bg-slideshow .bg-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(255,255,255,0.80);
+  background: rgba(255,255,255,0.88);
 }
 main { position: relative; z-index: 1; }
 
@@ -3621,21 +3620,6 @@ var BG_IMGS = [
     cur = (cur + 1) % slides.length;
     slides[cur].classList.add('active');
   }, 4500);
-
-  // Position slideshow below site-header (header banner + topbar)
-  function updateTop() {
-    var hdr = document.querySelector('.site-header');
-    var tb  = document.querySelector('.topbar');
-    var top = 0;
-    if (hdr) top += hdr.offsetHeight;
-    if (tb)  top += tb.offsetHeight;
-    el.style.top = top + 'px';
-  }
-  // Run after images/layout settle
-  window.addEventListener('load', updateTop);
-  setTimeout(updateTop, 300);
-  setTimeout(updateTop, 1000);
-  window.addEventListener('resize', updateTop);
 })();
 
 
