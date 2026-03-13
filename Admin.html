@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESI Pipeline — Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+:root {
+  --green:#2d6a4f; --green-l:#52b788; --green-lt:#d8f3dc;
+  --cream:#f8f4ef; --ink:#1a1a18; --ink2:#6b6b60; --ink3:#9ca3af;
+  --bor:#e0dbd2; --bor2:#f0ebe3;
+  --red:#c0392b; --orange:#ea580c; --blue:#1d4ed8;
+  --sur:#fafaf8;
+}
+body { font-family:'DM Sans',sans-serif; background:var(--cream); color:var(--ink); min-height:100vh; }
+.topbar { background:white; border-bottom:1px solid var(--bor); padding:0 32px; height:60px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
+.topbar-brand { display:flex; align-items:center; gap:12px; }
+.topbar-icon { width:36px; height:36px; background:var(--green); border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:18px; }
+.topbar-name { font-family:'Fraunces',serif; font-size:16px; font-weight:600; }
+.topbar-sub  { font-size:11px; color:var(--orange); font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
+.topbar-right { display:flex; align-items:center; gap:12px; }
+.badge-pending { background:#fff7ed; color:var(--orange); border:1px solid #fed7aa; padding:4px 12px; border-radius:999px; font-size:12px; font-weight:700; }
+.btn-sm { padding:7px 14px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; border:none; font-family:'DM Sans',sans-serif; }
+.btn-green { background:var(--green); color:white; }
+.btn-outline { background:white; color:var(--ink2); border:1.5px solid var(--bor); }
+.btn-sm:hover { opacity:.85; }
+
+.container { max-width:1100px; margin:0 auto; padding:32px 24px; }
+.page-title { font-family:'Fraunces',serif; font-size:28px; font-weight:300; margin-bottom:4px; }
+.page-sub { color:var(--ink2); font-size:14px; margin-bottom:32px; }
+
+/* KPI STRIP */
+.kpi-strip { display:flex; gap:16px; margin-bottom:32px; flex-wrap:wrap; }
+.kpi-card { background:white; border:1px solid var(--bor); border-radius:12px; padding:16px 20px; flex:1; min-width:140px; }
+.kpi-card .kv { font-family:'Fraunces',serif; font-size:32px; font-weight:600; }
+.kpi-card .kl { font-size:12px; color:var(--ink2); margin-top:2px; }
+.kpi-card.orange .kv { color:var(--orange); }
+.kpi-card.green  .kv { color:var(--green); }
+.kpi-card.red    .kv { color:var(--red); }
+
+/* TABLE */
+.card { background:white; border:1px solid var(--bor); border-radius:14px; overflow:hidden; }
+.card-hd { padding:16px 20px; border-bottom:1px solid var(--bor); display:flex; align-items:center; justify-content:space-between; }
+.card-hd h3 { font-size:15px; font-weight:600; }
+.filter-tabs { display:flex; gap:4px; }
+.ftab { padding:5px 12px; border-radius:6px; border:1px solid var(--bor); font-size:12px; font-weight:500; cursor:pointer; background:white; font-family:'DM Sans',sans-serif; color:var(--ink2); }
+.ftab.active { background:var(--green); color:white; border-color:var(--green); }
+table { width:100%; border-collapse:collapse; }
+th { font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink2); padding:10px 16px; border-bottom:1px solid var(--bor); text-align:left; background:var(--sur); }
+td { padding:12px 16px; font-size:13px; border-bottom:1px solid var(--bor2); vertical-align:top; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:#fafaf8; }
+.status-badge { display:inline-block; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:700; }
+.status-pending  { background:#fff7ed; color:var(--orange); }
+.status-approved { background:var(--green-lt); color:var(--green); }
+.status-rejected { background:#fef2f2; color:var(--red); }
+.actions { display:flex; gap:6px; }
+.btn-approve { background:#dcfce7; color:#166534; border:none; padding:5px 12px; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer; }
+.btn-reject  { background:#fef2f2; color:var(--red); border:none; padding:5px 12px; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer; }
+.btn-approve:hover { background:#bbf7d0; }
+.btn-reject:hover  { background:#fecaca; }
+.empty-state { text-align:center; padding:48px 24px; color:var(--ink2); }
+.empty-state p { font-size:14px; margin-top:8px; }
+
+/* TOAST */
+.toast { position:fixed; bottom:24px; right:24px; padding:12px 20px; border-radius:10px; font-size:13px; font-weight:600; z-index:9999; opacity:0; transform:translateY(10px); transition:all .3s; pointer-events:none; }
+.toast.on { opacity:1; transform:none; }
+.toast.ok { background:var(--green); color:white; }
+.toast.er { background:var(--red); color:white; }
+
+/* MODAL */
+.modal-bg { position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:500; display:none; align-items:center; justify-content:center; }
+.modal-bg.on { display:flex; }
+.modal { background:white; border-radius:16px; padding:32px; width:480px; max-width:90vw; }
+.modal h3 { font-family:'Fraunces',serif; font-size:20px; margin-bottom:20px; }
+.modal-info { background:var(--sur); border:1px solid var(--bor); border-radius:10px; padding:16px; margin-bottom:20px; }
+.modal-info p { font-size:13px; line-height:1.7; }
+.modal-info strong { font-weight:600; }
+.modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:20px; }
+.btn-modal-approve { background:var(--green); color:white; border:none; padding:10px 20px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; }
+.btn-modal-reject  { background:#fef2f2; color:var(--red); border:1px solid #fecaca; padding:10px 20px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; }
+.btn-modal-cancel  { background:white; color:var(--ink2); border:1.5px solid var(--bor); padding:10px 16px; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer; font-family:'DM Sans',sans-serif; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-icon">🌿</div>
+    <div>
+      <div class="topbar-name">ESI Pipeline</div>
+      <div class="topbar-sub">🔑 Admin Panel</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="badge-pending" id="topbar-pending">— pending</span>
+    <button class="btn-sm btn-outline" onclick="window.location.href='pipeline.html'">← Kembali ke Dashboard</button>
+    <button class="btn-sm btn-outline" onclick="doLogout()">Logout</button>
+  </div>
+</div>
+
+<div class="container">
+  <h1 class="page-title">Manajemen Permintaan Akses</h1>
+  <p class="page-sub">Tinjau dan setujui/tolak permintaan akun baru dari calon pengguna.</p>
+
+  <div class="kpi-strip">
+    <div class="kpi-card orange"><div class="kv" id="kpi-pending">—</div><div class="kl">Menunggu Review</div></div>
+    <div class="kpi-card green"> <div class="kv" id="kpi-approved">—</div><div class="kl">Disetujui</div></div>
+    <div class="kpi-card red">   <div class="kv" id="kpi-rejected">—</div><div class="kl">Ditolak</div></div>
+    <div class="kpi-card">       <div class="kv" id="kpi-total">—</div><div class="kl">Total Permintaan</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd">
+      <h3>Daftar Permintaan</h3>
+      <div class="filter-tabs">
+        <button class="ftab active" onclick="filterRequests('all')">Semua</button>
+        <button class="ftab" onclick="filterRequests('pending')">Pending</button>
+        <button class="ftab" onclick="filterRequests('approved')">Disetujui</button>
+        <button class="ftab" onclick="filterRequests('rejected')">Ditolak</button>
+      </div>
+    </div>
+    <div id="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Nama</th>
+            <th>Email</th>
+            <th>Jabatan</th>
+            <th>Alasan</th>
+            <th>Waktu</th>
+            <th>Status</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="req-tbody">
+          <tr><td colspan="7" class="empty-state">Memuat data...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- REVIEW MODAL -->
+<div class="modal-bg" id="modal-bg">
+  <div class="modal">
+    <h3>Tinjau Permintaan Akses</h3>
+    <div class="modal-info" id="modal-info"></div>
+    <p style="font-size:13px;color:var(--ink2);margin-bottom:6px">Jika disetujui, link aktivasi akun akan dikirim ke email pemohon.</p>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel"  onclick="closeModal()">Batal</button>
+      <button class="btn-modal-reject"  onclick="confirmAction('rejected')">✕ Tolak</button>
+      <button class="btn-modal-approve" onclick="confirmAction('approved')">✓ Setujui & Kirim Invite</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPA_URL = 'https://fzplvluohnbuggvdqkkw.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6cGx2bHVvaG5idWdndmRxa2t3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5OTE4NTMsImV4cCI6MjA4ODU2Nzg1M30.Q3BDZRWJhai63P_yWAbt-TTNqqtnS45zjfevDHbIj1U';
+const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+// ADMIN EMAIL — CHANGE THIS to your email
+const ADMIN_EMAIL = 'ferynurwahid@gmail.com';
+
+let allRequests = [];
+let currentFilter = 'all';
+let selectedRequest = null;
+
+// Auth guard — only admin can access
+(async function() {
+  const { data: { session } } = await supa.auth.getSession();
+  if (!session) { window.location.href = 'login.html'; return; }
+  if (session.user.email !== ADMIN_EMAIL) {
+    alert('Akses ditolak. Halaman ini hanya untuk administrator.');
+    window.location.href = 'pipeline.html';
+    return;
+  }
+  loadRequests();
+})();
+
+async function loadRequests() {
+  const { data, error } = await supa
+    .from('user_requests')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) { toast('Gagal memuat data: ' + error.message, 'er'); return; }
+  allRequests = data || [];
+  renderKPI();
+  renderTable(currentFilter);
+}
+
+function renderKPI() {
+  const pending  = allRequests.filter(r => r.status === 'pending').length;
+  const approved = allRequests.filter(r => r.status === 'approved').length;
+  const rejected = allRequests.filter(r => r.status === 'rejected').length;
+  document.getElementById('kpi-pending').textContent  = pending;
+  document.getElementById('kpi-approved').textContent = approved;
+  document.getElementById('kpi-rejected').textContent = rejected;
+  document.getElementById('kpi-total').textContent    = allRequests.length;
+  document.getElementById('topbar-pending').textContent = pending + ' pending';
+}
+
+function filterRequests(f) {
+  currentFilter = f;
+  document.querySelectorAll('.ftab').forEach((el, i) => {
+    el.classList.toggle('active', ['all','pending','approved','rejected'][i] === f);
+  });
+  renderTable(f);
+}
+
+function renderTable(f) {
+  const rows = f === 'all' ? allRequests : allRequests.filter(r => r.status === f);
+  const tbody = document.getElementById('req-tbody');
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div style="font-size:32px">📭</div><p>Tidak ada permintaan' + (f !== 'all' ? ' dengan status ini' : '') + '.</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(r => {
+    const dt = new Date(r.created_at).toLocaleDateString('id-ID', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    const statusBadge = '<span class="status-badge status-' + r.status + '">'
+      + (r.status==='pending'?'⏳ Pending':r.status==='approved'?'✓ Disetujui':'✕ Ditolak') + '</span>';
+    const actions = r.status === 'pending'
+      ? '<div class="actions"><button class="btn-approve" onclick="openModal(\'' + r.id + '\')">Tinjau</button></div>'
+      : '<span style="font-size:11px;color:var(--ink3)">' + (r.reviewed_at ? new Date(r.reviewed_at).toLocaleDateString('id-ID') : '—') + '</span>';
+    return '<tr>'
+      + '<td><strong>' + esc(r.full_name) + '</strong></td>'
+      + '<td style="color:var(--ink2)">' + esc(r.email) + '</td>'
+      + '<td>' + esc(r.role||'—') + '</td>'
+      + '<td style="max-width:200px;color:var(--ink2)">' + esc(r.reason||'—').substring(0,80) + (r.reason&&r.reason.length>80?'…':'') + '</td>'
+      + '<td style="color:var(--ink3);white-space:nowrap">' + dt + '</td>'
+      + '<td>' + statusBadge + '</td>'
+      + '<td>' + actions + '</td>'
+      + '</tr>';
+  }).join('');
+}
+
+function esc(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function openModal(id) {
+  selectedRequest = allRequests.find(r => r.id === id);
+  if (!selectedRequest) return;
+  document.getElementById('modal-info').innerHTML =
+    '<p><strong>Nama:</strong> ' + esc(selectedRequest.full_name) + '</p>'
+    + '<p><strong>Email:</strong> ' + esc(selectedRequest.email) + '</p>'
+    + '<p><strong>Jabatan:</strong> ' + esc(selectedRequest.role||'—') + '</p>'
+    + '<p><strong>Alasan:</strong> ' + esc(selectedRequest.reason||'—') + '</p>';
+  document.getElementById('modal-bg').classList.add('on');
+}
+
+function closeModal() {
+  document.getElementById('modal-bg').classList.remove('on');
+  selectedRequest = null;
+}
+
+async function confirmAction(action) {
+  if (!selectedRequest) return;
+  closeModal();
+
+  // Update status in DB
+  const { error: updErr } = await supa
+    .from('user_requests')
+    .update({ status: action, reviewed_at: new Date().toISOString() })
+    .eq('id', selectedRequest.id);
+  if (updErr) { toast('Gagal update status: ' + updErr.message, 'er'); return; }
+
+  if (action === 'approved') {
+    // Use Supabase admin invite — NOTE: this requires service_role key for real invite.
+    // With anon key: we send a "magic link" / notify admin to manually invite via Supabase dashboard.
+    // Best practice: show admin the email to invite manually OR use Edge Function.
+    toast('✓ Disetujui! Buka Supabase Dashboard → Authentication → Users → Invite user: ' + selectedRequest.email, 'ok', 6000);
+    // Optionally: send via Edge Function here if configured
+  } else {
+    toast('✕ Permintaan dari ' + selectedRequest.full_name + ' telah ditolak.', 'er');
+  }
+
+  await loadRequests();
+}
+
+function toast(msg, type, dur) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast on ' + (type||'ok');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('on'), dur||3500);
+}
+
+async function doLogout() {
+  await supa.auth.signOut();
+  window.location.href = 'login.html';
+}
+
+// Real-time: auto-refresh when new request comes in
+supa.channel('user_requests_changes')
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'user_requests' }, () => loadRequests())
+  .subscribe();
+</script>
+</body>
+</html>
