@@ -1150,6 +1150,21 @@ tr:hover td { background: #fafbfc; }
     </div>
   </div>
 
+  <!-- EDIT MODAL -->
+  <div class="cp-modal-ov" id="cp-edit-ov">
+    <div class="cp-modal" style="width:720px;max-width:95vw;max-height:90vh;display:flex;flex-direction:column">
+      <div class="cp-modal-hd" style="flex-shrink:0">
+        <div class="cp-modal-title" id="cp-edit-title">✏️ Edit Project</div>
+        <button class="cp-modal-close" onclick="cpCloseEdit()">✕</button>
+      </div>
+      <div id="cp-edit-bd" style="overflow-y:auto;padding:16px 24px 24px;flex:1"></div>
+      <div style="flex-shrink:0;padding:14px 24px;border-top:1px solid var(--bor);display:flex;justify-content:flex-end;gap:10px;background:white;border-radius:0 0 14px 14px">
+        <button class="btn b-se" onclick="cpCloseEdit()">Batal</button>
+        <button class="btn b-bl" onclick="cpSaveEdit()">💾 Simpan Perubahan</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 </main>
 
@@ -2940,6 +2955,7 @@ function _cpDrawTracker() {
         + '<td><div class="cp-term-cell">' + cpTdot2(p.t1) + cpTdot2(p.t2) + cpTdot2(p.t3) + '</div></td>'
         + '<td>'
         +   '<button class="btn b-se bsm cp-det-btn" data-cpid="' + p.id + '">Detail</button> '
+        +   '<button class="btn bsm cp-edit-btn" data-cpid="' + p.id + '" style="background:#eff6ff;color:#1d4ed8;border:1.5px solid #bfdbfe;border-radius:6px;cursor:pointer;padding:4px 8px;font-size:11px;font-weight:600">✏️ Edit</button> '
         +   '<button class="btn bsm cp-del-btn" data-cpid="' + p.id + '" style="background:#fee2e2;color:#b91c1c;border:none;border-radius:6px;cursor:pointer;padding:4px 8px;font-size:11px">🗑</button>'
         + '</td>'
         + '</tr>';
@@ -2949,6 +2965,9 @@ function _cpDrawTracker() {
     });
     tbody.querySelectorAll('.cp-det-btn').forEach(function(btn) {
       btn.addEventListener('click', function(e) { e.stopPropagation(); cpOpenDetail(this.dataset.cpid); });
+    });
+    tbody.querySelectorAll('.cp-edit-btn').forEach(function(btn) {
+      btn.addEventListener('click', function(e) { e.stopPropagation(); cpOpenEdit(this.dataset.cpid); });
     });
     tbody.querySelectorAll('.cp-del-btn').forEach(function(btn) {
       btn.addEventListener('click', function(e) { e.stopPropagation(); cpDeleteProject(this.dataset.cpid); });
@@ -3369,6 +3388,169 @@ function cpCloseModal() {
 document.addEventListener('click', function(e) {
   var ov = document.getElementById('cp-modal-ov');
   if (ov && e.target === ov) cpCloseModal();
+});
+
+// ── EDIT PROJECT MODAL ──
+var _cpEditId = null;
+
+function cpOpenEdit(id) {
+  var p = cpProjects.find(function(x) { return x.id === id; });
+  if (!p) return;
+  _cpEditId = id;
+  document.getElementById('cp-edit-title').textContent = '✏️ Edit Project — ' + p.id;
+
+  var pctOpts = function(cur) {
+    return [0,10,20,30,40,50,60,70,80,90,100].map(function(v) {
+      return '<option value="' + v + '"' + (parseInt(cur)==v?' selected':'') + '>' + (v===0?'—':v+'%') + '</option>';
+    }).join('');
+  };
+  var docOpts = function(cur) {
+    return ['','✓ Ada','✗ Tidak Ada','N/A'].map(function(v) {
+      return '<option value="' + v + '"' + (cur===v?' selected':'') + '>' + (v||'—') + '</option>';
+    }).join('');
+  };
+  var statusOpts = ['On Track','In Progress','Completed','On Hold','Cancelled'].map(function(s) {
+    return '<option value="' + s + '"' + (p.ovstatus===s?' selected':'') + '>' + s + '</option>';
+  }).join('');
+  var payOpts = ['','Net 14','Net 30','Net 45','Net 60','Net 90','50% DP','30-70','Lainnya'].map(function(s) {
+    return '<option value="' + s + '"' + (p.payterm===s?' selected':'') + '>' + (s||'— Pilih —') + '</option>';
+  }).join('');
+  var ttdOpts = ['','Digital','Manual'].map(function(s) {
+    return '<option value="' + s + '"' + (p.ttd===s?' selected':'') + '>' + (s||'— Pilih —') + '</option>';
+  }).join('');
+
+  function fg(lbl, inp) {
+    return '<div class="cp-fg"><label class="cp-fl">' + lbl + '</label>' + inp + '</div>';
+  }
+  function fi(id, val, ph) {
+    return '<input class="cp-fi" type="text" id="' + id + '" value="' + (val||'').replace(/"/g,'&quot;') + '" placeholder="' + (ph||'') + '">';
+  }
+  function fd(id, val) {
+    return '<input class="cp-fi" type="date" id="' + id + '" value="' + (val||'') + '">';
+  }
+  function fs(id, opts) {
+    return '<select class="cp-fi" id="' + id + '">' + opts + '</select>';
+  }
+
+  // Build termin rows
+  var termins = p.termins || [p.t1, p.t2, p.t3].filter(Boolean);
+  var termCount = termins.length || 1;
+  var termLabels = ['TERM I','TERM II','TERM III','TERM IV','TERM V','TERM VI'];
+  var termHtml = '<div class="cp-form-shdr green" style="border-radius:8px;margin-bottom:10px">💳 Termin Pembayaran</div>';
+  termHtml += '<div style="overflow-x:auto"><div class="cp-termin-form-grid" style="grid-template-columns:repeat(' + Math.min(termCount,3) + ',1fr)">';
+  for (var ti = 0; ti < Math.min(termCount,3); ti++) {
+    termHtml += '<div class="cp-tcol-hdr ' + ['t1','t2','t3'][ti] + '">' + termLabels[ti] + '</div>';
+  }
+  var tfields = [
+    {lbl:'Persentase (%)', fn:function(t,n){return '<select class="cp-fi" id="ed-t'+n+'-pct">'+pctOpts(t.pct)+'</select>';}},
+    {lbl:'Preparation Date', fn:function(t,n){return fd('ed-t'+n+'-due',t.due);}},
+    {lbl:'Invoice',          fn:function(t,n){return '<select class="cp-fi" id="ed-t'+n+'-inv">'+docOpts(t.inv)+'</select>';}},
+    {lbl:'Kuitansi',         fn:function(t,n){return '<select class="cp-fi" id="ed-t'+n+'-kuitansi">'+docOpts(t.kuitansi)+'</select>';}},
+    {lbl:'PO/Contract',      fn:function(t,n){return '<select class="cp-fi" id="ed-t'+n+'-po">'+docOpts(t.po)+'</select>';}},
+    {lbl:'E-Faktur',         fn:function(t,n){return '<select class="cp-fi" id="ed-t'+n+'-efaktur">'+docOpts(t.efaktur)+'</select>';}},
+    {lbl:'BAST/BAPP',        fn:function(t,n){return '<select class="cp-fi" id="ed-t'+n+'-bast">'+docOpts(t.bast)+'</select>';}},
+    {lbl:'Evidence',         fn:function(t,n){return '<select class="cp-fi" id="ed-t'+n+'-evidence">'+docOpts(t.evidence)+'</select>';}},
+    {lbl:'Self-Acceptance',  fn:function(t,n){return '<select class="cp-fi" id="ed-t'+n+'-selfacc">'+docOpts(t.selfacc)+'</select>';}},
+    {lbl:'NPWP',             fn:function(t,n){return '<select class="cp-fi" id="ed-t'+n+'-npwp">'+docOpts(t.npwp)+'</select>';}},
+    {lbl:'Invoice Delivered',fn:function(t,n){return fd('ed-t'+n+'-pay',t.pay);}},
+  ];
+  tfields.forEach(function(f) {
+    for (var ti2 = 0; ti2 < Math.min(termCount,3); ti2++) {
+      var t = termins[ti2] || {};
+      termHtml += '<div class="cp-tig"><div class="cp-tig-lbl">' + f.lbl + '</div>' + f.fn(t, ti2+1) + '</div>';
+    }
+  });
+  termHtml += '</div></div>';
+
+  document.getElementById('cp-edit-bd').innerHTML =
+    '<div class="cp-form-grid" style="margin-bottom:20px">'
+    + fg('ID Project', fi('ed-id', p.id, 'PRJ-001'))
+    + fg('Nama Klien / User', fi('ed-user', p.user, ''))
+    + '<div class="cp-fg full">' + '<label class="cp-fl">Nama Project</label>' + fi('ed-project', p.project, '') + '</div>'
+    + fg('Nomor Invoicing', fi('ed-nospk', p.nospk, ''))
+    + fg('Nilai Kontrak (Rp)', fi('ed-nilai', p.nilai ? Number(p.nilai).toLocaleString('id-ID') : '', '0'))
+    + fg('Status Project', fs('ed-ovstatus', statusOpts))
+    + fg('Tgl Mulai Kontrak', fd('ed-start', p.start))
+    + fg('Tgl Akhir Kontrak', fd('ed-end', p.end))
+    + fg('Sign Requirement', fs('ed-ttd', ttdOpts))
+    + '</div>'
+    + '<div class="cp-form-shdr" style="background:var(--ink2);border-radius:8px;margin-bottom:10px">📬 Korespondensi & Kontrak</div>'
+    + '<div class="cp-form-grid" style="margin-bottom:20px">'
+    + fg('Courier Receipt No.', fi('ed-courier', p.courier, 'No. resi'))
+    + fg('Payment Term', fs('ed-payterm', payOpts))
+    + '</div>'
+    + termHtml;
+
+  document.getElementById('cp-edit-ov').classList.add('open');
+}
+
+function cpCloseEdit() {
+  document.getElementById('cp-edit-ov').classList.remove('open');
+  _cpEditId = null;
+}
+
+function cpSaveEdit() {
+  if (!_cpEditId) return;
+  var p = cpProjects.find(function(x) { return x.id === _cpEditId; });
+  if (!p) return;
+
+  function gv(id) { var el = document.getElementById(id); return el ? el.value : ''; }
+
+  var termins = p.termins || [];
+  var count = Math.min(termins.length || 1, 3);
+  var newTermins = [];
+  for (var n = 1; n <= count; n++) {
+    var orig = termins[n-1] || {};
+    newTermins.push({
+      _id:      orig._id,
+      pct:      gv('ed-t'+n+'-pct')      || 0,
+      due:      gv('ed-t'+n+'-due'),
+      inv:      gv('ed-t'+n+'-inv'),
+      kuitansi: gv('ed-t'+n+'-kuitansi'),
+      po:       gv('ed-t'+n+'-po'),
+      efaktur:  gv('ed-t'+n+'-efaktur'),
+      bast:     gv('ed-t'+n+'-bast'),
+      evidence: gv('ed-t'+n+'-evidence'),
+      selfacc:  gv('ed-t'+n+'-selfacc'),
+      npwp:     gv('ed-t'+n+'-npwp'),
+      pay:      gv('ed-t'+n+'-pay'),
+    });
+  }
+
+  var updated = Object.assign({}, p, {
+    id:       gv('ed-id')       || p.id,
+    user:     gv('ed-user')     || p.user,
+    project:  gv('ed-project')  || p.project,
+    nospk:    gv('ed-nospk'),
+    nilai:    gv('ed-nilai'),
+    ovstatus: gv('ed-ovstatus') || p.ovstatus,
+    start:    gv('ed-start'),
+    end:      gv('ed-end'),
+    ttd:      gv('ed-ttd'),
+    courier:  gv('ed-courier'),
+    payterm:  gv('ed-payterm'),
+    termins:  newTermins,
+  });
+
+  showLoading(true);
+  cpCloseEdit();
+  cpSaveToDB(updated).then(function(pid) {
+    showLoading(false);
+    if (!pid) return;
+    toast('✅ Project berhasil diperbarui!', 'ok');
+    cpLoadFromDB().then(function() {
+      cpRenderTracker();
+      if (document.getElementById('pg-cp-dashboard') &&
+          document.getElementById('pg-cp-dashboard').classList.contains('active')) {
+        _cpDrawDashboard();
+      }
+    });
+  });
+}
+
+document.addEventListener('click', function(e) {
+  var ov2 = document.getElementById('cp-edit-ov');
+  if (ov2 && e.target === ov2) cpCloseEdit();
 });
 
 function cpDeleteProject(id) {
