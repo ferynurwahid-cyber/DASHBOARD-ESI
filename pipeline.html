@@ -2617,14 +2617,14 @@ async function cpLoadFromDB() {
     // Load all termins in one query
     var tRes = await supa.from('compliance_termin').select('*');
     if (tRes.error) throw tRes.error;
-    var termins = tRes.data || [];
+    var allTermins = tRes.data || [];
 
     // Map termins to projects
     cpProjects = projects.map(function(p) {
-      var pt = termins.filter(function(t) { return t.project_id === p.id; });
+      var pt = allTermins.filter(function(t) { return t.project_id === p.id; });
       // Map all termins dynamically (sort by termin_no)
       var sortedT = pt.slice().sort(function(a,b){return a.termin_no-b.termin_no;});
-      var termins = sortedT.map(function(t) {
+      var mappedTermins = sortedT.map(function(t) {
         return {
           _id:      t.id,
           pct:      t.persentase  || 0,
@@ -2640,7 +2640,7 @@ async function cpLoadFromDB() {
           pay:      t.tgl_payment || '',
         };
       });
-      if (!termins.length) termins = [{pct:0,due:'',inv:'',kuitansi:'',po:'',efaktur:'',bast:'',evidence:'',selfacc:'',npwp:'',pay:''}];
+      if (!mappedTermins.length) mappedTermins = [{pct:0,due:'',inv:'',kuitansi:'',po:'',efaktur:'',bast:'',evidence:'',selfacc:'',npwp:'',pay:''}];
       return {
         _id:      p.id,
         id:       p.project_code,
@@ -2656,9 +2656,9 @@ async function cpLoadFromDB() {
         courier:  p.courier_no    || '',
         payterm:  p.payment_term  || '',
         ttd:      p.sign_req      || '',
-        termins:  termins,
+        termins:  mappedTermins,
         // backward compat
-        t1: termins[0]||{}, t2: termins[1]||{}, t3: termins[2]||{},
+        t1: mappedTermins[0]||{}, t2: mappedTermins[1]||{}, t3: mappedTermins[2]||{},
       };
     });
   } catch(e) {
