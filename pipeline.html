@@ -1474,7 +1474,10 @@ const PAGE_META = {
   resdoc:{title:'Research Documentation',ph:'Deliverable',pc:'p1t'},
 };
 
+var CUR_PAGE = 'dashboard';
+
 function navTo(page) {
+  CUR_PAGE = page;
   document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
   document.querySelectorAll('.ni').forEach(n => n.classList.remove('on'));
   const pg = document.getElementById('pg-'+page);
@@ -1575,19 +1578,62 @@ const BANK_DEFAULT = [
   {nama:'Lainnya / Custom Project', kategori:'Lainnya', link:'', catatan:'Layanan khusus sesuai kebutuhan klien'}
 ];
 
-function getBankData() {
-  try { return JSON.parse(localStorage.getItem('esi_bank_layanan')) || BANK_DEFAULT; }
-  catch { return BANK_DEFAULT; }
+// Bank Referensi — Supabase backed
+var _bankCache = null;
+
+async function getBankData() {
+  if (_bankCache) return _bankCache;
+  try {
+    var res = await supa.from('bank_layanan').select('*').order('created_at', {ascending: true});
+    if (res.error || !res.data || !res.data.length) {
+      // First run: seed with defaults if table empty
+      if (!res.error && res.data && res.data.length === 0) {
+        await seedBankDefaults();
+        var res2 = await supa.from('bank_layanan').select('*').order('created_at', {ascending: true});
+        _bankCache = (res2.data || []).map(r => ({id:r.id, nama:r.nama, kategori:r.kategori||'', link:r.link||'', catatan:r.catatan||''}));
+      } else {
+        _bankCache = BANK_DEFAULT.map(function(d,i){return Object.assign({id:'default-'+i},d);});
+      }
+    } else {
+      _bankCache = res.data.map(r => ({id:r.id, nama:r.nama, kategori:r.kategori||'', link:r.link||'', catatan:r.catatan||''}));
+    }
+  } catch(e) {
+    _bankCache = BANK_DEFAULT.map(function(d,i){return Object.assign({id:'default-'+i},d);});
+  }
+  return _bankCache;
 }
-function saveBankData(data) { localStorage.setItem('esi_bank_layanan', JSON.stringify(data)); }
+
+async function seedBankDefaults() {
+  for (var d of BANK_DEFAULT) {
+    await supa.from('bank_layanan').insert({nama:d.nama, kategori:d.kategori||'', link:d.link||'', catatan:d.catatan||''});
+  }
+}
+
+async function saveBankRow(obj, id) {
+  _bankCache = null;
+  var row = {nama:obj.nama, kategori:obj.kategori||'', link:obj.link||'', catatan:obj.catatan||''};
+  if (id && !String(id).startsWith('default-')) {
+    return supa.from('bank_layanan').update(row).eq('id', id);
+  } else {
+    return supa.from('bank_layanan').insert(row);
+  }
+}
+
+async function deleteBankRow(id) {
+  _bankCache = null;
+  if (id && !String(id).startsWith('default-')) {
+    await supa.from('bank_layanan').delete().eq('id', id);
+  }
+}
 
 let BANK_EDIT_IDX = -1;
 
 function renderBanklayanan() {
-  const data = getBankData();
-  const tbody = document.getElementById('banklayanan-tb');
+  getBankData().then(function(data) {
+  var tbody = document.getElementById('banklayanan-tb');
   if (!tbody) return;
   if (!data.length) { tbody.innerHTML = '<tr class="er"><td colspan="6">Belum ada data. Klik "+ Tambah Layanan".</td></tr>'; return; }
+  if (!data.length) { tbody.innerHTML = '<tr class="er"><td colspan="6">Belum ada data.</td></tr>'; return; }
   tbody.innerHTML = data.map((d,i) => `
     <tr>
       <td style="color:var(--ink2);font-size:11px">${i+1}</td>
@@ -1599,22 +1645,24 @@ function renderBanklayanan() {
       <td style="font-size:12px;color:var(--ink2)">${d.catatan||'—'}</td>
       <td>
         <button class="btn bsm b-nt" style="padding:3px 8px;font-size:11px" onclick="editBankLayanan(${i})">✏</button>
-        <button class="btn bsm" style="padding:3px 8px;font-size:11px;background:#fee2e2;color:#dc2626;border:none;border-radius:6px;cursor:pointer" onclick="delBankLayanan(${i})">🗑</button>
+        <button class="btn bsm" style="padding:3px 8px;font-size:11px;background:#fee2e2;color:#dc2626;border:none;border-radius:6px;cursor:pointer" onclick="delBankLayanan(${i},${JSON.stringify(d.id)})">🗑</button>
       </td>
     </tr>
   `).join('');
+  }); // end getBankData().then
 }
 
 function openBankModal(editIdx) {
   BANK_EDIT_IDX = (editIdx !== undefined) ? editIdx : -1;
-  const data = getBankData();
-  const d = BANK_EDIT_IDX >= 0 ? data[BANK_EDIT_IDX] : {};
+  getBankData().then(function(data) {
+  var d = BANK_EDIT_IDX >= 0 ? data[BANK_EDIT_IDX] : {};
   document.getElementById('bank-modal-title').textContent = BANK_EDIT_IDX >= 0 ? '✏ Edit Layanan' : '+ Tambah Layanan';
   document.getElementById('b-nama').value = d.nama||'';
   document.getElementById('b-kategori').value = d.kategori||'Riset Sosial';
   document.getElementById('b-link').value = d.link||'';
   document.getElementById('b-catatan').value = d.catatan||'';
   document.getElementById('ov-bank').classList.add('on');
+  }); // end getBankData().then
 }
 
 function closeBankModal() {
@@ -1623,31 +1671,36 @@ function closeBankModal() {
 }
 
 function saveBankLayanan() {
-  const nama = document.getElementById('b-nama').value.trim();
+  var nama = document.getElementById('b-nama').value.trim();
   if (!nama) { toast('Nama layanan wajib diisi','er'); return; }
-  const obj = {
+  var obj = {
     nama: nama,
     kategori: document.getElementById('b-kategori').value,
     link: document.getElementById('b-link').value.trim(),
     catatan: document.getElementById('b-catatan').value.trim()
   };
-  const data = getBankData();
-  if (BANK_EDIT_IDX >= 0) { data[BANK_EDIT_IDX] = obj; } else { data.push(obj); }
-  saveBankData(data);
-  closeBankModal();
-  renderBanklayanan();
-  toast(BANK_EDIT_IDX >= 0 ? 'Layanan diperbarui ✓' : 'Layanan ditambahkan ✓', 'ok');
+  showLoading(true);
+  getBankData().then(function(data) {
+    var id = BANK_EDIT_IDX >= 0 ? data[BANK_EDIT_IDX].id : null;
+    saveBankRow(obj, id).then(function() {
+      showLoading(false);
+      closeBankModal();
+      renderBanklayanan();
+      toast(BANK_EDIT_IDX >= 0 ? 'Layanan diperbarui ✓' : 'Layanan ditambahkan ✓', 'ok');
+    });
+  });
 }
 
 function editBankLayanan(i) { openBankModal(i); }
 
-function delBankLayanan(i) {
+function delBankLayanan(i, id) {
   if (!confirm('Hapus layanan ini?')) return;
-  const data = getBankData();
-  data.splice(i, 1);
-  saveBankData(data);
-  renderBanklayanan();
-  toast('Layanan dihapus.','');
+  showLoading(true);
+  deleteBankRow(id).then(function() {
+    showLoading(false);
+    renderBanklayanan();
+    toast('Layanan dihapus.','');
+  });
 }
 
 // Chart instances (destroy before redraw)
@@ -3578,7 +3631,7 @@ function cpSaveEdit() {
     cpLoadFromDB().then(function() {
       cpRenderTracker();
       if (document.getElementById('pg-cp-dashboard') &&
-          document.getElementById('pg-cp-dashboard').classList.contains('active')) {
+          document.getElementById('pg-cp-dashboard').classList.contains('on')) {
         _cpDrawDashboard();
       }
     });
