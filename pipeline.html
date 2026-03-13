@@ -559,7 +559,10 @@ tr:hover td { background: #fafbfc; }
 /* ── Slideshow Background ── */
 #bg-slideshow {
   position: fixed;
-  inset: 0 0 0 260px; /* offset for sidebar width */
+  left: 260px;
+  right: 0;
+  bottom: 0;
+  top: 0; /* will be overridden by JS after header loads */
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
@@ -576,8 +579,7 @@ tr:hover td { background: #fafbfc; }
 #bg-slideshow .bg-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(255,255,255,0.82);
-  backdrop-filter: blur(1px);
+  background: rgba(255,255,255,0.80);
 }
 main { position: relative; z-index: 1; }
 
@@ -3619,6 +3621,21 @@ var BG_IMGS = [
     cur = (cur + 1) % slides.length;
     slides[cur].classList.add('active');
   }, 4500);
+
+  // Position slideshow below site-header (header banner + topbar)
+  function updateTop() {
+    var hdr = document.querySelector('.site-header');
+    var tb  = document.querySelector('.topbar');
+    var top = 0;
+    if (hdr) top += hdr.offsetHeight;
+    if (tb)  top += tb.offsetHeight;
+    el.style.top = top + 'px';
+  }
+  // Run after images/layout settle
+  window.addEventListener('load', updateTop);
+  setTimeout(updateTop, 300);
+  setTimeout(updateTop, 1000);
+  window.addEventListener('resize', updateTop);
 })();
 
 
