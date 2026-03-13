@@ -8,7 +8,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 :root {
   --green:   #2d6a4f;
   --green-l: #52b788;
@@ -18,243 +17,76 @@
   --ink2:    #6b6b60;
   --bor:     #e0dbd2;
   --red:     #c0392b;
+  --orange:  #ea580c;
   --shadow:  0 4px 24px rgba(45,106,79,.10);
   --shadow-lg: 0 20px 60px rgba(45,106,79,.18);
 }
-
-html, body {
-  height: 100%;
-  font-family: 'DM Sans', sans-serif;
-  background: var(--cream);
-  color: var(--ink);
-  overflow: hidden;
-}
-
-/* ── BACKGROUND ── */
-.bg {
-  position: fixed; inset: 0; z-index: 0;
-  background:
-    radial-gradient(ellipse 80% 60% at 10% 110%, rgba(82,183,136,.18) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 80% at 90% -10%, rgba(45,106,79,.10) 0%, transparent 60%),
-    var(--cream);
-}
-
-.bg-pattern {
-  position: fixed; inset: 0; z-index: 0; opacity: .035;
-  background-image: radial-gradient(circle, #2d6a4f 1px, transparent 1px);
-  background-size: 32px 32px;
-}
-
-/* ── LAYOUT ── */
-.wrap {
-  position: relative; z-index: 1;
-  min-height: 100vh;
-  display: grid;
-  grid-template-columns: 1fr 480px;
-}
-
-/* ── LEFT PANEL ── */
-.left {
-  display: flex; flex-direction: column;
-  justify-content: space-between;
-  padding: 56px 64px;
-}
-
-.brand {
-  display: flex; align-items: center; gap: 14px;
-}
-.brand-icon {
-  width: 44px; height: 44px;
-  background: var(--green);
-  border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
-}
-.brand-name {
-  font-family: 'Fraunces', serif;
-  font-size: 18px; font-weight: 600;
-  letter-spacing: -.02em;
-  color: var(--ink);
-}
-.brand-sub {
-  font-size: 11px; font-weight: 400;
-  color: var(--ink2); letter-spacing: .04em;
-  text-transform: uppercase;
-}
-
+html, body { height: 100%; font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--ink); overflow: hidden; }
+.bg { position: fixed; inset: 0; z-index: 0; background: radial-gradient(ellipse 80% 60% at 10% 110%, rgba(82,183,136,.18) 0%, transparent 60%), radial-gradient(ellipse 60% 80% at 90% -10%, rgba(45,106,79,.10) 0%, transparent 60%), var(--cream); }
+.bg-pattern { position: fixed; inset: 0; z-index: 0; opacity: .035; background-image: radial-gradient(circle, #2d6a4f 1px, transparent 1px); background-size: 32px 32px; }
+.wrap { position: relative; z-index: 1; min-height: 100vh; display: grid; grid-template-columns: 1fr 480px; }
+.left { display: flex; flex-direction: column; justify-content: space-between; padding: 56px 64px; }
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand-icon { width: 44px; height: 44px; background: var(--green); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+.brand-name { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 600; letter-spacing: -.02em; color: var(--ink); }
+.brand-sub { font-size: 11px; font-weight: 400; color: var(--ink2); letter-spacing: .04em; text-transform: uppercase; }
 .hero { flex: 1; display: flex; flex-direction: column; justify-content: center; }
-
-.hero-tag {
-  display: inline-flex; align-items: center; gap: 6px;
-  background: var(--green-lt); color: var(--green);
-  font-size: 11px; font-weight: 600; letter-spacing: .08em;
-  text-transform: uppercase; padding: 5px 12px;
-  border-radius: 999px; width: fit-content;
-  margin-bottom: 28px;
-}
+.hero-tag { display: inline-flex; align-items: center; gap: 6px; background: var(--green-lt); color: var(--green); font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; padding: 5px 12px; border-radius: 999px; width: fit-content; margin-bottom: 28px; }
 .hero-tag::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--green-l); }
-
-.hero h1 {
-  font-family: 'Fraunces', serif;
-  font-size: clamp(40px, 4vw, 58px);
-  font-weight: 300; line-height: 1.1;
-  letter-spacing: -.03em; color: var(--ink);
-  margin-bottom: 20px;
-}
+.hero h1 { font-family: 'Fraunces', serif; font-size: clamp(40px, 4vw, 58px); font-weight: 300; line-height: 1.1; letter-spacing: -.03em; color: var(--ink); margin-bottom: 20px; }
 .hero h1 em { font-style: italic; color: var(--green); }
-
-.hero p {
-  font-size: 15px; line-height: 1.7;
-  color: var(--ink2); max-width: 380px;
-}
-
-.stats {
-  display: flex; gap: 32px;
-  padding-top: 48px;
-  border-top: 1px solid var(--bor);
-  margin-top: 48px;
-}
+.hero p { font-size: 15px; line-height: 1.7; color: var(--ink2); max-width: 380px; }
+.stats { display: flex; gap: 32px; padding-top: 48px; border-top: 1px solid var(--bor); margin-top: 48px; }
 .stat-item { display: flex; flex-direction: column; gap: 4px; }
-.stat-n {
-  font-family: 'Fraunces', serif;
-  font-size: 28px; font-weight: 600; color: var(--ink);
-  letter-spacing: -.03em;
-}
+.stat-n { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 600; color: var(--ink); letter-spacing: -.03em; }
 .stat-l { font-size: 12px; color: var(--ink2); }
-
-.footer-txt {
-  font-size: 12px; color: var(--ink2);
-  display: flex; align-items: center; gap: 6px;
-}
+.footer-txt { font-size: 12px; color: var(--ink2); display: flex; align-items: center; gap: 6px; }
 .footer-txt::before { content: '©'; }
 
-/* ── RIGHT PANEL ── */
-.right {
-  background: white;
-  display: flex; flex-direction: column;
-  justify-content: center;
-  padding: 56px 48px;
-  box-shadow: -1px 0 0 var(--bor), var(--shadow-lg);
-  position: relative; overflow: hidden;
-}
-
-.right::before {
-  content: '';
-  position: absolute; top: -60px; right: -60px;
-  width: 200px; height: 200px;
-  background: radial-gradient(circle, rgba(82,183,136,.08) 0%, transparent 70%);
-  border-radius: 50%;
-}
-
-.form-head { margin-bottom: 36px; }
-.form-head h2 {
-  font-family: 'Fraunces', serif;
-  font-size: 28px; font-weight: 600;
-  letter-spacing: -.02em; margin-bottom: 6px;
-}
+/* RIGHT PANEL */
+.right { background: white; display: flex; flex-direction: column; justify-content: center; padding: 56px 48px; box-shadow: -1px 0 0 var(--bor), var(--shadow-lg); position: relative; overflow: hidden; }
+.right::before { content: ''; position: absolute; top: -60px; right: -60px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(82,183,136,.08) 0%, transparent 70%); border-radius: 50%; }
+.form-head { margin-bottom: 32px; }
+.form-head h2 { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 600; letter-spacing: -.02em; margin-bottom: 6px; }
 .form-head p { font-size: 14px; color: var(--ink2); }
 
-.tabs {
-  display: flex; gap: 0;
-  background: #f5f4f1;
-  border-radius: 10px; padding: 4px;
-  margin-bottom: 28px;
-}
-.tab {
-  flex: 1; padding: 8px 16px;
-  border: none; background: transparent;
-  border-radius: 7px; cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px; font-weight: 500;
-  color: var(--ink2); transition: all .2s;
-}
-.tab.active {
-  background: white;
-  color: var(--ink);
-  box-shadow: 0 1px 4px rgba(0,0,0,.08);
-}
+/* TABS */
+.tabs { display: flex; gap: 0; background: #f5f4f1; border-radius: 10px; padding: 4px; margin-bottom: 28px; }
+.tab { flex: 1; padding: 8px 16px; border: none; background: transparent; border-radius: 7px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--ink2); transition: all .2s; }
+.tab.active { background: white; color: var(--ink); box-shadow: 0 1px 4px rgba(0,0,0,.08); }
 
+/* FORM ELEMENTS */
 .form-group { margin-bottom: 16px; }
-.form-label {
-  display: block; font-size: 12px;
-  font-weight: 600; letter-spacing: .04em;
-  text-transform: uppercase; color: var(--ink2);
-  margin-bottom: 7px;
-}
-.form-input {
-  width: 100%; padding: 11px 14px;
-  border: 1.5px solid var(--bor);
-  border-radius: 10px; font-size: 14px;
-  font-family: 'DM Sans', sans-serif;
-  color: var(--ink); background: white;
-  transition: border-color .2s, box-shadow .2s;
-  outline: none;
-}
-.form-input:focus {
-  border-color: var(--green-l);
-  box-shadow: 0 0 0 3px rgba(82,183,136,.12);
-}
-
-.btn-submit {
-  width: 100%; padding: 13px;
-  background: var(--green);
-  color: white; border: none;
-  border-radius: 10px; font-size: 14px;
-  font-weight: 600; font-family: 'DM Sans', sans-serif;
-  cursor: pointer; margin-top: 8px;
-  transition: background .2s, transform .1s, box-shadow .2s;
-  box-shadow: 0 4px 14px rgba(45,106,79,.25);
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-}
+.form-label { display: block; font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--ink2); margin-bottom: 7px; }
+.form-input { width: 100%; padding: 11px 14px; border: 1.5px solid var(--bor); border-radius: 10px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--ink); background: white; transition: border-color .2s, box-shadow .2s; outline: none; }
+.form-input:focus { border-color: var(--green-l); box-shadow: 0 0 0 3px rgba(82,183,136,.12); }
+textarea.form-input { resize: vertical; min-height: 72px; }
+.btn-submit { width: 100%; padding: 13px; background: var(--green); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; margin-top: 8px; transition: background .2s, transform .1s, box-shadow .2s; box-shadow: 0 4px 14px rgba(45,106,79,.25); display: flex; align-items: center; justify-content: center; gap: 8px; }
 .btn-submit:hover { background: #1f4e38; box-shadow: 0 6px 20px rgba(45,106,79,.35); }
 .btn-submit:active { transform: scale(.98); }
 .btn-submit:disabled { background: #a8c5b5; cursor: not-allowed; box-shadow: none; }
-
-.divider {
-  display: flex; align-items: center; gap: 12px;
-  margin: 20px 0; color: var(--ink2); font-size: 12px;
-}
-.divider::before, .divider::after {
-  content: ''; flex: 1; height: 1px; background: var(--bor);
-}
-
-.forgot {
-  text-align: right; margin-top: -8px; margin-bottom: 16px;
-}
-.forgot a {
-  font-size: 12px; color: var(--green);
-  text-decoration: none; font-weight: 500;
-}
+.forgot { text-align: right; margin-top: -8px; margin-bottom: 16px; }
+.forgot a { font-size: 12px; color: var(--green); text-decoration: none; font-weight: 500; }
 .forgot a:hover { text-decoration: underline; }
-
-.msg {
-  padding: 10px 14px; border-radius: 8px;
-  font-size: 13px; margin-bottom: 16px;
-  display: none;
-}
+.msg { padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; display: none; }
 .msg.err { background: #fef2f2; color: var(--red); border: 1px solid #fecaca; display: block; }
 .msg.ok  { background: var(--green-lt); color: var(--green); border: 1px solid #b7e4c7; display: block; }
-
-.loader {
-  width: 16px; height: 16px;
-  border: 2px solid rgba(255,255,255,.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin .7s linear infinite;
-  display: none;
-}
+.msg.warn { background: #fff7ed; color: var(--orange); border: 1px solid #fed7aa; display: block; }
+.loader { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3); border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; display: none; }
 .loader.on { display: block; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── ANIMATIONS ── */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+/* REQUEST ACCESS INFO BOX */
+.info-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 14px 16px; margin-bottom: 20px; }
+.info-box p { font-size: 13px; color: #166534; line-height: 1.6; }
+.info-box strong { font-weight: 600; }
+
+/* LOCK ICON for request tab */
+.lock-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; background: #fff7ed; color: var(--orange); border: 1px solid #fed7aa; border-radius: 999px; padding: 2px 8px; margin-left: 6px; font-weight: 600; vertical-align: middle; }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 .left  { animation: fadeUp .6s ease both; }
 .right { animation: fadeUp .6s .15s ease both; opacity: 0; animation-fill-mode: forwards; }
-
-/* ── RESPONSIVE ── */
 @media (max-width: 900px) {
   .wrap { grid-template-columns: 1fr; overflow: auto; }
   html, body { overflow: auto; }
@@ -264,10 +96,8 @@ html, body {
 </style>
 </head>
 <body>
-
 <div class="bg"></div>
 <div class="bg-pattern"></div>
-
 <div class="wrap">
   <!-- LEFT PANEL -->
   <div class="left">
@@ -278,27 +108,16 @@ html, body {
         <div class="brand-sub">Enviro Strategic Indonesia</div>
       </div>
     </div>
-
     <div class="hero">
       <div class="hero-tag">Platform Manajemen Bisnis</div>
       <h1>Satu platform untuk <em>seluruh pipeline</em> ESI</h1>
       <p>Dari inquiry klien, proposal, hingga eksekusi proyek — semua terpantau dalam satu sistem terpadu berbasis cloud.</p>
       <div class="stats">
-        <div class="stat-item">
-          <span class="stat-n">10</span>
-          <span class="stat-l">Modul Terintegrasi</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-n">3</span>
-          <span class="stat-l">Fase Pipeline</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-n">∞</span>
-          <span class="stat-l">Data Cloud</span>
-        </div>
+        <div class="stat-item"><span class="stat-n">10</span><span class="stat-l">Modul Terintegrasi</span></div>
+        <div class="stat-item"><span class="stat-n">3</span><span class="stat-l">Fase Pipeline</span></div>
+        <div class="stat-item"><span class="stat-n">∞</span><span class="stat-l">Data Cloud</span></div>
       </div>
     </div>
-
     <div class="footer-txt">2026 Enviro Strategic Indonesia. All rights reserved.</div>
   </div>
 
@@ -306,12 +125,12 @@ html, body {
   <div class="right">
     <div class="form-head">
       <h2>Selamat datang 👋</h2>
-      <p>Masuk ke akun ESI Pipeline Anda</p>
+      <p id="form-subtitle">Masuk ke akun ESI Pipeline Anda</p>
     </div>
 
     <div class="tabs">
-      <button class="tab active" onclick="switchTab('login')">Masuk</button>
-      <button class="tab" onclick="switchTab('register')">Daftar</button>
+      <button class="tab active" id="tab-login" onclick="switchTab('login')">Masuk</button>
+      <button class="tab" id="tab-request" onclick="switchTab('request')">Request Akses <span class="lock-badge">🔒 Perlu Izin</span></button>
     </div>
 
     <div id="msg" class="msg"></div>
@@ -333,23 +152,30 @@ html, body {
       </button>
     </div>
 
-    <!-- REGISTER FORM -->
-    <div id="form-register" style="display:none">
+    <!-- REQUEST ACCESS FORM -->
+    <div id="form-request" style="display:none">
+      <div class="info-box">
+        <p>🔒 Akses ke ESI Pipeline <strong>hanya untuk tim yang diizinkan</strong>. Isi form ini dan administrator akan meninjau permintaan Anda. Anda akan dihubungi melalui email setelah disetujui.</p>
+      </div>
       <div class="form-group">
         <label class="form-label">Nama Lengkap</label>
         <input id="r-name" class="form-input" type="text" placeholder="Nama Anda">
       </div>
       <div class="form-group">
         <label class="form-label">Email</label>
-        <input id="r-email" class="form-input" type="email" placeholder="nama@envirostrategic.com" autocomplete="email">
+        <input id="r-email" class="form-input" type="email" placeholder="nama@envirostrategic.com">
       </div>
       <div class="form-group">
-        <label class="form-label">Password</label>
-        <input id="r-pass" class="form-input" type="password" placeholder="Min. 6 karakter" autocomplete="new-password">
+        <label class="form-label">Jabatan / Divisi</label>
+        <input id="r-role" class="form-input" type="text" placeholder="Contoh: Project Manager, Finance">
       </div>
-      <button class="btn-submit" id="btn-register" onclick="doRegister()">
-        <span id="register-txt">Buat Akun</span>
-        <div class="loader" id="register-loader"></div>
+      <div class="form-group">
+        <label class="form-label">Alasan Membutuhkan Akses</label>
+        <textarea id="r-reason" class="form-input" placeholder="Jelaskan singkat mengapa Anda membutuhkan akses..."></textarea>
+      </div>
+      <button class="btn-submit" id="btn-request" onclick="doRequestAccess()">
+        <span id="request-txt">Kirim Permintaan Akses</span>
+        <div class="loader" id="request-loader"></div>
       </button>
     </div>
   </div>
@@ -360,23 +186,26 @@ const SUPA_URL = 'https://fzplvluohnbuggvdqkkw.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6cGx2bHVvaG5idWdndmRxa2t3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5OTE4NTMsImV4cCI6MjA4ODU2Nzg1M30.Q3BDZRWJhai63P_yWAbt-TTNqqtnS45zjfevDHbIj1U';
 const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 
-// Check if already logged in
 (async function() {
   const { data: { session } } = await supa.auth.getSession();
   if (session) window.location.href = 'pipeline.html';
 })();
 
 function switchTab(tab) {
-  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', (tab==='login'&&i===0)||(tab==='register'&&i===1)));
-  document.getElementById('form-login').style.display    = tab==='login'    ? '' : 'none';
-  document.getElementById('form-register').style.display = tab==='register' ? '' : 'none';
-  showMsg('','');
+  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+  document.getElementById('tab-request').classList.toggle('active', tab === 'request');
+  document.getElementById('form-login').style.display   = tab === 'login'   ? '' : 'none';
+  document.getElementById('form-request').style.display = tab === 'request' ? '' : 'none';
+  document.getElementById('form-subtitle').textContent  = tab === 'login'
+    ? 'Masuk ke akun ESI Pipeline Anda'
+    : 'Minta izin akses dari administrator';
+  showMsg('', '');
 }
 
 function showMsg(txt, type) {
   const el = document.getElementById('msg');
   el.textContent = txt;
-  el.className = 'msg' + (type ? ' '+type : '');
+  el.className = 'msg' + (type ? ' ' + type : '');
 }
 
 function setLoading(btn, loader, txt, on) {
@@ -388,43 +217,63 @@ function setLoading(btn, loader, txt, on) {
 async function doLogin() {
   const email = document.getElementById('l-email').value.trim();
   const pass  = document.getElementById('l-pass').value;
-  if (!email || !pass) { showMsg('Email dan password wajib diisi.','err'); return; }
-  setLoading('btn-login','login-loader','login-txt', true);
-  showMsg('','');
+  if (!email || !pass) { showMsg('Email dan password wajib diisi.', 'err'); return; }
+  setLoading('btn-login', 'login-loader', 'login-txt', true);
+  showMsg('', '');
   const { error } = await supa.auth.signInWithPassword({ email, password: pass });
-  setLoading('btn-login','login-loader','login-txt', false);
+  setLoading('btn-login', 'login-loader', 'login-txt', false);
   if (error) { showMsg('Login gagal: ' + error.message, 'err'); return; }
-  showMsg('Login berhasil! Mengarahkan...','ok');
+  showMsg('Login berhasil! Mengarahkan...', 'ok');
   setTimeout(() => window.location.href = 'pipeline.html', 800);
 }
 
-async function doRegister() {
-  const name  = document.getElementById('r-name').value.trim();
-  const email = document.getElementById('r-email').value.trim();
-  const pass  = document.getElementById('r-pass').value;
-  if (!name || !email || !pass) { showMsg('Semua kolom wajib diisi.','err'); return; }
-  if (pass.length < 6) { showMsg('Password minimal 6 karakter.','err'); return; }
-  setLoading('btn-register','register-loader','register-txt', true);
-  showMsg('','');
-  const { error } = await supa.auth.signUp({ email, password: pass, options: { data: { full_name: name } } });
-  setLoading('btn-register','register-loader','register-txt', false);
-  if (error) { showMsg('Daftar gagal: ' + error.message, 'err'); return; }
-  showMsg('✅ Akun dibuat! Cek email untuk konfirmasi, lalu login.','ok');
+async function doRequestAccess() {
+  const name   = document.getElementById('r-name').value.trim();
+  const email  = document.getElementById('r-email').value.trim();
+  const role   = document.getElementById('r-role').value.trim();
+  const reason = document.getElementById('r-reason').value.trim();
+  if (!name || !email || !role) { showMsg('Nama, email, dan jabatan wajib diisi.', 'err'); return; }
+  if (!/\S+@\S+\.\S+/.test(email)) { showMsg('Format email tidak valid.', 'err'); return; }
+  setLoading('btn-request', 'request-loader', 'request-txt', true);
+  showMsg('', '');
+
+  // Check if email already submitted or already a user
+  const { data: existing } = await supa.from('user_requests').select('id, status').eq('email', email).maybeSingle();
+  if (existing) {
+    setLoading('btn-request', 'request-loader', 'request-txt', false);
+    if (existing.status === 'pending')  { showMsg('📋 Permintaan dengan email ini sudah ada dan sedang ditinjau. Harap tunggu.', 'warn'); return; }
+    if (existing.status === 'approved') { showMsg('✅ Akun Anda sudah disetujui. Cek email untuk link aktivasi.', 'ok'); return; }
+    if (existing.status === 'rejected') { showMsg('❌ Permintaan akses dengan email ini telah ditolak. Hubungi administrator.', 'err'); return; }
+  }
+
+  const { error } = await supa.from('user_requests').insert({
+    full_name: name,
+    email:     email,
+    role:      role,
+    reason:    reason || null,
+    status:    'pending',
+  });
+
+  setLoading('btn-request', 'request-loader', 'request-txt', false);
+  if (error) { showMsg('Gagal mengirim permintaan: ' + error.message, 'err'); return; }
+
+  // Clear form
+  ['r-name','r-email','r-role','r-reason'].forEach(id => { document.getElementById(id).value = ''; });
+  showMsg('✅ Permintaan akses Anda telah dikirim! Administrator akan meninjau dan menghubungi Anda via email.', 'ok');
 }
 
 async function forgotPassword() {
   const email = document.getElementById('l-email').value.trim();
-  if (!email) { showMsg('Isi email Anda terlebih dahulu.','err'); return; }
+  if (!email) { showMsg('Isi email Anda terlebih dahulu.', 'err'); return; }
   const { error } = await supa.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/pipeline.html' });
-  if (error) { showMsg('Gagal kirim email: ' + error.message,'err'); return; }
-  showMsg('📧 Link reset password dikirim ke ' + email,'ok');
+  if (error) { showMsg('Gagal kirim email: ' + error.message, 'err'); return; }
+  showMsg('📧 Link reset password dikirim ke ' + email, 'ok');
 }
 
-// Enter key support
 document.addEventListener('keydown', function(e) {
   if (e.key !== 'Enter') return;
   const loginVisible = document.getElementById('form-login').style.display !== 'none';
-  if (loginVisible) doLogin(); else doRegister();
+  if (loginVisible) doLogin();
 });
 </script>
 </body>
