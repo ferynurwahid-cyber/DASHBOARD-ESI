@@ -1039,6 +1039,13 @@ tr:hover td { background: #fafbfc; }
         <div class="cp-form-shdr blue">🏷️ Bagian A — Identitas & Detail Project</div>
         <div class="cp-form-body">
           <div class="cp-form-grid">
+            <div class="cp-fg full">
+              <label class="cp-fl">Pilih dari Data Project (Phase 3) <span style="color:var(--green-l);font-weight:400;text-transform:none;letter-spacing:0">— atau isi manual di bawah</span></label>
+              <select class="cp-fi" id="cp-f-proj3link" onchange="cpAutoFillFromPhase3(this.value)" style="font-weight:600">
+                <option value="">— Pilih Project dari Phase 3 —</option>
+              </select>
+              <div id="cp-proj3-hint" style="font-size:11px;color:var(--ink3);margin-top:5px;display:none">✅ Data diisi otomatis dari Phase 3. Anda tetap bisa mengedit manual.</div>
+            </div>
             <div class="cp-fg"><label class="cp-fl">ID Project *</label><input class="cp-fi" type="text" id="cp-f-id" placeholder="PRJ-001"></div>
             <div class="cp-fg"><label class="cp-fl">Nama Klien / User *</label><input class="cp-fi" type="text" id="cp-f-user" placeholder="Nama klien atau user"></div>
             <div class="cp-fg full"><label class="cp-fl">Nama Project *</label><input class="cp-fi" type="text" id="cp-f-project" placeholder="Nama lengkap project"></div>
@@ -1494,7 +1501,7 @@ function renderPage(p) {
     'cp-dashboard': cpRenderDashboard,
     'cp-tracker':   cpRenderTracker,
     'cp-termin':    cpRenderTermin,
-    'cp-input':     function(){ setTimeout(cpRebuildTerminForm, 50); }
+    'cp-input':     function(){ setTimeout(function(){ cpRebuildTerminForm(); cpPopulatePhase3Dropdown(); }, 50); }
   };
   if (fns[p]) fns[p]();
   updateBadges();
@@ -2378,6 +2385,7 @@ async function saveModal() {
     closeModal();
     showLoading(false);
     toast('📁 Proyek "'+obj.nama+'" dibuat + MONEV otomatis terbuat!','ok');
+    cpPopulatePhase3Dropdown();
     renderProj(); updateBadges(); return;
   }
 
@@ -2420,6 +2428,8 @@ async function editProj(i) {
     p.then(function(){ return dbLoad(); }).then(function(){
       showLoading(false);
       closeModal(); toast('Proyek diperbarui ✓','ok'); renderProj();
+      // Sync update to Phase 4 compliance if project exists there
+      cpSyncFromPhase3(Object.assign({}, DB.projects[i], obj));
       document.getElementById('m-save').onclick = saveModal;
     });
   };
@@ -3123,6 +3133,87 @@ function cpRebuildTerminForm(preloadData) {
   }
 }
 
+// ── PHASE 3 → PHASE 4 SYNC ──
+function cpPopulatePhase3Dropdown() {
+  var sel = document.getElementById('cp-f-proj3link');
+  if (!sel) return;
+  var current = sel.value;
+  sel.innerHTML = '<option value="">— Pilih Project dari Phase 3 —</option>'
+    + (DB.projects || []).map(function(p, i) {
+        var label = (p.nama || '—') + (p.klien ? '  ·  ' + p.klien : '');
+        return '<option value="' + i + '">' + label + '</option>';
+      }).join('');
+  // Restore selection if still valid
+  if (current !== '') sel.value = current;
+}
+
+function cpAutoFillFromPhase3(idx) {
+  var hint = document.getElementById('cp-proj3-hint');
+  if (idx === '') { if (hint) hint.style.display = 'none'; return; }
+  var p = (DB.projects || [])[parseInt(idx)];
+  if (!p) return;
+
+  // Map Phase 3 status → Phase 4 ovstatus
+  var statusMap = {
+    '🟢 On Track': 'On Track',
+    '🟡 Perhatian': 'In Progress',
+    '🔴 Terlambat': 'In Progress',
+    '✅ Selesai': 'Completed',
+    '⏸ Ditunda': 'On Hold',
+  };
+
+  // Auto-fill fields
+  var id = document.getElementById('cp-f-id');
+  var user = document.getElementById('cp-f-user');
+  var proj = document.getElementById('cp-f-project');
+  var nilai = document.getElementById('cp-f-nilai');
+  var start = document.getElementById('cp-f-start');
+  var end   = document.getElementById('cp-f-end');
+  var ovst  = document.getElementById('cp-f-ovstatus');
+
+  // Only fill if field is currently empty (don't overwrite existing data)
+  if (id    && !id.value)    id.value    = 'P-' + (p.nama||'').substring(0,6).replace(/\s+/g,'-').toUpperCase();
+  if (user  && !user.value)  user.value  = p.klien || '';
+  if (proj  && !proj.value)  proj.value  = p.nama  || '';
+  if (nilai && !nilai.value && p.nilai) { nilai.value = Number(p.nilai).toLocaleString('id-ID'); }
+  if (start && !start.value) start.value = p.tglMulai  || '';
+  if (end   && !end.value)   end.value   = p.deadline  || '';
+  if (ovst  && p.status)     ovst.value  = statusMap[p.status] || 'On Track';
+
+  if (hint) hint.style.display = 'block';
+}
+
+// Called when Phase 3 project data changes — sync to Phase 4 compliance_project in Supabase
+async function cpSyncFromPhase3(proj3Item) {
+  if (!proj3Item || !proj3Item._id) return;
+  // Find if this project exists in compliance by matching project name or klien
+  var match = cpProjects.find(function(cp) {
+    return cp.project === proj3Item.nama || cp.user === proj3Item.klien;
+  });
+  if (!match) return; // Not yet in Phase 4, nothing to sync
+
+  var statusMap = {
+    '🟢 On Track': 'On Track', '🟡 Perhatian': 'In Progress',
+    '🔴 Terlambat': 'In Progress', '✅ Selesai': 'Completed', '⏸ Ditunda': 'On Hold',
+  };
+  // Update compliance_project fields that mirror Phase 3 data
+  var updates = {
+    user_klien:   proj3Item.klien     || match.user,
+    nama_project: proj3Item.nama      || match.project,
+    nilai:        proj3Item.nilai ? parseInt(String(proj3Item.nilai).replace(/[^0-9]/g,'')) : match.nilai || null,
+    status:       statusMap[proj3Item.status] || match.ovstatus,
+    tgl_mulai:    proj3Item.tglMulai  || match.start  || null,
+    tgl_akhir:    proj3Item.deadline  || match.end    || null,
+  };
+  try {
+    await supa.from('compliance_project').update(updates).eq('id', match._id);
+    // Refresh local Phase 4 data silently
+    await cpLoadFromDB();
+  } catch(e) {
+    console.warn('cpSyncFromPhase3 warning:', e);
+  }
+}
+
 function cpSubmitA() {
   var id   = document.getElementById('cp-f-id').value.trim();
   var user = document.getElementById('cp-f-user').value.trim();
@@ -3172,6 +3263,10 @@ function cpResetFormA() {
   ['cp-f-id','cp-f-user','cp-f-project','cp-f-status','cp-f-nospk','cp-f-nilai','cp-f-start','cp-f-end','cp-f-ttd'].forEach(function(id) {
     var el = document.getElementById(id); if (el) el.value = '';
   });
+  var sel3 = document.getElementById('cp-f-proj3link');
+  if (sel3) sel3.value = '';
+  var hint = document.getElementById('cp-proj3-hint');
+  if (hint) hint.style.display = 'none';
   document.getElementById('cp-termin-count').value = '3';
   cpRebuildTerminForm();
 }
