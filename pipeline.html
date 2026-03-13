@@ -2670,6 +2670,13 @@ async function cpLoadFromDB() {
 // Save / upsert a project + its 3 termins
 async function cpSaveToDB(p) {
   try {
+    // Check session first
+    var sessionRes = await supa.auth.getSession();
+    if (!sessionRes.data || !sessionRes.data.session) {
+      toast('⚠️ Sesi login tidak ditemukan. Silakan refresh dan login ulang.', 'er');
+      return null;
+    }
+
     // Upsert main project row (match by project_code)
     var projData = {
       project_code: p.id,
