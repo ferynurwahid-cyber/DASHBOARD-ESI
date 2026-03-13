@@ -644,6 +644,7 @@ main { position: relative; z-index: 1; }
 </aside>
 
 <main class="main">
+  <div id="notif-panel" style="display:none;position:relative;z-index:10;padding:0 28px"></div>
   <div id="bg-slideshow"><div class="bg-overlay"></div></div>
 
   <div class="site-header"><img src="https://raw.githubusercontent.com/ferynurwahid-cyber/DASHBOARD-ESI/338869f26c26260ed19048e71dc58480d2328af1/Header%20ESI%204.png" alt="ESI Header"></div>
@@ -653,6 +654,7 @@ main { position: relative; z-index: 1; }
       <span class="tb-ph" id="tb-ph"></span>
     </div>
     <div class="tb-r">
+      <span id="rt-dot" title="Realtime: Menghubungkan..." style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;transition:background .4s;flex-shrink:0"></span>
       <span class="datebadge" id="tb-date"></span>
       <span class="dot"></span>
       <!-- PROFILE DROPDOWN -->
@@ -3466,10 +3468,6 @@ function cpOpenEdit(id) {
   var termCount = termins.length || 1;
   var termLabels = ['TERM I','TERM II','TERM III','TERM IV','TERM V','TERM VI'];
   var termHtml = '<div class="cp-form-shdr green" style="border-radius:8px;margin-bottom:10px">💳 Termin Pembayaran</div>';
-  termHtml += '<div style="overflow-x:auto"><div class="cp-termin-form-grid" style="grid-template-columns:repeat(' + Math.min(termCount,3) + ',1fr)">';
-  for (var ti = 0; ti < Math.min(termCount,3); ti++) {
-    termHtml += '<div class="cp-tcol-hdr ' + ['t1','t2','t3'][ti] + '">' + termLabels[ti] + '</div>';
-  }
   var tfields = [
     {lbl:'Persentase (%)', fn:function(t,n){return '<select class="cp-fi" id="ed-t'+n+'-pct">'+pctOpts(t.pct)+'</select>';}},
     {lbl:'Preparation Date', fn:function(t,n){return fd('ed-t'+n+'-due',t.due);}},
@@ -3483,13 +3481,23 @@ function cpOpenEdit(id) {
     {lbl:'NPWP',             fn:function(t,n){return '<select class="cp-fi" id="ed-t'+n+'-npwp">'+docOpts(t.npwp)+'</select>';}},
     {lbl:'Invoice Delivered',fn:function(t,n){return fd('ed-t'+n+'-pay',t.pay);}},
   ];
-  tfields.forEach(function(f) {
-    for (var ti2 = 0; ti2 < Math.min(termCount,3); ti2++) {
-      var t = termins[ti2] || {};
-      termHtml += '<div class="cp-tig"><div class="cp-tig-lbl">' + f.lbl + '</div>' + f.fn(t, ti2+1) + '</div>';
+  // Render termin dalam blok 3 kolom, support hingga 6 termin
+  var termColors = ['t1','t2','t3','t1','t2','t3'];
+  for (var chunk = 0; chunk < termCount; chunk += 3) {
+    var chunkEnd = Math.min(chunk + 3, termCount);
+    var cols = chunkEnd - chunk;
+    termHtml += '<div style="overflow-x:auto;margin-bottom:12px"><div class="cp-termin-form-grid" style="grid-template-columns:repeat(' + cols + ',1fr)">';
+    for (var ti = chunk; ti < chunkEnd; ti++) {
+      termHtml += '<div class="cp-tcol-hdr ' + termColors[ti] + '">' + termLabels[ti] + '</div>';
     }
-  });
-  termHtml += '</div></div>';
+    tfields.forEach(function(f) {
+      for (var ti2 = chunk; ti2 < chunkEnd; ti2++) {
+        var t2 = termins[ti2] || {};
+        termHtml += '<div class="cp-tig"><div class="cp-tig-lbl">' + f.lbl + '</div>' + f.fn(t2, ti2+1) + '</div>';
+      }
+    });
+    termHtml += '</div></div>';
+  }
 
   document.getElementById('cp-edit-bd').innerHTML =
     '<div class="cp-form-grid" style="margin-bottom:20px">'
@@ -3526,7 +3534,7 @@ function cpSaveEdit() {
   function gv(id) { var el = document.getElementById(id); return el ? el.value : ''; }
 
   var termins = p.termins || [];
-  var count = Math.min(termins.length || 1, 3);
+  var count = termins.length || 1;
   var newTermins = [];
   for (var n = 1; n <= count; n++) {
     var orig = termins[n-1] || {};
@@ -3592,8 +3600,128 @@ function cpDeleteProject(id) {
   });
 }
 
+
+// ══════════════════════════════════════════════════════════════
+// FITUR: NOTIFIKASI DEADLINE
+// ══════════════════════════════════════════════════════════════
+function checkDeadlines() {
+  var today = new Date(); today.setHours(0,0,0,0);
+  var alerts = [];
+
+  function dayDiff(dateStr) {
+    if (!dateStr) return null;
+    var d = new Date(dateStr); d.setHours(0,0,0,0);
+    return Math.round((d - today) / 86400000);
+  }
+  function addAlert(diff, label, proj, page) {
+    if (diff === null || diff > 7) return;
+    var cls, ico, txt;
+    if (diff < 0)       { cls='#fef2f2'; ico='🚨'; txt='Overdue ' + Math.abs(diff) + ' hari'; }
+    else if (diff === 0){ cls='#fff7ed'; ico='⚠️'; txt='Hari ini!'; }
+    else                { cls='#fffbeb'; ico='⏰'; txt=diff + ' hari lagi'; }
+    alerts.push({cls:cls, ico:ico, txt:txt, label:label, proj:proj, page:page, diff:diff});
+  }
+
+  (DB.status||[]).forEach(function(x) {
+    addAlert(dayDiff(x.deadline), 'Deadline Proposal', (x.klien||'')+(x.layanan?' — '+x.layanan:''), 'status');
+  });
+  (DB.projects||[]).forEach(function(x) {
+    if (x.status === '✅ Selesai' || x.status === '⏸ Ditunda') return;
+    addAlert(dayDiff(x.deadline), 'Deadline Project', x.nama||x.klien||'', 'projects');
+  });
+  cpProjects.forEach(function(p) {
+    if (!p.termins) return;
+    if (p.ovstatus !== 'Completed' && p.ovstatus !== 'Cancelled') {
+      addAlert(dayDiff(p.end), 'Kontrak Berakhir', p.project, 'cp-tracker');
+    }
+    p.termins.forEach(function(t, idx) {
+      if (!t || !t.pct || t.pay) return;
+      addAlert(dayDiff(t.due), 'Termin ' + (idx+1) + ' Due', p.project, 'cp-tracker');
+    });
+  });
+
+  alerts.sort(function(a,b){ return a.diff - b.diff; });
+  var panel = document.getElementById('notif-panel');
+  if (!panel) return;
+  if (!alerts.length) { panel.style.display = 'none'; return; }
+  panel.style.display = 'block';
+  panel.innerHTML = '<div style="display:flex;flex-wrap:wrap;gap:8px;padding:10px 0 4px">'
+    + alerts.slice(0,8).map(function(a) {
+        return '<div onclick="navTo(\'' + a.page + '\')" style="cursor:pointer;display:flex;align-items:center;gap:7px;background:' + a.cls + ';border:1px solid rgba(0,0,0,.08);border-radius:8px;padding:7px 12px;font-size:11.5px">'
+          + '<span style="font-size:15px">' + a.ico + '</span>'
+          + '<div><div style="font-weight:700;color:#1e293b">' + a.label + ' — ' + a.txt + '</div>'
+          + '<div style="color:#64748b;margin-top:1px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + a.proj + '</div></div>'
+          + '</div>';
+      }).join('')
+    + (alerts.length > 8 ? '<div style="display:flex;align-items:center;padding:7px 12px;font-size:11.5px;color:#64748b">+' + (alerts.length-8) + ' lainnya</div>' : '')
+    + '</div>';
+}
+
+// ══════════════════════════════════════════════════════════════
+// FITUR: REALTIME SYNC
+// ══════════════════════════════════════════════════════════════
+var _realtimeChannel = null;
+var _reloadDebounce  = null;
+
+function setupRealtime() {
+  if (_realtimeChannel) { try { supa.removeChannel(_realtimeChannel); } catch(e){} }
+  _realtimeChannel = supa.channel('esi-realtime')
+    .on('postgres_changes',{event:'*',schema:'public',table:'rfi'},            _onRemoteChange)
+    .on('postgres_changes',{event:'*',schema:'public',table:'converted'},      _onRemoteChange)
+    .on('postgres_changes',{event:'*',schema:'public',table:'rfp'},            _onRemoteChange)
+    .on('postgres_changes',{event:'*',schema:'public',table:'status_tracker'}, _onRemoteChange)
+    .on('postgres_changes',{event:'*',schema:'public',table:'approved'},       _onRemoteChange)
+    .on('postgres_changes',{event:'*',schema:'public',table:'projects'},       _onRemoteChange)
+    .on('postgres_changes',{event:'*',schema:'public',table:'monev'},          _onRemoteChange)
+    .on('postgres_changes',{event:'*',schema:'public',table:'weekly'},         _onRemoteChange)
+    .on('postgres_changes',{event:'*',schema:'public',table:'project_report'}, _onRemoteChange)
+    .on('postgres_changes',{event:'*',schema:'public',table:'research_doc'},   _onRemoteChange)
+    .on('postgres_changes',{event:'*',schema:'public',table:'compliance_project'}, _onComplianceChange)
+    .on('postgres_changes',{event:'*',schema:'public',table:'compliance_termin'},  _onComplianceChange)
+    .subscribe(function(status) {
+      var dot = document.getElementById('rt-dot');
+      if (!dot) return;
+      if (status === 'SUBSCRIBED') {
+        dot.style.background = '#22c55e'; dot.title = '🟢 Realtime: Terhubung';
+      } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
+        dot.style.background = '#ef4444'; dot.title = '🔴 Realtime: Terputus — akan mencoba lagi';
+        setTimeout(setupRealtime, 6000);
+      } else {
+        dot.style.background = '#f59e0b'; dot.title = '🟡 Realtime: Menghubungkan...';
+      }
+    });
+}
+
+function _onRemoteChange() {
+  clearTimeout(_reloadDebounce);
+  _reloadDebounce = setTimeout(function() {
+    var dot = document.getElementById('rt-dot');
+    if (dot) { dot.style.background = '#3b82f6'; dot.title = '🔵 Realtime: Menerima data baru...'; }
+    dbLoad().then(function() {
+      renderPage(CUR_PAGE);
+      checkDeadlines();
+      if (dot) { setTimeout(function(){ dot.style.background='#22c55e'; dot.title='🟢 Realtime: Terhubung'; }, 1000); }
+    });
+  }, 800);
+}
+
+function _onComplianceChange() {
+  clearTimeout(_reloadDebounce);
+  _reloadDebounce = setTimeout(function() {
+    cpLoadFromDB().then(function() {
+      var pg = CUR_PAGE;
+      if (pg === 'cp-dashboard') _cpDrawDashboard();
+      else if (pg === 'cp-tracker') _cpDrawTracker();
+      else if (pg === 'cp-termin') _cpDrawTermin();
+      checkDeadlines();
+    });
+  }, 800);
+}
+
 // Init — pre-load data
-cpLoadFromDB();
+cpLoadFromDB().then(function(){ checkDeadlines(); });
+dbLoad().then(function(){ checkDeadlines(); });
+supa.auth.getSession().then(function(s){ if(s.data&&s.data.session) setupRealtime(); });
 
 // ── Background Slideshow ──
 var BG_IMGS = [
