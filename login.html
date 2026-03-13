@@ -22,6 +22,7 @@
   --shadow-lg: 0 20px 60px rgba(45,106,79,.18);
 }
 html, body { height: 100%; font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--ink); overflow: hidden; }
+html.scrollable, html.scrollable body { overflow: auto; height: auto; }
 .bg { position: fixed; inset: 0; z-index: 0; background: radial-gradient(ellipse 80% 60% at 10% 110%, rgba(82,183,136,.18) 0%, transparent 60%), radial-gradient(ellipse 60% 80% at 90% -10%, rgba(45,106,79,.10) 0%, transparent 60%), var(--cream); }
 .bg-pattern { position: fixed; inset: 0; z-index: 0; opacity: .035; background-image: radial-gradient(circle, #2d6a4f 1px, transparent 1px); background-size: 32px 32px; }
 .wrap { position: relative; z-index: 1; min-height: 100vh; display: grid; grid-template-columns: 1fr 480px; }
@@ -199,6 +200,8 @@ function switchTab(tab) {
   document.getElementById('form-subtitle').textContent  = tab === 'login'
     ? 'Masuk ke akun ESI Pipeline Anda'
     : 'Minta izin akses dari administrator';
+  // Allow scroll on request tab (form is taller)
+  document.documentElement.classList.toggle('scrollable', tab === 'request');
   showMsg('', '');
 }
 
