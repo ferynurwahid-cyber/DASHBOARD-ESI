@@ -4361,13 +4361,23 @@ function _initChatChannel() {
         _chatTypingTimer = setTimeout(function(){ if (typEl) typEl.textContent=''; }, 2500);
       }
     })
-    .subscribe();
+    .subscribe(function(status, err) {
+      if (err) console.warn('Chat channel error (tabel mungkin belum dibuat):', err.message||err);
+    });
 }
 
 async function _loadRecentMessages() {
   try {
     var res = await supa.from('chat_messages').select('*').order('created_at', {ascending:true}).limit(80);
-    if (res.error) throw res.error;
+    if (res.error) {
+      // Tabel belum dibuat — tampilkan pesan tanpa crash
+      if (res.error.code === '42P01' || (res.error.message||'').includes('does not exist')) {
+        var container = document.getElementById('chat-msgs');
+        if (container) container.innerHTML = '<div class="chat-empty" style="padding:20px;text-align:center;color:#94a3b8;font-size:12px">💬 Chat belum aktif.<br>Jalankan <b>ESI_Chat_Schema.sql</b> di Supabase.</div>';
+        return;
+      }
+      throw res.error;
+    }
     var msgs = res.data || [];
     var container = document.getElementById('chat-msgs');
     if (!container) return;
