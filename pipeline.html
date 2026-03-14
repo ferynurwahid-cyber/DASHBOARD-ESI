@@ -1423,54 +1423,7 @@ main { position: relative; z-index: 1; }
   </div>
 </div>
 
-  <!-- BREAK DEAL MODAL -->
-  <div id="bd-modal-ov">
-    <div style="background:white;border-radius:16px;width:480px;max-width:95vw;box-shadow:0 24px 60px rgba(0,0,0,.2)">
-      <div style="padding:20px 24px 16px;border-bottom:1px solid var(--bor);display:flex;align-items:center;gap:10px">
-        <div style="width:36px;height:36px;border-radius:50%;background:#fee2e2;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">💔</div>
-        <div>
-          <div style="font-size:15px;font-weight:700;color:#b91c1c">Break Deal</div>
-          <div id="bd-subtitle" style="font-size:12px;color:var(--ink3);margin-top:1px"></div>
-        </div>
-        <button onclick="closeBdModal()" style="margin-left:auto;background:var(--bor2);border:none;border-radius:7px;width:28px;height:28px;cursor:pointer;font-size:14px;color:var(--ink3)">✕</button>
-      </div>
-      <div style="padding:20px 24px">
-        <div style="margin-bottom:14px">
-          <label style="font-size:12px;font-weight:600;color:var(--ink2);display:block;margin-bottom:6px">Alasan Ditolak / Kalah Tender <span style="color:#ef4444">*</span></label>
-          <select id="bd-alasan" class="cp-fi" style="width:100%">
-            <option value="">— Pilih alasan —</option>
-            <option>Harga terlalu tinggi</option>
-            <option>Kalah kompetitor</option>
-            <option>Scope tidak sesuai</option>
-            <option>Timeline tidak cocok</option>
-            <option>Keputusan internal klien</option>
-            <option>Anggaran dipotong</option>
-            <option>Tidak ada feedback</option>
-            <option>Lainnya</option>
-          </select>
-        </div>
-        <div style="margin-bottom:14px">
-          <label style="font-size:12px;font-weight:600;color:var(--ink2);display:block;margin-bottom:6px">Nama Kompetitor <span style="font-weight:400;color:var(--ink3)">(opsional)</span></label>
-          <input id="bd-kompetitor" class="cp-fi" type="text" placeholder="Nama perusahaan kompetitor..." style="width:100%">
-        </div>
-        <div style="margin-bottom:20px">
-          <label style="font-size:12px;font-weight:600;color:var(--ink2);display:block;margin-bottom:6px">Skor Kualitas Proposal Kita</label>
-          <select id="bd-skor" class="cp-fi" style="width:100%">
-            <option value="">— Evaluasi internal —</option>
-            <option value="1 — Sangat Lemah">1 — Sangat Lemah</option>
-            <option value="2 — Lemah">2 — Lemah</option>
-            <option value="3 — Cukup">3 — Cukup</option>
-            <option value="4 — Baik">4 — Baik</option>
-            <option value="5 — Sangat Baik">5 — Sangat Baik</option>
-          </select>
-        </div>
-        <div style="display:flex;gap:10px;justify-content:flex-end">
-          <button class="btn b-se" onclick="closeBdModal()">Batal</button>
-          <button class="btn" onclick="confirmBreakDeal()" style="background:#ef4444;color:white;border:none;border-radius:8px;padding:8px 20px;font-weight:600;cursor:pointer">💔 Konfirmasi Break Deal</button>
-        </div>
-      </div>
-    </div>
-  </div>
+  
 
 </main>
 
@@ -2615,27 +2568,65 @@ async function promoteRFP(i) {
 var _bdIdx = -1;
 
 function openBdModal(i) {
-  console.log('[openBdModal] called with i=', i, '| DB.status length=', DB.status ? DB.status.length : 'undefined');
   var r = DB.status[i];
-  console.log('[openBdModal] r=', r);
-  if (!r) { console.error('[openBdModal] No record at index', i); return; }
+  if (!r) { toast('Data tidak ditemukan', 'er'); return; }
   _bdIdx = i;
-  var sub = document.getElementById('bd-subtitle');
-  var al  = document.getElementById('bd-alasan');
-  var ko  = document.getElementById('bd-kompetitor');
-  var sk  = document.getElementById('bd-skor');
-  var ov  = document.getElementById('bd-modal-ov');
-  console.log('[openBdModal] elements:', {sub:!!sub, al:!!al, ko:!!ko, sk:!!sk, ov:!!ov});
-  if (!ov) { console.error('[openBdModal] Modal element not found!'); alert('Modal tidak ditemukan'); return; }
-  if (sub) sub.textContent = (r.klien||'?') + ' — ' + (r.layanan||'?');
-  if (al)  al.value  = r.alasanTolak || '';
-  if (ko)  ko.value  = r.kompetitor  || '';
-  if (sk)  sk.value  = r.skorProposal|| '';
-  showLoading(false);
-  ov.style.removeProperty('display'); // hapus inline style
-  ov.classList.add('bd-open');
-  console.log('[openBdModal] modal opened, classList:', ov.className);
-  ov.onclick = function(e) { if (e.target === ov) closeBdModal(); };
+
+  // Try custom modal first
+  var ov = document.getElementById('bd-modal-ov');
+  if (ov) {
+    var sub = document.getElementById('bd-subtitle');
+    var al  = document.getElementById('bd-alasan');
+    var ko  = document.getElementById('bd-kompetitor');
+    var sk  = document.getElementById('bd-skor');
+    if (sub) sub.textContent = (r.klien||'?') + ' — ' + (r.layanan||'?');
+    if (al)  al.value  = r.alasanTolak  || '';
+    if (ko)  ko.value  = r.kompetitor   || '';
+    if (sk)  sk.value  = r.skorProposal || '';
+    showLoading(false);
+    // Force show via multiple methods
+    ov.removeAttribute('style');
+    ov.style.cssText = 'display:flex !important; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:99999; align-items:center; justify-content:center;';
+    ov.classList.add('bd-open');
+    ov.onclick = function(e) { if (e.target === ov) closeBdModal(); };
+    // Check if visible after small delay
+    setTimeout(function() {
+      var rect = ov.getBoundingClientRect();
+      if (rect.width === 0) {
+        // Fallback to native
+        openBdModalNative(i);
+      }
+    }, 100);
+  } else {
+    openBdModalNative(i);
+  }
+}
+
+function openBdModalNative(i) {
+  var r = DB.status[i];
+  if (!r) return;
+  _bdIdx = i;
+  var alasanList = [
+    '1. Harga terlalu tinggi',
+    '2. Kalah kompetitor',
+    '3. Scope tidak sesuai',
+    '4. Timeline tidak cocok',
+    '5. Keputusan internal klien',
+    '6. Anggaran dipotong',
+    '7. Tidak ada feedback',
+    '8. Lainnya'
+  ];
+  var alasanStr = alasanList.join('\n');
+  var pilihan = prompt('💔 Break Deal — ' + (r.klien||'?') + '\n\nPilih nomor alasan ditolak:\n' + alasanStr + '\n\nKetik nomor (1-8):');
+  if (!pilihan) return;
+  var idx2 = parseInt(pilihan) - 1;
+  var alasanFinal = ['Harga terlalu tinggi','Kalah kompetitor','Scope tidak sesuai','Timeline tidak cocok','Keputusan internal klien','Anggaran dipotong','Tidak ada feedback','Lainnya'][idx2] || pilihan;
+  var komp = prompt('Nama kompetitor (kosongkan jika tidak tahu):') || '';
+  // Set values and confirm
+  document.getElementById('bd-alasan').value  = alasanFinal;
+  document.getElementById('bd-kompetitor').value = komp;
+  document.getElementById('bd-skor').value = '';
+  confirmBreakDeal();
 }
 
 function closeBdModal() {
@@ -4738,6 +4729,57 @@ var BG_IMGS = [
 
 
 </script>
+
+
+<!-- BREAK DEAL MODAL (moved outside main) -->
+<!-- BREAK DEAL MODAL -->
+  <div id="bd-modal-ov">
+    <div style="background:white;border-radius:16px;width:480px;max-width:95vw;box-shadow:0 24px 60px rgba(0,0,0,.2)">
+      <div style="padding:20px 24px 16px;border-bottom:1px solid var(--bor);display:flex;align-items:center;gap:10px">
+        <div style="width:36px;height:36px;border-radius:50%;background:#fee2e2;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">💔</div>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#b91c1c">Break Deal</div>
+          <div id="bd-subtitle" style="font-size:12px;color:var(--ink3);margin-top:1px"></div>
+        </div>
+        <button onclick="closeBdModal()" style="margin-left:auto;background:var(--bor2);border:none;border-radius:7px;width:28px;height:28px;cursor:pointer;font-size:14px;color:var(--ink3)">✕</button>
+      </div>
+      <div style="padding:20px 24px">
+        <div style="margin-bottom:14px">
+          <label style="font-size:12px;font-weight:600;color:var(--ink2);display:block;margin-bottom:6px">Alasan Ditolak / Kalah Tender <span style="color:#ef4444">*</span></label>
+          <select id="bd-alasan" class="cp-fi" style="width:100%">
+            <option value="">— Pilih alasan —</option>
+            <option>Harga terlalu tinggi</option>
+            <option>Kalah kompetitor</option>
+            <option>Scope tidak sesuai</option>
+            <option>Timeline tidak cocok</option>
+            <option>Keputusan internal klien</option>
+            <option>Anggaran dipotong</option>
+            <option>Tidak ada feedback</option>
+            <option>Lainnya</option>
+          </select>
+        </div>
+        <div style="margin-bottom:14px">
+          <label style="font-size:12px;font-weight:600;color:var(--ink2);display:block;margin-bottom:6px">Nama Kompetitor <span style="font-weight:400;color:var(--ink3)">(opsional)</span></label>
+          <input id="bd-kompetitor" class="cp-fi" type="text" placeholder="Nama perusahaan kompetitor..." style="width:100%">
+        </div>
+        <div style="margin-bottom:20px">
+          <label style="font-size:12px;font-weight:600;color:var(--ink2);display:block;margin-bottom:6px">Skor Kualitas Proposal Kita</label>
+          <select id="bd-skor" class="cp-fi" style="width:100%">
+            <option value="">— Evaluasi internal —</option>
+            <option value="1 — Sangat Lemah">1 — Sangat Lemah</option>
+            <option value="2 — Lemah">2 — Lemah</option>
+            <option value="3 — Cukup">3 — Cukup</option>
+            <option value="4 — Baik">4 — Baik</option>
+            <option value="5 — Sangat Baik">5 — Sangat Baik</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end">
+          <button class="btn b-se" onclick="closeBdModal()">Batal</button>
+          <button class="btn" onclick="confirmBreakDeal()" style="background:#ef4444;color:white;border:none;border-radius:8px;padding:8px 20px;font-weight:600;cursor:pointer">💔 Konfirmasi Break Deal</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
 </body>
 </html>
