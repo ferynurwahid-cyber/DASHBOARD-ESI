@@ -582,6 +582,132 @@ tr:hover td { background: #fafbfc; }
 }
 main { position: relative; z-index: 1; }
 
+
+/* ── Online Presence Bar (sidebar bottom) ── */
+.online-panel {
+  margin: 0 10px 8px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+.online-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.5);
+  text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px;
+}
+.online-dot-live { width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block;margin-right:4px;box-shadow:0 0 0 2px rgba(34,197,94,.3); animation: pulse-dot 2s infinite; }
+@keyframes pulse-dot { 0%,100%{box-shadow:0 0 0 2px rgba(34,197,94,.3)} 50%{box-shadow:0 0 0 5px rgba(34,197,94,.1)} }
+.online-list { display:flex; flex-direction:column; gap:4px; }
+.online-user {
+  display:flex; align-items:center; gap:7px;
+  font-size:11.5px; color:rgba(255,255,255,0.85); font-weight:500;
+}
+.online-av {
+  width:22px;height:22px;border-radius:50%;
+  background:var(--blue);color:#fff;font-size:9px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  border:1.5px solid rgba(255,255,255,0.2);
+}
+.online-av.you { background:#16a34a; }
+.online-status-dot { width:6px;height:6px;border-radius:50%;background:#22c55e;margin-left:auto;flex-shrink:0; }
+
+/* ── Chat Bubble Button ── */
+#chat-bubble {
+  position: fixed; bottom: 24px; right: 24px; z-index: 500;
+  width: 52px; height: 52px; border-radius: 50%;
+  background: linear-gradient(135deg,#1d4ed8,#2563eb);
+  color: #fff; font-size: 22px; border: none; cursor: pointer;
+  box-shadow: 0 4px 20px rgba(37,99,235,.45);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform .2s, box-shadow .2s;
+}
+#chat-bubble:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(37,99,235,.55); }
+#chat-unread {
+  position:absolute; top:-3px; right:-3px;
+  background:#ef4444; color:#fff; font-size:10px; font-weight:700;
+  min-width:18px; height:18px; border-radius:9px; padding:0 4px;
+  display:none; align-items:center; justify-content:center;
+  border:2px solid #fff;
+}
+
+/* ── Chat Window ── */
+#chat-win {
+  position:fixed; bottom:86px; right:24px; z-index:500;
+  width:320px; height:460px;
+  background:#fff; border-radius:16px;
+  box-shadow:0 8px 40px rgba(0,0,0,.18);
+  display:none; flex-direction:column;
+  overflow:hidden; animation: chatIn .2s ease;
+}
+#chat-win.open { display:flex; }
+@keyframes chatIn { from{opacity:0;transform:translateY(12px) scale(.97)} to{opacity:1;transform:none} }
+.chat-hdr {
+  background: linear-gradient(135deg,#1e3a8a,#1d4ed8);
+  padding: 14px 16px; display:flex; align-items:center; gap:10px; flex-shrink:0;
+}
+.chat-hdr-title { font-size:14px;font-weight:700;color:#fff;flex:1; }
+.chat-hdr-sub { font-size:11px;color:rgba(255,255,255,.7); }
+.chat-close { background:rgba(255,255,255,.15);border:none;color:#fff;width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center; }
+.chat-close:hover { background:rgba(255,255,255,.25); }
+.chat-msgs {
+  flex:1; overflow-y:auto; padding:12px 12px 4px;
+  display:flex; flex-direction:column; gap:8px;
+  scroll-behavior:smooth;
+}
+.chat-msgs::-webkit-scrollbar { width:4px; }
+.chat-msgs::-webkit-scrollbar-thumb { background:#e2e8f0; border-radius:4px; }
+.msg-wrap { display:flex; gap:7px; align-items:flex-end; }
+.msg-wrap.me { flex-direction:row-reverse; }
+.msg-av {
+  width:26px;height:26px;border-radius:50%;flex-shrink:0;
+  font-size:10px;font-weight:700;color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  background: var(--blue);
+}
+.msg-av.me-av { background:#16a34a; }
+.msg-bubble {
+  max-width:210px; padding:8px 11px; border-radius:14px;
+  font-size:12.5px; line-height:1.45; word-break:break-word;
+  background:#f1f5f9; color:#1e293b;
+  border-bottom-left-radius:4px;
+}
+.msg-wrap.me .msg-bubble {
+  background: linear-gradient(135deg,#1d4ed8,#2563eb);
+  color:#fff; border-bottom-left-radius:14px; border-bottom-right-radius:4px;
+}
+.msg-meta { font-size:10px; color:#94a3b8; margin-top:2px; }
+.msg-wrap.me .msg-meta { text-align:right; }
+.msg-name { font-size:10px;font-weight:600;color:#64748b;margin-bottom:2px; }
+.msg-wrap.me .msg-name { display:none; }
+.chat-date-sep {
+  text-align:center; font-size:10px; color:#94a3b8;
+  margin:4px 0; display:flex; align-items:center; gap:6px;
+}
+.chat-date-sep::before,.chat-date-sep::after { content:'';flex:1;height:1px;background:#e2e8f0; }
+.chat-input-row {
+  padding:10px 12px; border-top:1px solid #f1f5f9;
+  display:flex; gap:8px; align-items:flex-end; flex-shrink:0;
+  background:#fff;
+}
+.chat-input {
+  flex:1; border:1.5px solid #e2e8f0; border-radius:10px;
+  padding:8px 11px; font-size:13px; outline:none; resize:none;
+  max-height:80px; line-height:1.4; font-family:inherit;
+  transition:border-color .2s;
+}
+.chat-input:focus { border-color:#2563eb; }
+.chat-send {
+  width:36px;height:36px;border-radius:10px;flex-shrink:0;
+  background:#1d4ed8;color:#fff;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+  transition:background .15s;
+}
+.chat-send:hover { background:#1e40af; }
+.chat-send:disabled { background:#94a3b8; cursor:default; }
+.chat-typing { font-size:11px;color:#94a3b8;padding:2px 12px 4px;height:18px;flex-shrink:0; }
+.chat-empty { flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#94a3b8;font-size:13px;gap:8px; }
+
 </style>
 </head>
 <body>
@@ -607,6 +733,7 @@ main { position: relative; z-index: 1; }
 
   <div class="nsec"><div class="nlbl">Overview</div>
     <div class="ni on" data-action="nav" data-page="dashboard"><span class="ni-ic">🏠</span>Master Dashboard</div>
+    <div class="ni" data-action="nav" data-page="client360"><span class="ni-ic">👥</span>Client 360°</div>
   </div>
   <div class="nsec"><div class="nlbl">Phase 1 — RFI</div>
     <div class="ni" data-action="nav" data-page="rfi"><span class="ni-ic">📋</span>RFI Tracker<span class="nbadge bl" id="b-rfi">0</span></div>
@@ -639,6 +766,15 @@ main { position: relative; z-index: 1; }
     <div class="ni" data-action="nav" data-page="cp-tracker"><span class="ni-ic">📋</span>Compliance Tracker</div>
     <div class="ni" data-action="nav" data-page="cp-termin"><span class="ni-ic">💳</span>Termin Pembayaran</div>
     <div class="ni" data-action="nav" data-page="cp-input"><span class="ni-ic">➕</span>Input Project</div>
+  </div>
+  <div class="online-panel" id="online-panel">
+    <div class="online-hdr">
+      <span><span class="online-dot-live"></span>Online Sekarang</span>
+      <span id="online-count" style="background:rgba(34,197,94,.2);color:#86efac;padding:1px 6px;border-radius:8px;font-size:10px">0</span>
+    </div>
+    <div class="online-list" id="online-list">
+      <div style="font-size:11px;color:rgba(255,255,255,.3);padding:2px 0">Menghubungkan...</div>
+    </div>
   </div>
   <div class="sfooter">v4.1 · Data tersimpan di Supabase</div>
 </aside>
@@ -755,6 +891,29 @@ main { position: relative; z-index: 1; }
   </div>
 
   <!-- RFI -->
+  <!-- CLIENT 360 -->
+  <div class="page" id="pg-client360">
+    <div class="ph">
+      <div class="ph-l"><h1>👥 Client 360°</h1><p>Seluruh history interaksi per klien — dari inquiry hingga pembayaran.</p></div>
+      <div class="ph-r">
+        <input type="text" id="c360-search" placeholder="🔍 Cari klien..." oninput="renderClient360()" style="border:1px solid var(--bor);border-radius:8px;padding:6px 12px;font-size:13px;width:200px">
+      </div>
+    </div>
+    <div class="sg" id="c360-sg"></div>
+    <div id="c360-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-top:4px"></div>
+  </div>
+
+  <!-- CLIENT 360 MODAL -->
+  <div class="ov" id="c360-modal-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:600;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
+    <div style="background:white;border-radius:16px;width:780px;max-width:95vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.18)">
+      <div style="padding:20px 24px 16px;border-bottom:1px solid var(--bor);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+        <div id="c360-modal-title" style="font-size:17px;font-weight:700"></div>
+        <button onclick="document.getElementById('c360-modal-ov').style.display='none'" style="background:var(--bor2);border:none;border-radius:7px;width:30px;height:30px;cursor:pointer;font-size:16px;color:var(--ink3)">✕</button>
+      </div>
+      <div id="c360-modal-bd" style="overflow-y:auto;padding:20px 24px 24px;flex:1"></div>
+    </div>
+  </div>
+
   <div class="page" id="pg-rfi">
     <div class="ph">
       <div class="ph-l"><h1>📋 RFI Tracker</h1><p>Input inquiry masuk. Klik <b>→ Convert</b> untuk kirim ke Phase 2.</p></div>
@@ -803,8 +962,13 @@ main { position: relative; z-index: 1; }
   <div class="page" id="pg-status">
     <div class="ph">
       <div class="ph-l"><h1>📊 Status Tracker</h1><p>Klik <b>✓ Setujui</b> untuk kirim ke bridge Phase 3.</p></div>
-      <div class="ph-r"><button class="btn b-pr bsm" data-action="open-modal" data-modal="status">+ Tambah</button></div>
+      <div class="ph-r">
+        <button class="btn b-se bsm" data-action="export" data-key="status">⬇ CSV</button>
+        <button class="btn b-pr bsm" data-action="open-modal" data-modal="status">+ Tambah</button>
+      </div>
     </div>
+    <div class="sg" id="stat-sg"></div>
+    <div id="wl-analytics" style="margin-bottom:20px"></div>
     <div class="tc"><div class="th"><h3>Status Proposal</h3></div>
       <table><thead><tr><th>Ref</th><th>Klien</th><th>Layanan</th><th>Deadline</th><th>Tgl Kirim</th><th>Status</th><th>Nilai (Rp)</th><th>Tindak Lanjut</th><th>Aksi</th></tr></thead>
       <tbody id="stat-tb"></tbody></table>
@@ -1198,6 +1362,35 @@ main { position: relative; z-index: 1; }
   </div>
 
 </div>
+
+<!-- CHAT BUBBLE -->
+<button id="chat-bubble" onclick="toggleChat()" title="Chat Tim">
+  💬
+  <span id="chat-unread"></span>
+</button>
+
+<!-- CHAT WINDOW -->
+<div id="chat-win">
+  <div class="chat-hdr">
+    <div>
+      <div class="chat-hdr-title">💬 Chat Tim ESI</div>
+      <div class="chat-hdr-sub" id="chat-online-sub">— pengguna online</div>
+    </div>
+    <button class="chat-close" onclick="toggleChat()">✕</button>
+  </div>
+  <div class="chat-msgs" id="chat-msgs">
+    <div class="chat-empty">
+      <span style="font-size:32px">💬</span>
+      <span>Belum ada pesan</span>
+    </div>
+  </div>
+  <div class="chat-typing" id="chat-typing"></div>
+  <div class="chat-input-row">
+    <textarea class="chat-input" id="chat-input" placeholder="Ketik pesan..." rows="1" onkeydown="chatKeydown(event)" oninput="chatTyping()"></textarea>
+    <button class="chat-send" id="chat-send" onclick="chatSend()" title="Kirim">➤</button>
+  </div>
+</div>
+
 </main>
 
 <!-- MODAL -->
@@ -1262,6 +1455,7 @@ const FIELD_MAP = {
     noRef:'no_ref', klien:'klien', layanan:'layanan', sektor:'sektor',
     deadline:'deadline', prioritas:'prioritas', tglRequest:'tgl_request',
     tglKirim:'tgl_kirim', status:'status', nilai:'nilai',
+    alasanTolak:'alasan_tolak', kompetitor:'kompetitor', skorProposal:'skor_proposal',
     feedback:'feedback', tindakLanjut:'tindak_lanjut'
   },
   approved: {
@@ -1458,6 +1652,7 @@ function dbLoadLegacy() {}
 // ── NAVIGATION ────────────────────────────────────────
 const PAGE_META = {
   dashboard:{title:'Master Dashboard',ph:'',pc:''},
+  client360:{title:'Client 360°',ph:'Semua Interaksi Klien',pc:'p3t'},
   rfi:{title:'RFI Tracker',ph:'Phase 1 — RFI',pc:'p1t'},
   converted:{title:'Converted → RFP',ph:'Bridge 1→2',pc:'brt'},
   rfp:{title:'Request Form',ph:'Phase 2 — Proposal',pc:'p2t'},
@@ -1543,7 +1738,7 @@ function updateBadges() {
 // ── RENDERERS ─────────────────────────────────────────
 function renderPage(p) {
   const fns = {
-    dashboard:renderDash, rfi:renderRFI, converted:renderConv,
+    dashboard:renderDash, client360:renderClient360, rfi:renderRFI, converted:renderConv,
     rfp:renderRFP, status:renderStat, approved:renderAppr,
     projects:renderProj, monev:renderMonev, weekly:renderWeekly,
     projreport:renderProjReport, resdoc:renderResDoc,
@@ -1726,6 +1921,43 @@ function renderDash() {
   ['rfi','conv','rfp','appr','proj'].forEach(k => {
     const el = document.getElementById('fc-'+k); if (el) el.textContent = DB[k==='conv'?'converted':k==='appr'?'approved':k==='proj'?'projects':k]?.length||0;
   });
+  // Revenue Pipeline widget
+  const rpEl = document.getElementById('revenue-pipeline');
+  if (rpEl) {
+    const rfiVal  = DB.rfi.filter(x=>x.status!=='Tidak Dilanjutkan').reduce((s,x)=>s+(parseFloat(x.estimasiNilai)||0),0);
+    const statVal = DB.status.filter(x=>x.status!=='Ditolak').reduce((s,x)=>s+(parseFloat(x.nilai)||0),0);
+    const apprVal = DB.approved.reduce((s,x)=>s+(parseFloat(x.nilai)||0),0);
+    const projVal = DB.projects.filter(x=>x.status!=='✅ Selesai').reduce((s,x)=>s+(parseFloat(x.nilai)||0),0);
+    const cpVal   = cpProjects.filter(x=>x.ovstatus!=='Completed').reduce((s,x)=>s+(parseFloat(x.nilai)||0),0);
+    const totalPipe = rfiVal+statVal+apprVal+projVal+cpVal;
+    const wonTotal  = DB.projects.filter(x=>x.status==='✅ Selesai').reduce((s,x)=>s+(parseFloat(x.nilai)||0),0)
+                    + cpProjects.filter(x=>x.ovstatus==='Completed').reduce((s,x)=>s+(parseFloat(x.nilai)||0),0);
+    const stages = [
+      {l:'Phase 1 — RFI',      v:rfiVal,  c:'#3b82f6', n:DB.rfi.filter(x=>x.status!=='Tidak Dilanjutkan').length, note:'estimasi'},
+      {l:'Phase 2 — Proposal', v:statVal, c:'#8b5cf6', n:DB.status.filter(x=>x.status!=='Ditolak').length, note:'nilai proposal'},
+      {l:'Phase 2 — Approved', v:apprVal, c:'#f97316', n:DB.approved.length, note:'kontrak'},
+      {l:'Phase 3 — Active',   v:projVal, c:'#22c55e', n:DB.projects.filter(x=>x.status!=='✅ Selesai').length, note:'in execution'},
+      {l:'Phase 4 — Compliance',v:cpVal,  c:'#14b8a6', n:cpProjects.filter(x=>x.ovstatus!=='Completed').length, note:'billing'},
+    ];
+    const maxV = Math.max(...stages.map(s=>s.v),1);
+    rpEl.innerHTML = '<div style="background:white;border:1px solid var(--bor);border-radius:14px;padding:20px 24px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'
+      +'<div><div style="font-weight:700;font-size:14px">💰 Revenue Pipeline</div>'
+      +'<div style="font-size:12px;color:var(--ink3);margin-top:2px">Total potensi aktif semua phase</div></div>'
+      +'<div style="text-align:right"><div style="font-size:18px;font-weight:800;color:#1d4ed8">'+rp(totalPipe)+'</div>'
+      +'<div style="font-size:11px;color:#22c55e;font-weight:600">✅ Realisasi: '+rp(wonTotal)+'</div></div></div>'
+      +'<div style="display:flex;flex-direction:column;gap:10px">'
+      +stages.map(function(s){
+        var w=Math.round(s.v/maxV*100)||4;
+        return '<div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">'
+          +'<span style="font-weight:600">'+s.l+'</span>'
+          +'<span style="color:var(--ink3)">'+s.n+' item · <b style="color:var(--ink)">'+rp(s.v)+'</b>'
+          +' <span style="font-size:10px">('+s.note+')</span></span></div>'
+          +'<div style="background:#f1f5f9;border-radius:6px;height:10px">'
+          +'<div style="background:'+s.c+';width:'+w+'%;height:10px;border-radius:6px"></div></div></div>';
+      }).join('')
+      +'</div></div>';
+  }
   const mx = Math.max(r.length,1);
   document.getElementById('funnel').innerHTML = [
     {l:'Inquiry Masuk',v:r.length,c:'#3b82f6'},{l:'Qualified',v:ql,c:'#22c55e'},
@@ -1960,18 +2192,81 @@ function renderRFP() {
 
 function renderStat() {
   const d = DB.status;
+  // KPI cards
+  const won = d.filter(r=>r.status==='Disetujui').length;
+  const lost = d.filter(r=>r.status==='Ditolak').length;
+  const ongoing = d.filter(r=>!['Disetujui','Ditolak'].includes(r.status)).length;
+  const winRate = (won+lost) > 0 ? Math.round(won/(won+lost)*100) : 0;
+  const totalNilai = d.filter(r=>r.status==='Disetujui').reduce((s,r)=>s+(parseFloat(r.nilai)||0),0);
+  const sg = document.getElementById('stat-sg');
+  if (sg) sg.innerHTML = statCards([
+    {c:'bl',ic:'📋',l:'Total Proposal',v:d.length},
+    {c:'gr',ic:'🏆',l:'Disetujui (Win)',v:won},
+    {c:'rd',ic:'❌',l:'Ditolak (Loss)',v:lost},
+    {c:'or',ic:'⏳',l:'Sedang Proses',v:ongoing},
+    {c:'pu',ic:'🎯',l:'Win Rate',v:winRate+'%'},
+  ]);
+  // Win/Loss analytics panel
+  const wlEl = document.getElementById('wl-analytics');
+  if (wlEl && d.length) {
+    // Alasan ditolak breakdown
+    const alasanMap = {};
+    d.filter(r=>r.status==='Ditolak'&&r.alasanTolak).forEach(r=>{ alasanMap[r.alasanTolak]=(alasanMap[r.alasanTolak]||0)+1; });
+    const alasanEntries = Object.entries(alasanMap).sort((a,b)=>b[1]-a[1]);
+    // Kompetitor breakdown
+    const kompMap = {};
+    d.filter(r=>r.kompetitor).forEach(r=>{ (r.kompetitor||'').split(',').forEach(k=>{ const kk=k.trim(); if(kk) kompMap[kk]=(kompMap[kk]||0)+1; }); });
+    const kompEntries = Object.entries(kompMap).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    // Win rate per layanan
+    const layananMap = {};
+    d.forEach(r=>{ if(!r.layanan) return; if(!layananMap[r.layanan]) layananMap[r.layanan]={w:0,l:0}; if(r.status==='Disetujui') layananMap[r.layanan].w++; else if(r.status==='Ditolak') layananMap[r.layanan].l++; });
+    const layananWR = Object.entries(layananMap).filter(([,v])=>v.w+v.l>0).map(([k,v])=>({k,wr:Math.round(v.w/(v.w+v.l)*100),total:v.w+v.l})).sort((a,b)=>b.wr-a.wr).slice(0,5);
+    wlEl.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">'
+      // Box 1: Alasan ditolak
+      +'<div style="background:white;border:1px solid var(--bor);border-radius:12px;padding:16px">'
+      +'<div style="font-weight:700;font-size:13px;margin-bottom:12px;color:var(--ink)">🔍 Alasan Proposal Ditolak</div>'
+      +(alasanEntries.length ? alasanEntries.map(([k,v])=>{
+          const pct = lost > 0 ? Math.round(v/lost*100) : 0;
+          return '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>'+k+'</span><span style="font-weight:700">'+v+'x ('+pct+'%)</span></div>'
+            +'<div style="background:#f1f5f9;border-radius:4px;height:5px"><div style="background:#ef4444;width:'+pct+'%;height:5px;border-radius:4px"></div></div></div>';
+        }).join('') : '<div style="color:var(--ink3);font-size:12px">Belum ada data ditolak.</div>')
+      +'</div>'
+      // Box 2: Kompetitor
+      +'<div style="background:white;border:1px solid var(--bor);border-radius:12px;padding:16px">'
+      +'<div style="font-weight:700;font-size:13px;margin-bottom:12px;color:var(--ink)">🏢 Kompetitor Terkuat</div>'
+      +(kompEntries.length ? kompEntries.map(([k,v])=>{
+          const maxK = kompEntries[0][1];
+          return '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span style="font-weight:600">'+k+'</span><span style="color:#64748b">'+v+'x ditemui</span></div>'
+            +'<div style="background:#f1f5f9;border-radius:4px;height:5px"><div style="background:#f97316;width:'+Math.round(v/maxK*100)+'%;height:5px;border-radius:4px"></div></div></div>';
+        }).join('') : '<div style="color:var(--ink3);font-size:12px">Belum ada data kompetitor.</div>')
+      +'</div>'
+      // Box 3: Win rate per layanan
+      +'<div style="background:white;border:1px solid var(--bor);border-radius:12px;padding:16px">'
+      +'<div style="font-weight:700;font-size:13px;margin-bottom:12px;color:var(--ink)">🎯 Win Rate per Layanan</div>'
+      +(layananWR.length ? layananWR.map(({k,wr,total})=>{
+          const clr = wr>=70?'#22c55e':wr>=40?'#f59e0b':'#ef4444';
+          return '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>'+k+'</span><span style="font-weight:700;color:'+clr+'">'+wr+'%</span></div>'
+            +'<div style="background:#f1f5f9;border-radius:4px;height:5px"><div style="background:'+clr+';width:'+wr+'%;height:5px;border-radius:4px"></div></div></div>';
+        }).join('') : '<div style="color:var(--ink3);font-size:12px">Belum ada data.</div>')
+      +'</div>'
+      +'</div>';
+  }
   if (!d.length) { document.getElementById('stat-tb').innerHTML = emptyRow(9,'Belum ada. Data masuk otomatis dari Request Form.'); return; }
   document.getElementById('stat-tb').innerHTML = d.map((r,i) => {
     const apprBtn = r.status!=='Disetujui'
       ? '<button class="btn b-gr bsm" data-action="approve" data-i="'+i+'">✓ Setujui</button>'
       : '<span class="badge bgg">✅ Linked</span>';
+    const tolakBadge = r.status==='Ditolak' && r.alasanTolak
+      ? '<div style="font-size:10px;color:#ef4444;margin-top:2px">'+r.alasanTolak+'</div>' : '';
+    const kompBadge = r.kompetitor
+      ? '<div style="font-size:10px;color:#f97316">vs '+r.kompetitor+'</div>' : '';
     return '<tr>'
       +'<td style="font-weight:700;color:var(--g3)">#'+(r.noRef||i+1)+'</td>'
-      +'<td style="font-weight:600">'+(r.klien||'—')+'</td>'
+      +'<td style="font-weight:600">'+(r.klien||'—')+'<div style="font-size:10px;color:var(--ink3)">'+(r.sektor||'')+'</div></td>'
       +'<td style="font-size:12px">'+(r.layanan||'—')+'</td>'
       +'<td style="font-size:12px">'+(r.deadline||'—')+'</td>'
       +'<td style="font-size:12px">'+(r.tglKirim||'—')+'</td>'
-      +'<td>'+sbadge(r.status)+'</td>'
+      +'<td>'+sbadge(r.status)+tolakBadge+kompBadge+'</td>'
       +'<td style="font-size:12px">'+rp(r.nilai)+'</td>'
       +'<td style="font-size:11px;max-width:110px;color:#718096">'+(r.tindakLanjut||'—')+'</td>'
       +'<td style="display:flex;gap:4px;align-items:center">'+apprBtn
@@ -2283,10 +2578,14 @@ const FORMS = {
   ]},
   status: {title:'+ Tambah Status Tracker', btnCls:'b-pr', fields:[
     {k:'noRef',l:'No Ref',t:'text'},{k:'klien',l:'Nama Klien',t:'text'},
-    {k:'layanan',l:'Layanan',t:'text',fw:1},{k:'tglRequest',l:'Tgl Request',t:'date'},
-    {k:'deadline',l:'Deadline',t:'date'},{k:'tglKirim',l:'Tgl Kirim',t:'date'},
+    {k:'layanan',l:'Layanan',t:'text',fw:1},{k:'sektor',l:'Sektor Industri',t:'select',o:['Manufaktur','Migas','Perbankan','FMCG','Energi','Makanan & Minuman','Konstruksi','Telekomunikasi','Pertambangan','Transportasi','Kesehatan','Pemerintahan','Lainnya']},
+    {k:'tglRequest',l:'Tgl Request',t:'date'},{k:'deadline',l:'Deadline',t:'date'},
+    {k:'tglKirim',l:'Tgl Kirim',t:'date'},
     {k:'status',l:'Status',t:'select',o:['Draft','Review Internal','Terkirim','Revisi','Disetujui','Ditolak','On Hold']},
     {k:'nilai',l:'Nilai Proposal (Rp)',t:'number'},
+    {k:'alasanTolak',l:'Alasan Ditolak / Kalah Tender',t:'select',o:['','Harga terlalu tinggi','Kalah kompetitor','Scope tidak sesuai','Timeline tidak cocok','Keputusan internal klien','Anggaran dipotong','Tidak ada feedback','Lainnya'],fw:1},
+    {k:'kompetitor',l:'Nama Kompetitor (jika diketahui)',t:'text'},
+    {k:'skorProposal',l:'Skor Kualitas Proposal (1-5)',t:'select',o:['','1 — Sangat Lemah','2 — Lemah','3 — Cukup','4 — Baik','5 — Sangat Baik']},
     {k:'feedback',l:'Feedback Klien',t:'textarea',fw:1},{k:'tindakLanjut',l:'Tindak Lanjut',t:'textarea',fw:1},
   ]},
   approved: {title:'+ Catat Approval Manual', btnCls:'b-pu', fields:[
@@ -2724,6 +3023,9 @@ async function doLogout() {
   const emailEl = document.getElementById('prof-email');
   if (nameEl)  nameEl.textContent  = fullName || email;
   if (emailEl) emailEl.textContent = email;
+  // Init presence and chat
+  _chatMe = { email: email, name: fullName || email.split('@')[0], initials: initials };
+  initPresenceAndChat();
 })();
 
 
@@ -3811,6 +4113,423 @@ function _onComplianceChange() {
       checkDeadlines();
     });
   }, 800);
+}
+
+
+// ══════════════════════════════════════════════════════════════
+// FITUR: ONLINE PRESENCE + CHAT TIM
+// ══════════════════════════════════════════════════════════════
+var _chatMe = { email:'', name:'', initials:'' };
+var _presenceChannel = null;
+var _chatChannel     = null;
+var _chatOpen        = false;
+var _chatUnread      = 0;
+var _chatTypingTimer = null;
+var _onlineUsers     = {};  // key: email, val: {name, initials, joinedAt}
+var _avatarColors    = ['#2563eb','#7c3aed','#db2777','#ea580c','#16a34a','#0891b2','#4f46e5','#b45309'];
+
+function _avatarColor(email) {
+  var sum = 0; for (var i=0;i<email.length;i++) sum+=email.charCodeAt(i);
+  return _avatarColors[sum % _avatarColors.length];
+}
+
+// Called after loadUser sets _chatMe
+function initPresenceAndChat() {
+  if (!_chatMe.email) return;
+  _initPresence();
+  _initChatChannel();
+  _loadRecentMessages();
+}
+
+// ── PRESENCE ──────────────────────────────────────
+function _initPresence() {
+  if (_presenceChannel) { try { supa.removeChannel(_presenceChannel); } catch(e){} }
+
+  _presenceChannel = supa.channel('esi-presence', {
+    config: { presence: { key: _chatMe.email } }
+  });
+
+  _presenceChannel
+    .on('presence', { event: 'sync' }, function() {
+      var state = _presenceChannel.presenceState();
+      _onlineUsers = {};
+      Object.keys(state).forEach(function(key) {
+        var arr = state[key];
+        if (arr && arr.length) {
+          var u = arr[0];
+          _onlineUsers[u.email] = { name: u.name, initials: u.initials, color: _avatarColor(u.email) };
+        }
+      });
+      _renderOnlinePanel();
+    })
+    .on('presence', { event: 'join' }, function(ref) {
+      var u = ref.newPresences && ref.newPresences[0];
+      if (u) toast('🟢 ' + (u.name||u.email) + ' bergabung', '');
+    })
+    .on('presence', { event: 'leave' }, function(ref) {
+      var u = ref.leftPresences && ref.leftPresences[0];
+      if (u) toast('⚫ ' + (u.name||u.email) + ' keluar', '');
+    })
+    .subscribe(function(status) {
+      if (status === 'SUBSCRIBED') {
+        _presenceChannel.track({
+          email:    _chatMe.email,
+          name:     _chatMe.name,
+          initials: _chatMe.initials,
+          page:     CUR_PAGE,
+          online_at: new Date().toISOString()
+        });
+      }
+    });
+
+  // Update presence page on navigation
+  var _origNavTo = navTo;
+  navTo = function(page) {
+    _origNavTo(page);
+    if (_presenceChannel && _chatMe.email) {
+      try {
+        _presenceChannel.track({
+          email:    _chatMe.email,
+          name:     _chatMe.name,
+          initials: _chatMe.initials,
+          page:     page,
+          online_at: new Date().toISOString()
+        });
+      } catch(e) {}
+    }
+  };
+}
+
+function _renderOnlinePanel() {
+  var list = document.getElementById('online-list');
+  var countEl = document.getElementById('online-count');
+  var subEl = document.getElementById('chat-online-sub');
+  if (!list) return;
+  var users = Object.keys(_onlineUsers);
+  if (countEl) countEl.textContent = users.length;
+  if (subEl) subEl.textContent = users.length + ' pengguna online';
+  if (!users.length) {
+    list.innerHTML = '<div style="font-size:11px;color:rgba(255,255,255,.3);padding:2px 0">Tidak ada yang online</div>';
+    return;
+  }
+  list.innerHTML = users.map(function(email) {
+    var u = _onlineUsers[email];
+    var isMe = email === _chatMe.email;
+    var pageLabels = {
+      'dashboard':'Master Dashboard','rfi':'RFI','converted':'Converted','rfp':'Request Form',
+      'status':'Status Tracker','approved':'Disetujui','projects':'Data Project',
+      'monev':'MONEV','weekly':'Weekly','projreport':'Project Report','resdoc':'Research Docs',
+      'cp-dashboard':'Compliance Dash','cp-tracker':'Compliance Tracker',
+      'cp-termin':'Termin','cp-input':'Input Project','banklayanan':'Bank Layanan'
+    };
+    return '<div class="online-user">'
+      + '<div class="online-av' + (isMe?' you':'') + '" style="background:' + u.color + '">' + u.initials + '</div>'
+      + '<div style="min-width:0;flex:1">'
+      + '<div style="font-size:11.5px;color:rgba(255,255,255,.88);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (u.name||email.split('@')[0]) + (isMe?' (Anda)':'') + '</div>'
+      + '</div>'
+      + '<div class="online-status-dot"></div>'
+      + '</div>';
+  }).join('');
+}
+
+// ── CHAT ──────────────────────────────────────────
+function _initChatChannel() {
+  if (_chatChannel) { try { supa.removeChannel(_chatChannel); } catch(e){} }
+  _chatChannel = supa.channel('esi-chat')
+    .on('postgres_changes', { event:'INSERT', schema:'public', table:'chat_messages' }, function(payload) {
+      var msg = payload.new;
+      _appendMessage(msg, false);
+      if (!_chatOpen && msg.user_email !== _chatMe.email) {
+        _chatUnread++;
+        _updateUnreadBadge();
+        // Flash bubble
+        var b = document.getElementById('chat-bubble');
+        if (b) { b.style.background='linear-gradient(135deg,#dc2626,#ef4444)'; setTimeout(function(){ b.style.background=''; },2000); }
+      }
+    })
+    .on('broadcast', { event:'typing' }, function(ref) {
+      if (ref.payload && ref.payload.email !== _chatMe.email) {
+        var typEl = document.getElementById('chat-typing');
+        if (typEl) typEl.textContent = (ref.payload.name||'Seseorang') + ' sedang mengetik...';
+        clearTimeout(_chatTypingTimer);
+        _chatTypingTimer = setTimeout(function(){ if (typEl) typEl.textContent=''; }, 2500);
+      }
+    })
+    .subscribe();
+}
+
+async function _loadRecentMessages() {
+  try {
+    var res = await supa.from('chat_messages').select('*').order('created_at', {ascending:true}).limit(80);
+    if (res.error) throw res.error;
+    var msgs = res.data || [];
+    var container = document.getElementById('chat-msgs');
+    if (!container) return;
+    if (!msgs.length) return; // keep empty state
+    container.innerHTML = '';
+    var lastDate = '';
+    msgs.forEach(function(m) {
+      var d = new Date(m.created_at).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+      if (d !== lastDate) {
+        lastDate = d;
+        var sep = document.createElement('div');
+        sep.className = 'chat-date-sep'; sep.textContent = d;
+        container.appendChild(sep);
+      }
+      _appendMessage(m, true);
+    });
+    container.scrollTop = container.scrollHeight;
+  } catch(e) {
+    console.error('Load chat error', e);
+  }
+}
+
+function _appendMessage(msg, noScroll) {
+  var container = document.getElementById('chat-msgs');
+  if (!container) return;
+  // Remove empty state
+  var empty = container.querySelector('.chat-empty');
+  if (empty) empty.remove();
+
+  var isMe = msg.user_email === _chatMe.email;
+  var color = _avatarColor(msg.user_email);
+  var time = new Date(msg.created_at).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+
+  var wrap = document.createElement('div');
+  wrap.className = 'msg-wrap' + (isMe?' me':'');
+  wrap.innerHTML =
+    '<div class="msg-av' + (isMe?' me-av':'') + '" style="' + (isMe?'':'background:'+color) + '">' + (msg.initials||'?') + '</div>'
+    + '<div>'
+    + (!isMe ? '<div class="msg-name">' + (msg.user_name||msg.user_email.split('@')[0]) + '</div>' : '')
+    + '<div class="msg-bubble">' + _escapeHtml(msg.message) + '</div>'
+    + '<div class="msg-meta">' + time + '</div>'
+    + '</div>';
+  container.appendChild(wrap);
+  if (!noScroll) container.scrollTop = container.scrollHeight;
+}
+
+function _escapeHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+function toggleChat() {
+  _chatOpen = !_chatOpen;
+  var win = document.getElementById('chat-win');
+  if (win) win.classList.toggle('open', _chatOpen);
+  if (_chatOpen) {
+    _chatUnread = 0;
+    _updateUnreadBadge();
+    var msgs = document.getElementById('chat-msgs');
+    if (msgs) setTimeout(function(){ msgs.scrollTop = msgs.scrollHeight; }, 50);
+    setTimeout(function(){ var inp=document.getElementById('chat-input'); if(inp) inp.focus(); }, 100);
+  }
+}
+
+function _updateUnreadBadge() {
+  var b = document.getElementById('chat-unread');
+  if (!b) return;
+  if (_chatUnread > 0) {
+    b.style.display = 'flex';
+    b.textContent = _chatUnread > 9 ? '9+' : _chatUnread;
+  } else {
+    b.style.display = 'none';
+  }
+}
+
+function chatKeydown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    chatSend();
+  }
+}
+
+function chatTyping() {
+  // Auto-resize textarea
+  var inp = document.getElementById('chat-input');
+  if (inp) { inp.style.height='auto'; inp.style.height=Math.min(inp.scrollHeight,80)+'px'; }
+  // Broadcast typing
+  if (_chatChannel && _chatMe.email) {
+    try {
+      _chatChannel.send({ type:'broadcast', event:'typing', payload:{ email:_chatMe.email, name:_chatMe.name } });
+    } catch(e) {}
+  }
+}
+
+async function chatSend() {
+  var inp = document.getElementById('chat-input');
+  if (!inp) return;
+  var msg = inp.value.trim();
+  if (!msg || !_chatMe.email) return;
+  var btn = document.getElementById('chat-send');
+  if (btn) btn.disabled = true;
+  inp.value = '';
+  inp.style.height = 'auto';
+  try {
+    var res = await supa.from('chat_messages').insert({
+      user_email: _chatMe.email,
+      user_name:  _chatMe.name,
+      initials:   _chatMe.initials,
+      message:    msg
+    });
+    if (res.error) throw res.error;
+  } catch(e) {
+    toast('❌ Gagal kirim pesan: ' + (e.message||e), 'er');
+    inp.value = msg; // restore
+  } finally {
+    if (btn) btn.disabled = false;
+    inp.focus();
+  }
+}
+
+
+// ══════════════════════════════════════════════════════════════
+// FITUR: CLIENT 360° VIEW
+// ══════════════════════════════════════════════════════════════
+function renderClient360() {
+  var q = (document.getElementById('c360-search')||{}).value||'';
+  q = q.toLowerCase();
+
+  // Collect all unique clients across all modules
+  var clientMap = {};
+  function addClient(name, source, data) {
+    if (!name || name==='—') return;
+    var key = name.trim().toLowerCase();
+    if (!clientMap[key]) clientMap[key] = {name:name.trim(), rfi:[], proposals:[], projects:[], compliance:[], totalNilai:0, lastContact:''};
+    clientMap[key][source].push(data);
+  }
+
+  DB.rfi.forEach(function(r) { addClient(r.perusahaan||r.klien, 'rfi', r); });
+  DB.status.forEach(function(r) { addClient(r.klien, 'proposals', r); });
+  DB.projects.forEach(function(r) { addClient(r.klien, 'projects', r); });
+  cpProjects.forEach(function(p) { addClient(p.user, 'compliance', p); });
+
+  // Calculate totals per client
+  Object.values(clientMap).forEach(function(c) {
+    c.proposals.forEach(function(p){ if(p.nilai) c.totalNilai+=parseFloat(p.nilai)||0; });
+    c.projects.forEach(function(p){ if(p.nilai) c.totalNilai+=parseFloat(p.nilai)||0; });
+    // last contact = most recent date across all interactions
+    var dates = [];
+    c.rfi.forEach(function(r){ if(r.createdAt||r.tglConverted) dates.push(r.createdAt||r.tglConverted); });
+    c.proposals.forEach(function(r){ if(r.tglKirim) dates.push(r.tglKirim); });
+    c.projects.forEach(function(r){ if(r.deadline) dates.push(r.deadline); });
+    dates.sort(); c.lastContact = dates[dates.length-1]||'';
+    c.totalInteractions = c.rfi.length + c.proposals.length + c.projects.length + c.compliance.length;
+  });
+
+  var clients = Object.values(clientMap)
+    .filter(function(c){ return !q || c.name.toLowerCase().includes(q); })
+    .sort(function(a,b){ return b.totalInteractions - a.totalInteractions; });
+
+  // KPI
+  var sg = document.getElementById('c360-sg');
+  if (sg) {
+    var repeats = clients.filter(function(c){ return c.totalInteractions>1; }).length;
+    var withProj = clients.filter(function(c){ return c.projects.length>0; }).length;
+    var totalRev  = clients.reduce(function(s,c){ return s+c.totalNilai; },0);
+    sg.innerHTML = statCards([
+      {c:'bl',ic:'👥',l:'Total Klien Unik',v:clients.length},
+      {c:'gr',ic:'🔄',l:'Repeat Client',v:repeats},
+      {c:'pu',ic:'⚙️',l:'Dengan Project',v:withProj},
+      {c:'or',ic:'💰',l:'Total Revenue',v:rp(totalRev)},
+    ]);
+  }
+
+  var grid = document.getElementById('c360-grid');
+  if (!grid) return;
+  if (!clients.length) { grid.innerHTML = '<div style="padding:40px;text-align:center;color:var(--ink3)">Tidak ada klien ditemukan.</div>'; return; }
+
+  grid.innerHTML = clients.map(function(c) {
+    var hasRepeat = c.totalInteractions > 1;
+    var statusColors = { won:'#22c55e', active:'#3b82f6', prospect:'#f59e0b' };
+    var clientStatus = c.projects.length>0 ? 'active' : c.proposals.filter(function(p){return p.status==='Disetujui';}).length>0 ? 'won' : 'prospect';
+    var statusLabel = {active:'⚙️ Active Project', won:'✅ Converted', prospect:'🔵 Prospect'}[clientStatus];
+    var pills = [];
+    if (c.rfi.length)        pills.push('<span style="background:#eff6ff;color:#1d4ed8;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600">'+c.rfi.length+' RFI</span>');
+    if (c.proposals.length)  pills.push('<span style="background:#faf5ff;color:#7c3aed;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600">'+c.proposals.length+' Proposal</span>');
+    if (c.projects.length)   pills.push('<span style="background:#f0fdf4;color:#166534;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600">'+c.projects.length+' Project</span>');
+    if (c.compliance.length) pills.push('<span style="background:#ecfdf5;color:#065f46;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600">'+c.compliance.length+' Compliance</span>');
+    return '<div onclick="openClient360(\''+encodeURIComponent(c.name)+'\')" style="background:white;border:1.5px solid '+(hasRepeat?'#bfdbfe':'var(--bor)')+';border-radius:12px;padding:16px;cursor:pointer;transition:box-shadow .2s" onmouseover="this.style.boxShadow=\'0 4px 16px rgba(0,0,0,.1)\'" onmouseout="this.style.boxShadow=\'none\'">'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">'
+      +'<div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0">'+(c.name[0]||'?').toUpperCase()+'</div>'
+      +'<span style="font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;background:'+(clientStatus==='active'?'#eff6ff':clientStatus==='won'?'#f0fdf4':'#fffbeb')+';color:'+(clientStatus==='active'?'#1d4ed8':clientStatus==='won'?'#166534':'#92400e')+'">'+statusLabel+'</span>'
+      +'</div>'
+      +'<div style="font-weight:700;font-size:13px;margin-bottom:4px">'+c.name+'</div>'
+      +(c.totalNilai ? '<div style="font-size:12px;color:#1d4ed8;font-weight:600;margin-bottom:8px">'+rp(c.totalNilai)+'</div>' : '')
+      +'<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">'+pills.join('')+'</div>'
+      +(c.lastContact ? '<div style="font-size:10px;color:var(--ink3)">Terakhir: '+c.lastContact+'</div>' : '')
+      +(hasRepeat ? '<div style="font-size:10px;color:#1d4ed8;font-weight:600;margin-top:4px">🔄 Repeat Client</div>' : '')
+      +'</div>';
+  }).join('');
+}
+
+function openClient360(encodedName) {
+  var name = decodeURIComponent(encodedName);
+  var nl = name.toLowerCase();
+  // Gather all data for this client
+  var rfi       = DB.rfi.filter(function(r){ return (r.perusahaan||r.klien||'').toLowerCase()===nl; });
+  var proposals = DB.status.filter(function(r){ return (r.klien||'').toLowerCase()===nl; });
+  var projects  = DB.projects.filter(function(r){ return (r.klien||'').toLowerCase()===nl; });
+  var cp        = cpProjects.filter(function(p){ return (p.user||'').toLowerCase()===nl; });
+
+  var totalNilai = proposals.reduce(function(s,p){return s+(parseFloat(p.nilai)||0);},0)
+                 + projects.reduce(function(s,p){return s+(parseFloat(p.nilai)||0);},0);
+  var wonNilai   = proposals.filter(function(p){return p.status==='Disetujui';}).reduce(function(s,p){return s+(parseFloat(p.nilai)||0);},0)
+                 + projects.filter(function(p){return p.status==='✅ Selesai';}).reduce(function(s,p){return s+(parseFloat(p.nilai)||0);},0);
+  var winRate    = proposals.length>0 ? Math.round(proposals.filter(function(p){return p.status==='Disetujui';}).length/proposals.length*100) : 0;
+
+  document.getElementById('c360-modal-title').innerHTML = '👤 '+name
+    +(totalNilai?' <span style="font-size:13px;font-weight:400;color:#1d4ed8;margin-left:8px">'+rp(totalNilai)+'</span>':'');
+
+  function sec(ic, title, content) {
+    return '<div style="margin-bottom:20px"><div style="font-weight:700;font-size:12px;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:6px"><span>'+ic+'</span>'+title+'</div>'+content+'</div>';
+  }
+  function tag(label, color) {
+    return '<span style="background:'+color+'20;color:'+color+';padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600">'+label+'</span>';
+  }
+
+  var kpiHtml = '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px">'
+    +[{l:'Total RFI',v:rfi.length,c:'#3b82f6'},{l:'Proposal',v:proposals.length,c:'#8b5cf6'},
+      {l:'Win Rate',v:winRate+'%',c:'#22c55e'},{l:'Revenue',v:rp(wonNilai),c:'#f97316'}]
+    .map(function(k){return '<div style="background:'+k.c+'10;border:1px solid '+k.c+'30;border-radius:10px;padding:12px;text-align:center"><div style="font-size:18px;font-weight:800;color:'+k.c+'">'+k.v+'</div><div style="font-size:11px;color:var(--ink3);margin-top:2px">'+k.l+'</div></div>';})
+    .join('')+'</div>';
+
+  var rfiHtml = rfi.length ? rfi.map(function(r){
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bor);font-size:12px">'
+      +'<div><span style="font-weight:600">'+(r.kebutuhan||'—')+'</span><span style="color:var(--ink3);margin-left:8px">'+(r.sumber||'')+'</span></div>'
+      +tag(r.status||'—', r.status==='Qualified'?'#22c55e':r.status==='Converted to Proposal'?'#3b82f6':'#9ca3af')+'</div>';
+  }).join('') : '<div style="color:var(--ink3);font-size:12px">Belum ada RFI.</div>';
+
+  var propHtml = proposals.length ? proposals.map(function(r){
+    var clr = r.status==='Disetujui'?'#22c55e':r.status==='Ditolak'?'#ef4444':'#f59e0b';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bor);font-size:12px">'
+      +'<div><span style="font-weight:600">'+(r.layanan||'—')+'</span>'
+      +(r.alasanTolak?'<span style="color:#ef4444;margin-left:6px;font-size:10px">'+r.alasanTolak+'</span>':'')+'</div>'
+      +'<div style="display:flex;align-items:center;gap:8px">'+rp(r.nilai)+tag(r.status||'—',clr)+'</div></div>';
+  }).join('') : '<div style="color:var(--ink3);font-size:12px">Belum ada proposal.</div>';
+
+  var projHtml = projects.length ? projects.map(function(p){
+    var clr={'🟢 On Track':'#22c55e','🟡 Perhatian':'#f59e0b','🔴 Terlambat':'#ef4444','✅ Selesai':'#3b82f6'}[p.status]||'#9ca3af';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bor);font-size:12px">'
+      +'<div><span style="font-weight:600">'+(p.nama||'—')+'</span><span style="color:var(--ink3);margin-left:8px">'+(p.pm||'')+'</span></div>'
+      +'<div style="display:flex;align-items:center;gap:8px">'+rp(p.nilai)+tag(p.status||'—',clr)+'</div></div>';
+  }).join('') : '<div style="color:var(--ink3);font-size:12px">Belum ada project.</div>';
+
+  var cpHtml = cp.length ? cp.map(function(p){
+    var paid = p.termins ? p.termins.filter(function(t){return t&&t.pay;}).length : 0;
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bor);font-size:12px">'
+      +'<span style="font-weight:600">'+(p.project||'—')+'</span>'
+      +'<div style="display:flex;align-items:center;gap:8px"><span style="color:var(--ink3)">'+paid+' termin lunas</span>'+tag(p.ovstatus||'—','#14b8a6')+'</div></div>';
+  }).join('') : '<div style="color:var(--ink3);font-size:12px">Belum ada data compliance.</div>';
+
+  document.getElementById('c360-modal-bd').innerHTML = kpiHtml
+    + sec('📋','RFI & Inquiry', rfiHtml)
+    + sec('📊','History Proposal', propHtml)
+    + sec('⚙️','Project Aktif & Selesai', projHtml)
+    + sec('💳','Compliance & Pembayaran', cpHtml);
+
+  var ov = document.getElementById('c360-modal-ov');
+  ov.style.display = 'flex';
+  ov.onclick = function(e){ if(e.target===ov) ov.style.display='none'; };
 }
 
 // Init — pre-load data
