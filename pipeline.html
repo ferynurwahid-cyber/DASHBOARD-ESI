@@ -2305,14 +2305,14 @@ function renderStat() {
   if (!d.length) { document.getElementById('stat-tb').innerHTML = emptyRow(9,'Belum ada. Data masuk otomatis dari Request Form.'); return; }
   document.getElementById('stat-tb').innerHTML = d.map((r,i) => {
     const apprBtn = r.status!=='Disetujui'
-      ? '<button class="btn b-gr bsm" data-action="approve" data-i="'+i+'">✓ Setujui</button>'
+      ? '<button class="btn b-gr bsm" onclick="approveStatus('+i+')">✓ Setujui</button>'
       : '<span class="badge bgg">✅ Linked</span>';
     const tolakBadge = r.status==='Ditolak' && r.alasanTolak
       ? '<div style="font-size:10px;color:#ef4444;margin-top:2px">'+r.alasanTolak+'</div>' : '';
     const kompBadge = r.kompetitor
       ? '<div style="font-size:10px;color:#f97316">vs '+r.kompetitor+'</div>' : '';
     var breakBtn = (!['Disetujui','Ditolak'].includes(r.status))
-      ? '<button class="btn bsm" data-action="break-deal" data-i="'+i+'" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;border-radius:6px;cursor:pointer;padding:4px 8px;font-size:11px;font-weight:600">💔 Break</button>'
+      ? '<button class="btn bsm" onclick="openBdModal('+i+')" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;border-radius:6px;cursor:pointer;padding:4px 8px;font-size:11px;font-weight:600">💔 Break</button>'
       : (r.status==='Ditolak' ? '<span style="font-size:10px;color:#b91c1c;font-weight:600;padding:3px 6px;background:#fee2e2;border-radius:4px">✗ Lost</span>' : '');
     return '<tr style="'+(r.status==='Ditolak'?'opacity:.75':'')+'">' 
       +'<td style="font-weight:700;color:var(--g3)">#'+(r.noRef||i+1)+'</td>'
