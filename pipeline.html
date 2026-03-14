@@ -2585,15 +2585,24 @@ async function promoteRFP(i) {
 var _bdIdx = -1;
 
 function openBdModal(i) {
+  console.log('[openBdModal] called with i=', i, '| DB.status length=', DB.status ? DB.status.length : 'undefined');
   var r = DB.status[i];
-  if (!r) return;
+  console.log('[openBdModal] r=', r);
+  if (!r) { console.error('[openBdModal] No record at index', i); return; }
   _bdIdx = i;
-  document.getElementById('bd-subtitle').textContent = (r.klien||'?') + ' — ' + (r.layanan||'?');
-  document.getElementById('bd-alasan').value = r.alasanTolak || '';
-  document.getElementById('bd-kompetitor').value = r.kompetitor || '';
-  document.getElementById('bd-skor').value = r.skorProposal || '';
-  var ov = document.getElementById('bd-modal-ov');
+  var sub = document.getElementById('bd-subtitle');
+  var al  = document.getElementById('bd-alasan');
+  var ko  = document.getElementById('bd-kompetitor');
+  var sk  = document.getElementById('bd-skor');
+  var ov  = document.getElementById('bd-modal-ov');
+  console.log('[openBdModal] elements:', {sub:!!sub, al:!!al, ko:!!ko, sk:!!sk, ov:!!ov});
+  if (!ov) { console.error('[openBdModal] Modal element not found!'); alert('Modal tidak ditemukan'); return; }
+  if (sub) sub.textContent = (r.klien||'?') + ' — ' + (r.layanan||'?');
+  if (al)  al.value  = r.alasanTolak || '';
+  if (ko)  ko.value  = r.kompetitor  || '';
+  if (sk)  sk.value  = r.skorProposal|| '';
   ov.style.display = 'flex';
+  console.log('[openBdModal] modal display set to flex');
   ov.onclick = function(e) { if (e.target === ov) closeBdModal(); };
 }
 
