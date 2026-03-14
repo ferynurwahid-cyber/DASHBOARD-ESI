@@ -560,6 +560,36 @@ tr:hover td { background: #fafbfc; }
 .loading-text { font-size: 13px; color: #64748b; font-weight: 500; }
 
 
+/* ── Break Deal Modal ── */
+#bd-modal-ov {
+  display: none !important;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+#bd-modal-ov.bd-open {
+  display: flex !important;
+}
+
+/* ── Client 360 Modal ── */
+#c360-modal-ov {
+  display: none !important;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(3px);
+}
+#c360-modal-ov.c360-open {
+  display: flex !important;
+}
+
 /* ── Slideshow Background ── */
 #bg-slideshow {
   position: absolute;
@@ -906,7 +936,7 @@ main { position: relative; z-index: 1; }
   </div>
 
   <!-- CLIENT 360 MODAL -->
-  <div class="ov" id="c360-modal-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10000;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
+  <div id="c360-modal-ov">
     <div style="background:white;border-radius:16px;width:780px;max-width:95vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.18)">
       <div style="padding:20px 24px 16px;border-bottom:1px solid var(--bor);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
         <div id="c360-modal-title" style="font-size:17px;font-weight:700"></div>
@@ -1394,7 +1424,7 @@ main { position: relative; z-index: 1; }
 </div>
 
   <!-- BREAK DEAL MODAL -->
-  <div class="ov" id="bd-modal-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10000;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
+  <div id="bd-modal-ov">
     <div style="background:white;border-radius:16px;width:480px;max-width:95vw;box-shadow:0 24px 60px rgba(0,0,0,.2)">
       <div style="padding:20px 24px 16px;border-bottom:1px solid var(--bor);display:flex;align-items:center;gap:10px">
         <div style="width:36px;height:36px;border-radius:50%;background:#fee2e2;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">💔</div>
@@ -2601,14 +2631,16 @@ function openBdModal(i) {
   if (al)  al.value  = r.alasanTolak || '';
   if (ko)  ko.value  = r.kompetitor  || '';
   if (sk)  sk.value  = r.skorProposal|| '';
-  showLoading(false); // pastikan loading overlay tidak menutupi modal
-  ov.style.display = 'flex';
-  console.log('[openBdModal] modal display set to flex');
+  showLoading(false);
+  ov.style.removeProperty('display'); // hapus inline style
+  ov.classList.add('bd-open');
+  console.log('[openBdModal] modal opened, classList:', ov.className);
   ov.onclick = function(e) { if (e.target === ov) closeBdModal(); };
 }
 
 function closeBdModal() {
-  document.getElementById('bd-modal-ov').style.display = 'none';
+  var ov = document.getElementById('bd-modal-ov');
+  if (ov) { ov.classList.remove('bd-open'); ov.style.removeProperty('display'); }
   _bdIdx = -1;
 }
 
@@ -4664,8 +4696,9 @@ function openClient360(encodedName) {
     + sec('💳','Compliance & Pembayaran', cpHtml);
 
   var ov = document.getElementById('c360-modal-ov');
-  ov.style.display = 'flex';
-  ov.onclick = function(e){ if(e.target===ov) ov.style.display='none'; };
+  ov.style.removeProperty('display');
+  ov.classList.add('c360-open');
+  ov.onclick = function(e){ if(e.target===ov){ ov.classList.remove('c360-open'); ov.style.removeProperty('display'); } };
 }
 
 // Init — pre-load data
