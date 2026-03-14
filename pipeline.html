@@ -1675,8 +1675,8 @@ function dbSave(k) { /* no-op, replaced by async Supabase calls */ }
 
 // ── DATA ──────────────────────────────────────────────
 const KEYS = {rfi:'e3_rfi',converted:'e3_cv',rfp:'e3_rfp',status:'e3_st',approved:'e3_ap',projects:'e3_pj',monev:'e3_mn',weekly:'e3_wk',projreport:'e4_pr',resdoc:'e4_rd'};
-let DB = {};
-let CUR_MODAL = null;
+var DB = {};
+var CUR_MODAL = null;
 let MODAL_CTX = {};
 
 // dbLoad and dbSave are now handled by Supabase (defined above)
