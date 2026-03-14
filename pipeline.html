@@ -2606,29 +2606,39 @@ async function confirmBreakDeal() {
   var alasan = document.getElementById('bd-alasan').value;
   if (!alasan) { toast('Pilih alasan ditolak terlebih dahulu', 'er'); return; }
   var r = DB.status[_bdIdx];
-  if (!r || !r._id) { toast('Data tidak ditemukan', 'er'); return; }
+  console.log('[BreakDeal] _bdIdx:', _bdIdx, '| r:', r);
+  if (!r) { toast('❌ Data tidak ditemukan (index: '+_bdIdx+')', 'er'); return; }
+  if (!r._id) { toast('❌ ID tidak ditemukan di data', 'er'); return; }
   var kompetitor = document.getElementById('bd-kompetitor').value.trim();
   var skor       = document.getElementById('bd-skor').value;
+  console.log('[BreakDeal] Updating ID:', r._id, '| alasan:', alasan);
   showLoading(true);
   closeBdModal();
   try {
-    // Update langsung ke Supabase dengan snake_case (bypass toSupa)
-    var updateRes = await supa
+    // Update semua sekaligus dalam satu query
+    var payload = {
+      status:        'Ditolak',
+      alasan_tolak:  alasan,
+      kompetitor:    kompetitor || null,
+      skor_proposal: skor       || null,
+    };
+    console.log('[BreakDeal] Payload:', payload);
+    var res = await supa
       .from('status_tracker')
-      .update({
-        status:        'Ditolak',
-        alasan_tolak:  alasan,
-        kompetitor:    kompetitor   || null,
-        skor_proposal: skor         || null,
-      })
-      .eq('id', r._id);
-    if (updateRes.error) throw updateRes.error;
+      .update(payload)
+      .eq('id', r._id)
+      .select();
+    console.log('[BreakDeal] Result:', res);
+    if (res.error) throw res.error;
+    if (!res.data || res.data.length === 0) {
+      throw new Error('Update tidak berpengaruh — row tidak ditemukan dengan ID: ' + r._id);
+    }
     await dbLoad();
     renderStat();
-    toast('💔 Deal ditandai sebagai Lost — data Win/Loss tersimpan', 'wn');
+    toast('💔 Deal ditandai sebagai Lost!', 'wn');
   } catch(e) {
-    console.error('Break deal error:', e);
-    toast('❌ Gagal menyimpan: ' + (e.message||String(e)), 'er');
+    console.error('[BreakDeal] Error:', e);
+    toast('❌ ' + (e.message||String(e)), 'er');
   }
   showLoading(false);
 }
