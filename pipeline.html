@@ -2606,24 +2606,29 @@ async function confirmBreakDeal() {
   var alasan = document.getElementById('bd-alasan').value;
   if (!alasan) { toast('Pilih alasan ditolak terlebih dahulu', 'er'); return; }
   var r = DB.status[_bdIdx];
-  if (!r) return;
+  if (!r || !r._id) { toast('Data tidak ditemukan', 'er'); return; }
   var kompetitor = document.getElementById('bd-kompetitor').value.trim();
   var skor       = document.getElementById('bd-skor').value;
   showLoading(true);
   closeBdModal();
   try {
-    await dbUpdate('status', r._id, {
-      ...r,
-      status:       'Ditolak',
-      alasan_tolak: alasan,
-      kompetitor:   kompetitor,
-      skor_proposal: skor,
-    });
+    // Update langsung ke Supabase dengan snake_case (bypass toSupa)
+    var updateRes = await supa
+      .from('status_tracker')
+      .update({
+        status:        'Ditolak',
+        alasan_tolak:  alasan,
+        kompetitor:    kompetitor   || null,
+        skor_proposal: skor         || null,
+      })
+      .eq('id', r._id);
+    if (updateRes.error) throw updateRes.error;
     await dbLoad();
     renderStat();
-    toast('💔 Deal ditandai sebagai Lost — data tersimpan untuk analisis', 'wn');
+    toast('💔 Deal ditandai sebagai Lost — data Win/Loss tersimpan', 'wn');
   } catch(e) {
-    toast('❌ Gagal menyimpan: ' + (e.message||e), 'er');
+    console.error('Break deal error:', e);
+    toast('❌ Gagal menyimpan: ' + (e.message||String(e)), 'er');
   }
   showLoading(false);
 }
