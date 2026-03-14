@@ -1454,6 +1454,26 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
   if (!session) window.location.replace('login.html');
 })();
 
+// Auto-refresh session & detect expiry
+supa.auth.onAuthStateChange(function(event, session) {
+  if (event === 'TOKEN_REFRESHED') {
+    console.log('✅ Session token refreshed');
+  }
+  if (event === 'SIGNED_OUT' || (!session && event !== 'INITIAL_SESSION')) {
+    toast('⚠️ Sesi login habis. Halaman akan refresh otomatis...', 'er');
+    setTimeout(function() { window.location.replace('login.html'); }, 2500);
+  }
+});
+
+// Force refresh token setiap 30 menit
+setInterval(async function() {
+  var res = await supa.auth.refreshSession();
+  if (res.error) {
+    console.warn('Session refresh failed:', res.error.message);
+    toast('⚠️ Sesi hampir habis. Silakan refresh halaman.', 'wn');
+  }
+}, 30 * 60 * 1000);
+
 // Table name mapping: DB key → Supabase table
 const TABLE = {
   rfi:       'rfi',
@@ -1658,9 +1678,27 @@ async function dbInsert(key, obj) {
 
 // Update existing row in Supabase
 async function dbUpdate(key, id, obj) {
+  // Check & refresh session before write
+  var s = await supa.auth.getSession();
+  if (!s.data || !s.data.session) {
+    toast('⚠️ Sesi login habis. Refresh halaman untuk login ulang.', 'er');
+    return false;
+  }
+  if (s.data.session.expires_at && s.data.session.expires_at < Math.floor(Date.now()/1000) + 60) {
+    await supa.auth.refreshSession();
+  }
   const row = toSupa(key, obj);
   const { error } = await supa.from(TABLE[key]).update(row).eq('id', id);
-  if (error) { console.error('Update error', key, error); toast('Gagal update: '+error.message, 'er'); return false; }
+  if (error) {
+    if (error.message && error.message.includes('JWT')) {
+      toast('⚠️ Token expired. Refresh halaman untuk login ulang.', 'er');
+      setTimeout(function(){ window.location.replace('login.html'); }, 2000);
+      return false;
+    }
+    console.error('Update error', key, error);
+    toast('Gagal update: '+error.message, 'er');
+    return false;
+  }
   return true;
 }
 
@@ -2639,9 +2677,17 @@ async function confirmBreakDeal() {
   var alasan = document.getElementById('bd-alasan').value;
   if (!alasan) { toast('Pilih alasan ditolak terlebih dahulu', 'er'); return; }
   var r = DB.status[_bdIdx];
-  console.log('[BreakDeal] _bdIdx:', _bdIdx, '| r:', r);
   if (!r) { toast('❌ Data tidak ditemukan (index: '+_bdIdx+')', 'er'); return; }
   if (!r._id) { toast('❌ ID tidak ditemukan di data', 'er'); return; }
+  // Refresh session sebelum update
+  var sessionCheck = await supa.auth.getSession();
+  if (!sessionCheck.data || !sessionCheck.data.session) {
+    toast('⚠️ Sesi login habis. Silakan refresh halaman dan login ulang.', 'er');
+    setTimeout(function() { window.location.replace('login.html'); }, 2000);
+    return;
+  }
+  // Refresh token dulu
+  await supa.auth.refreshSession();
   var kompetitor = document.getElementById('bd-kompetitor').value.trim();
   var skor       = document.getElementById('bd-skor').value;
   console.log('[BreakDeal] Updating ID:', r._id, '| alasan:', alasan);
