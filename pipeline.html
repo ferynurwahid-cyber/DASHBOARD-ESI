@@ -906,7 +906,7 @@ main { position: relative; z-index: 1; }
   </div>
 
   <!-- CLIENT 360 MODAL -->
-  <div class="ov" id="c360-modal-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:600;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
+  <div class="ov" id="c360-modal-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10000;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
     <div style="background:white;border-radius:16px;width:780px;max-width:95vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.18)">
       <div style="padding:20px 24px 16px;border-bottom:1px solid var(--bor);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
         <div id="c360-modal-title" style="font-size:17px;font-weight:700"></div>
@@ -1394,7 +1394,7 @@ main { position: relative; z-index: 1; }
 </div>
 
   <!-- BREAK DEAL MODAL -->
-  <div class="ov" id="bd-modal-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:700;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
+  <div class="ov" id="bd-modal-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10000;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
     <div style="background:white;border-radius:16px;width:480px;max-width:95vw;box-shadow:0 24px 60px rgba(0,0,0,.2)">
       <div style="padding:20px 24px 16px;border-bottom:1px solid var(--bor);display:flex;align-items:center;gap:10px">
         <div style="width:36px;height:36px;border-radius:50%;background:#fee2e2;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">💔</div>
@@ -2601,6 +2601,7 @@ function openBdModal(i) {
   if (al)  al.value  = r.alasanTolak || '';
   if (ko)  ko.value  = r.kompetitor  || '';
   if (sk)  sk.value  = r.skorProposal|| '';
+  showLoading(false); // pastikan loading overlay tidak menutupi modal
   ov.style.display = 'flex';
   console.log('[openBdModal] modal display set to flex');
   ov.onclick = function(e) { if (e.target === ov) closeBdModal(); };
