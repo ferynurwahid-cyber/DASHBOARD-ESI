@@ -1446,7 +1446,13 @@ main { position: relative; z-index: 1; }
 // ── SUPABASE CONFIG ──────────────────────────────────
 const SUPA_URL = 'https://fzplvluohnbuggvdqkkw.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6cGx2bHVvaG5idWdndmRxa2t3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5OTE4NTMsImV4cCI6MjA4ODU2Nzg1M30.Q3BDZRWJhai63P_yWAbt-TTNqqtnS45zjfevDHbIj1U';
-const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+const supa = supabase.createClient(SUPA_URL, SUPA_KEY, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: false,
+  }
+});
 
 // ── AUTH GUARD ── redirect to login if not logged in
 (async function() {
@@ -2326,14 +2332,14 @@ function renderStat() {
   if (!d.length) { document.getElementById('stat-tb').innerHTML = emptyRow(9,'Belum ada. Data masuk otomatis dari Request Form.'); return; }
   document.getElementById('stat-tb').innerHTML = d.map((r,i) => {
     const apprBtn = r.status!=='Disetujui'
-      ? '<button class="btn b-gr bsm" onclick="approveStatus('+i+')">✓ Setujui</button>'
+      ? '<button class="btn b-gr bsm" onclick="approveStatusById(\'' + r._id + '\')" >✓ Setujui</button>'
       : '<span class="badge bgg">✅ Linked</span>';
     const tolakBadge = r.status==='Ditolak' && r.alasanTolak
       ? '<div style="font-size:10px;color:#ef4444;margin-top:2px">'+r.alasanTolak+'</div>' : '';
     const kompBadge = r.kompetitor
       ? '<div style="font-size:10px;color:#f97316">vs '+r.kompetitor+'</div>' : '';
     var breakBtn = (!['Disetujui','Ditolak'].includes(r.status))
-      ? '<button class="btn bsm" onclick="openBdModal('+i+')" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;border-radius:6px;cursor:pointer;padding:4px 8px;font-size:11px;font-weight:600">💔 Break</button>'
+      ? '<button class="btn bsm" onclick="openBdModalById(\'' + r._id + '\')" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;border-radius:6px;cursor:pointer;padding:4px 8px;font-size:11px;font-weight:600">💔 Break</button>'
       : (r.status==='Ditolak' ? '<span style="font-size:10px;color:#b91c1c;font-weight:600;padding:3px 6px;background:#fee2e2;border-radius:4px">✗ Lost</span>' : '');
     return '<tr style="'+(r.status==='Ditolak'?'opacity:.75':'')+'">' 
       +'<td style="font-weight:700;color:var(--g3)">#'+(r.noRef||i+1)+'</td>'
@@ -2605,6 +2611,12 @@ async function promoteRFP(i) {
 // ── BREAK DEAL ──────────────────────────────────────────────
 var _bdIdx = -1;
 
+function openBdModalById(id) {
+  var idx = DB.status.findIndex(function(r){ return r._id === id; });
+  if (idx === -1) { toast('Data tidak ditemukan', 'er'); return; }
+  openBdModal(idx);
+}
+
 function openBdModal(i) {
   var r = DB.status[i];
   if (!r) { toast('Data tidak ditemukan', 'er'); return; }
@@ -2679,15 +2691,14 @@ async function confirmBreakDeal() {
   var r = DB.status[_bdIdx];
   if (!r) { toast('❌ Data tidak ditemukan (index: '+_bdIdx+')', 'er'); return; }
   if (!r._id) { toast('❌ ID tidak ditemukan di data', 'er'); return; }
-  // Refresh session sebelum update
-  var sessionCheck = await supa.auth.getSession();
-  if (!sessionCheck.data || !sessionCheck.data.session) {
-    toast('⚠️ Sesi login habis. Silakan refresh halaman dan login ulang.', 'er');
-    setTimeout(function() { window.location.replace('login.html'); }, 2000);
+  // Force refresh session sebelum update
+  var refreshRes = await supa.auth.refreshSession();
+  if (refreshRes.error || !refreshRes.data || !refreshRes.data.session) {
+    // Token tidak bisa di-refresh, paksa login ulang
+    toast('⚠️ Sesi login habis. Mengalihkan ke halaman login...', 'er');
+    setTimeout(function() { window.location.replace('login.html'); }, 1500);
     return;
   }
-  // Refresh token dulu
-  await supa.auth.refreshSession();
   var kompetitor = document.getElementById('bd-kompetitor').value.trim();
   var skor       = document.getElementById('bd-skor').value;
   console.log('[BreakDeal] Updating ID:', r._id, '| alasan:', alasan);
@@ -2721,6 +2732,12 @@ async function confirmBreakDeal() {
   }
   showLoading(false);
 }
+function approveStatusById(id) {
+  var idx = DB.status.findIndex(function(r){ return r._id === id; });
+  if (idx === -1) { toast('Data tidak ditemukan', 'er'); return; }
+  approveStatus(idx);
+}
+
 async function approveStatus(i) {
   const s = DB.status[i]; if (!s) return;
   if (DB.approved.some(a => a.statusIdx===s._id || a.statusIdx===String(i))) { toast('Sudah ada di bridge Disetujui.','wn'); renderStat(); return; }
